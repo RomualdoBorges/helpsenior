@@ -1,23 +1,27 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 interface AuthFormProps {
   isSubmitting: boolean;
   error: string | null;
+  successMessage: string | null;
   onSignIn: (email: string, password: string) => Promise<void>;
   onSignUp: (input: {
     name: string;
     email: string;
     password: string;
   }) => Promise<void>;
+  onResetPassword: (email: string) => Promise<void>;
 }
 
-type AuthMode = "sign-in" | "sign-up";
+type AuthMode = "sign-in" | "sign-up" | "reset-password";
 
 export function AuthForm({
   isSubmitting,
   error,
+  successMessage,
   onSignIn,
   onSignUp,
+  onResetPassword,
 }: AuthFormProps) {
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [name, setName] = useState("");
@@ -26,7 +30,9 @@ export function AuthForm({
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
+  const isSignInMode = mode === "sign-in";
   const isSignUpMode = mode === "sign-up";
+  const isResetPasswordMode = mode === "reset-password";
 
   function resetForm() {
     setName("");
@@ -41,10 +47,25 @@ export function AuthForm({
     resetForm();
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setLocalError(null);
+
+    if (!email.trim()) {
+      setLocalError("Informe seu e-mail.");
+      return;
+    }
+
+    if (isResetPasswordMode) {
+      await onResetPassword(email.trim());
+      return;
+    }
+
+    if (!password) {
+      setLocalError("Informe sua senha.");
+      return;
+    }
 
     if (isSignUpMode && !name.trim()) {
       setLocalError("Informe seu nome completo.");
@@ -59,14 +80,14 @@ export function AuthForm({
     if (isSignUpMode) {
       await onSignUp({
         name: name.trim(),
-        email,
+        email: email.trim(),
         password,
       });
 
       return;
     }
 
-    await onSignIn(email, password);
+    await onSignIn(email.trim(), password);
   }
 
   return (
@@ -77,39 +98,48 @@ export function AuthForm({
         </p>
 
         <h1 className="mt-2 text-[32px] font-bold leading-tight text-slate-950">
-          {isSignUpMode ? "Criar conta" : "Entrar na conta"}
+          {isSignUpMode && "Criar conta"}
+          {isSignInMode && "Entrar na conta"}
+          {isResetPasswordMode && "Recuperar senha"}
         </h1>
 
         <p className="mt-2 text-base leading-6 text-slate-500">
-          {isSignUpMode
-            ? "Crie sua conta para salvar tarefas, lembretes, perfil e preferências."
-            : "Entre para acessar suas tarefas, lembretes e configurações."}
+          {isSignUpMode &&
+            "Crie sua conta para salvar tarefas, lembretes, perfil e preferências."}
+
+          {isSignInMode &&
+            "Entre para acessar suas tarefas, lembretes e configurações."}
+
+          {isResetPasswordMode &&
+            "Informe seu e-mail para receber as instruções de redefinição de senha."}
         </p>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-        <button
-          type="button"
-          onClick={() => handleModeChange("sign-in")}
-          className={`min-h-11 rounded-xl font-bold ${
-            !isSignUpMode
-              ? "bg-white text-slate-950 shadow-sm"
-              : "text-slate-500"
-          }`}>
-          Entrar
-        </button>
+      {!isResetPasswordMode && (
+        <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+          <button
+            type="button"
+            onClick={() => handleModeChange("sign-in")}
+            className={`min-h-11 rounded-xl font-bold ${
+              isSignInMode
+                ? "bg-white text-slate-950 shadow-sm"
+                : "text-slate-500"
+            }`}>
+            Entrar
+          </button>
 
-        <button
-          type="button"
-          onClick={() => handleModeChange("sign-up")}
-          className={`min-h-11 rounded-xl font-bold ${
-            isSignUpMode
-              ? "bg-white text-slate-950 shadow-sm"
-              : "text-slate-500"
-          }`}>
-          Criar conta
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => handleModeChange("sign-up")}
+            className={`min-h-11 rounded-xl font-bold ${
+              isSignUpMode
+                ? "bg-white text-slate-950 shadow-sm"
+                : "text-slate-500"
+            }`}>
+            Criar conta
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
         {isSignUpMode && (
@@ -142,19 +172,21 @@ export function AuthForm({
           />
         </label>
 
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Senha</span>
+        {!isResetPasswordMode && (
+          <label className="grid gap-2">
+            <span className="font-bold text-slate-700">Senha</span>
 
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Digite sua senha"
-            className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
-            autoComplete={isSignUpMode ? "new-password" : "current-password"}
-            required
-          />
-        </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Digite sua senha"
+              className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
+              autoComplete={isSignUpMode ? "new-password" : "current-password"}
+              required
+            />
+          </label>
+        )}
 
         {isSignUpMode && (
           <label className="grid gap-2">
@@ -178,17 +210,40 @@ export function AuthForm({
           </p>
         )}
 
+        {successMessage && (
+          <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 font-bold text-green-700">
+            {successMessage}
+          </p>
+        )}
+
         <button
           type="submit"
           disabled={isSubmitting}
           className="min-h-12 rounded-xl bg-slate-950 px-5 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
-          {isSubmitting
-            ? "Aguarde..."
-            : isSignUpMode
-              ? "Criar conta"
-              : "Entrar"}
+          {isSubmitting && "Aguarde..."}
+          {!isSubmitting && isSignInMode && "Entrar"}
+          {!isSubmitting && isSignUpMode && "Criar conta"}
+          {!isSubmitting && isResetPasswordMode && "Enviar e-mail"}
         </button>
       </form>
+
+      {isSignInMode && (
+        <button
+          type="button"
+          onClick={() => handleModeChange("reset-password")}
+          className="mt-4 w-full rounded-xl px-4 py-3 text-center font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-950">
+          Esqueci minha senha
+        </button>
+      )}
+
+      {isResetPasswordMode && (
+        <button
+          type="button"
+          onClick={() => handleModeChange("sign-in")}
+          className="mt-4 w-full rounded-xl px-4 py-3 text-center font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-950">
+          Voltar para o login
+        </button>
+      )}
     </section>
   );
 }

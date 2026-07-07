@@ -24,8 +24,10 @@ function App() {
     isLoadingAuth,
     isSubmittingAuth,
     authError,
-    signIn,
+    authSuccessMessage,
     signUp,
+    signIn,
+    resetPassword,
     signOut,
   } = useAuth();
 
@@ -118,8 +120,10 @@ function App() {
           <AuthForm
             isSubmitting={isSubmittingAuth}
             error={authError}
+            successMessage={authSuccessMessage}
             onSignIn={signIn}
             onSignUp={signUp}
+            onResetPassword={resetPassword}
           />
         ) : (
           <>

@@ -29,6 +29,9 @@ export function useAuth() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccessMessage, setAuthSuccessMessage] = useState<string | null>(
+    null,
+  );
 
   const userProfileRepository = useMemo(
     () => new FirebaseUserProfileRepository(db),
@@ -59,6 +62,7 @@ export function useAuth() {
       try {
         setIsSubmittingAuth(true);
         setAuthError(null);
+        setAuthSuccessMessage(null);
 
         const normalizedName = input.name.trim();
 
@@ -110,6 +114,7 @@ export function useAuth() {
     try {
       setIsSubmittingAuth(true);
       setAuthError(null);
+      setAuthSuccessMessage(null);
 
       const authenticatedUser = await authService.signIn(email, password);
 
@@ -121,9 +126,28 @@ export function useAuth() {
     }
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      setIsSubmittingAuth(true);
+      setAuthError(null);
+      setAuthSuccessMessage(null);
+
+      await authService.resetPassword(email);
+
+      setAuthSuccessMessage(
+        "Enviamos um e-mail com as instruções para redefinir sua senha.",
+      );
+    } catch (error) {
+      setAuthError(getFirebaseAuthErrorMessage(error));
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     try {
       setAuthError(null);
+      setAuthSuccessMessage(null);
 
       await authService.signOut();
 
@@ -139,8 +163,10 @@ export function useAuth() {
     isLoadingAuth,
     isSubmittingAuth,
     authError,
+    authSuccessMessage,
     signUp,
     signIn,
+    resetPassword,
     signOut,
   };
 }

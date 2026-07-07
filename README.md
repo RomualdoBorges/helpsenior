@@ -97,6 +97,7 @@ Contém:
 
 - configuração do Firebase;
 - serviço de autenticação;
+- envio de e-mail de recuperação de senha;
 - repositórios Firestore;
 - mappers entre domínio e Firestore;
 - implementação dos contratos do `@helpsenior/core`.
@@ -182,6 +183,9 @@ O app possui:
 - confirmação de senha;
 - login com e-mail e senha;
 - logout;
+- recuperação de senha;
+- envio de e-mail de redefinição pelo Firebase Authentication;
+- mensagem amigável após envio do e-mail de recuperação;
 - persistência de sessão;
 - criação automática do perfil após cadastro;
 - sincronização imediata do nome do usuário na barra superior;
@@ -196,6 +200,42 @@ A senha precisa ter pelo menos 6 caracteres.
 E-mail ou senha incorretos.
 Não foi possível conectar. Verifique sua internet e tente novamente.
 ```
+
+### Recuperação de senha
+
+O app possui fluxo de recuperação de senha usando Firebase Authentication.
+
+Na tela de login, o usuário pode clicar em:
+
+```txt
+Esqueci minha senha
+```
+
+Depois informa o e-mail cadastrado e o Firebase envia um e-mail com as instruções de redefinição de senha.
+
+Fluxo:
+
+```txt
+Usuário clica em "Esqueci minha senha"
+        ↓
+Informa o e-mail
+        ↓
+apps/web chama useAuth.resetPassword
+        ↓
+@helpsenior/firebase chama sendPasswordResetEmail
+        ↓
+Firebase Authentication envia o e-mail
+        ↓
+apps/web mostra mensagem de sucesso
+```
+
+Mensagem exibida após envio:
+
+```txt
+Enviamos um e-mail com as instruções para redefinir sua senha.
+```
+
+Durante o desenvolvimento, esse e-mail pode cair na caixa de spam ou lixo eletrônico, pois o envio é feito pelo domínio padrão do Firebase.
 
 ### Tarefas
 
@@ -716,6 +756,7 @@ O projeto possui:
 - pacote Firebase isolado;
 - autenticação;
 - cadastro com nome completo;
+- recuperação de senha;
 - perfil automático após cadastro;
 - tarefas;
 - tarefas com etapas;
@@ -731,7 +772,6 @@ O projeto possui:
 
 O projeto ainda não possui:
 
-- recuperação de senha;
 - tarefas recorrentes;
 - recorrência personalizada por dias da semana;
 - Design System;
@@ -745,15 +785,13 @@ O projeto ainda não possui:
 
 ## Próximas evoluções recomendadas
 
-1. Remover `node_modules` do histórico/versionamento, se foi enviado ao GitHub.
-2. Criar recuperação de senha.
-3. Criar tarefas recorrentes.
-4. Criar recorrência personalizada por dias da semana.
-5. Melhorar responsividade.
-6. Criar Design System básico.
-7. Criar testes automatizados no Web.
-8. Criar notificações com Service Worker/Firebase Cloud Messaging.
-9. Criar app Mobile.
+1. Criar tarefas recorrentes.
+2. Criar recorrência personalizada por dias da semana.
+3. Melhorar responsividade.
+4. Criar Design System básico.
+5. Criar testes automatizados no Web.
+6. Criar notificações com Service Worker/Firebase Cloud Messaging.
+7. Criar app Mobile.
 
 ## Repositório
 

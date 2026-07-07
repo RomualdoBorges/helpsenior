@@ -91,12 +91,15 @@ Atualmente o app Web possui:
 - menu ativo conforme a rota atual;
 - estilização com Tailwind CSS;
 - separação entre interface, regra de negócio e infraestrutura.
+- recuperação de senha;
+- envio de e-mail de redefinição de senha pelo Firebase Authentication;
+- modo “Esqueci minha senha” no formulário de autenticação;
+- mensagem amigável após envio do e-mail de recuperação;
 
 ## Funcionalidades previstas
 
 As próximas evoluções previstas são:
 
-- recuperação de senha;
 - tarefas recorrentes;
 - recorrência personalizada por dias da semana;
 - Design System;
@@ -455,8 +458,10 @@ Ele retorna:
   isLoadingAuth,
   isSubmittingAuth,
   authError,
+  authSuccessMessage,
   signUp,
   signIn,
+  resetPassword,
   signOut,
 }
 ```
@@ -471,6 +476,8 @@ O hook é responsável por:
 - disparar evento interno quando o perfil é atualizado;
 - guardar temporariamente o nome recém-cadastrado para evitar corrida entre Auth e Firestore;
 - tratar erros de autenticação com mensagens amigáveis.
+- enviar e-mail de recuperação de senha;
+- controlar mensagem de sucesso após envio do e-mail de recuperação;
 
 ## Cadastro com nome completo
 
@@ -581,6 +588,76 @@ Antes de cadastrar, o formulário valida:
 Nome obrigatório
 Confirmação de senha igual à senha
 ```
+
+## Recuperação de senha
+
+O app possui fluxo de recuperação de senha usando Firebase Authentication.
+
+Na tela de login, o usuário pode clicar em:
+
+```txt
+Esqueci minha senha
+```
+
+O formulário muda para o modo de recuperação e solicita apenas:
+
+```txt
+E-mail
+```
+
+Ao enviar, o app chama:
+
+```txt
+resetPassword
+```
+
+no hook:
+
+```txt
+src/features/auth/hooks/useAuth.ts
+```
+
+Esse hook usa o método:
+
+```txt
+resetPassword
+```
+
+do serviço:
+
+```txt
+FirebaseAuthService
+```
+
+localizado no pacote:
+
+```txt
+@helpsenior/firebase
+```
+
+Fluxo:
+
+```txt
+Usuário clica em "Esqueci minha senha"
+↓
+Informa o e-mail
+↓
+apps/web chama useAuth.resetPassword
+↓
+@helpsenior/firebase chama sendPasswordResetEmail
+↓
+Firebase Authentication envia o e-mail
+↓
+apps/web mostra mensagem de sucesso
+```
+
+Mensagem exibida após envio:
+
+```txt
+Enviamos um e-mail com as instruções para redefinir sua senha.
+```
+
+Durante o desenvolvimento, o e-mail pode cair na caixa de spam/lixo eletrônico, pois o envio é feito pelo domínio padrão do Firebase.
 
 ## Tratamento amigável de erros de autenticação
 
