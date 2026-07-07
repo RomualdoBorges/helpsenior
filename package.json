@@ -1,0 +1,35 @@
+{
+  "name": "helpsenior",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma Web e Mobile para ajudar pessoas idosas a organizar atividades e personalizar a experiência digital com acessibilidade.",
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck"
+  },
+  "keywords": [
+    "accessibility",
+    "elderly",
+    "senior",
+    "react",
+    "typescript",
+    "monorepo"
+  ],
+  "author": "Romualdo Borges",
+  "license": "MIT",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.7.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "turbo": "^2.10.3",
+    "typescript": "^6.0.3"
+  }
+}

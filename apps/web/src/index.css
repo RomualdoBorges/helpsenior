@@ -1,0 +1,279 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Preferências de acessibilidade */
+
+/* Tamanho da fonte */
+
+.font-size-small {
+  font-size: 14px;
+}
+
+.font-size-medium {
+  font-size: 16px;
+}
+
+.font-size-large {
+  font-size: 18px;
+}
+
+.font-size-extra_large {
+  font-size: 20px;
+}
+
+.font-size-small h1 {
+  font-size: 38px;
+}
+
+.font-size-medium h1 {
+  font-size: 44px;
+}
+
+.font-size-large h1 {
+  font-size: 52px;
+}
+
+.font-size-extra_large h1 {
+  font-size: 60px;
+}
+
+.font-size-small h2 {
+  font-size: 24px;
+}
+
+.font-size-medium h2 {
+  font-size: 28px;
+}
+
+.font-size-large h2 {
+  font-size: 34px;
+}
+
+.font-size-extra_large h2 {
+  font-size: 40px;
+}
+
+/* Alto contraste */
+
+.high-contrast {
+  background: #000000;
+  color: #ffffff;
+}
+
+.app-shell.high-contrast {
+  background: #000000;
+  color: #ffffff;
+}
+
+.high-contrast h1,
+.high-contrast h2,
+.high-contrast strong,
+.high-contrast label,
+.high-contrast span,
+.high-contrast p,
+.high-contrast li,
+.high-contrast small {
+  color: #ffffff !important;
+}
+
+.high-contrast .app-card,
+.high-contrast .user-bar {
+  background: #111111 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.high-contrast input,
+.high-contrast select {
+  background: #000000 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast input::placeholder {
+  color: #d1d5db !important;
+}
+
+.high-contrast button {
+  border-color: #ffffff !important;
+}
+
+.high-contrast .task-steps-box,
+.high-contrast .preferences-toggle,
+.high-contrast .task-item {
+  background: #111111 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .task-item-completed {
+  background: #052e16 !important;
+  border-color: #86efac !important;
+}
+
+.high-contrast .task-item button,
+.high-contrast .add-step-button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast button[type="submit"] {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Modo simples */
+
+.simple-mode .app-description,
+.simple-mode .preferences-description,
+.simple-mode .preferences-toggle small,
+.simple-mode .app-eyebrow {
+  display: none;
+}
+
+/* Espaçamento maior */
+
+.app-shell.increased-spacing {
+  padding: 56px 32px;
+}
+
+.increased-spacing .app-card,
+.increased-spacing .user-bar {
+  padding: 32px;
+}
+
+.increased-spacing .preferences-toggle,
+.increased-spacing .task-steps-box,
+.increased-spacing .task-item {
+  padding: 24px;
+}
+
+.increased-spacing form,
+.increased-spacing ul,
+.increased-spacing ol {
+  gap: 24px;
+}
+
+/* Reduzir animações */
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+.high-contrast nav a {
+  border-color: #ffffff !important;
+}
+
+.high-contrast nav a[aria-current="page"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast nav a:not([aria-current="page"]) {
+  background: #111111 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .reminder-item {
+  background: #111111 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .reminder-item-completed {
+  background: #052e16 !important;
+  border-color: #86efac !important;
+}
+
+.high-contrast .reminder-item button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .due-reminder-alert {
+  background: #111111 !important;
+  border-color: #facc15 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .due-reminder-alert button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .app-card > p {
+  border-color: #ffffff !important;
+}
+
+.high-contrast .app-card > p.bg-green-50,
+.high-contrast .app-card > p.bg-red-50,
+.high-contrast .app-card > p.bg-amber-50 {
+  background: #111111 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-card > p {
+  border-color: #ffffff !important;
+}
+
+.high-contrast .app-card > p.bg-green-50,
+.high-contrast .app-card > p.bg-red-50,
+.high-contrast .app-card > p.bg-amber-50 {
+  background: #111111 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-card article {
+  border-color: #ffffff !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-card article p,
+.high-contrast .app-card article strong {
+  color: #ffffff !important;
+}
