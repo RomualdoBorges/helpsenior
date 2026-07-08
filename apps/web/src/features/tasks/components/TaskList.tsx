@@ -3,8 +3,10 @@ import type { Task } from "@helpsenior/core";
 interface TaskListProps {
   tasks: Task[];
   isLoading: boolean;
+  isDeleting: boolean;
   emptyMessage?: string;
   onCompleteTask: (taskId: string) => Promise<void>;
+  onDeleteTask: (taskId: string) => Promise<void>;
 }
 
 function formatTaskDate(date?: string) {
@@ -36,8 +38,10 @@ function getTaskStatusClassName(task: Task) {
 export function TaskList({
   tasks,
   isLoading,
+  isDeleting,
   emptyMessage = "Nenhuma tarefa cadastrada ainda.",
   onCompleteTask,
+  onDeleteTask,
 }: TaskListProps) {
   if (isLoading) {
     return (
@@ -53,6 +57,18 @@ export function TaskList({
         {emptyMessage}
       </p>
     );
+  }
+
+  function handleDeleteTask(task: Task) {
+    const shouldDelete = window.confirm(
+      `Deseja excluir a tarefa "${task.title}"?`,
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    void onDeleteTask(task.id);
   }
 
   return (
@@ -98,14 +114,24 @@ export function TaskList({
                 )}
               </div>
 
-              {!task.completed && (
+              <div className="flex flex-wrap gap-2">
+                {!task.completed && (
+                  <button
+                    type="button"
+                    onClick={() => void onCompleteTask(task.id)}
+                    className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white">
+                    Concluir
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  onClick={() => void onCompleteTask(task.id)}
-                  className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white">
-                  Concluir
+                  onClick={() => handleDeleteTask(task)}
+                  disabled={isDeleting}
+                  className="min-h-11 rounded-xl border border-red-200 bg-white px-4 font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60">
+                  Excluir
                 </button>
-              )}
+              </div>
             </div>
           </article>
         );

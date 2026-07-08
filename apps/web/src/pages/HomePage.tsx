@@ -19,8 +19,16 @@ interface HomePageProps {
 }
 
 export function HomePage({ user }: HomePageProps) {
-  const { tasks, isLoading, isCreating, error, createTask, completeTask } =
-    useTasks(user.id);
+  const {
+    tasks,
+    isLoading,
+    isCreating,
+    isDeleting,
+    error,
+    createTask,
+    completeTask,
+    deleteTask,
+  } = useTasks(user.id);
 
   const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("all");
 
@@ -122,10 +130,12 @@ export function HomePage({ user }: HomePageProps) {
         <TaskList
           tasks={filteredTasks}
           isLoading={isLoading}
+          isDeleting={isDeleting}
           emptyMessage={
             selectedFilterOption?.emptyMessage ?? "Nenhuma tarefa encontrada."
           }
           onCompleteTask={completeTask}
+          onDeleteTask={deleteTask}
         />
       </div>
     </section>

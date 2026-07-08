@@ -17,3 +17,6 @@ export type {
   CompleteTaskUseCaseInput,
   CompleteTaskUseCaseOutput,
 } from "./use-cases/CompleteTaskUseCase";
+
+export { DeleteTaskUseCase } from "./use-cases/DeleteTaskUseCase";
+export type { DeleteTaskUseCaseInput } from "./use-cases/DeleteTaskUseCase";

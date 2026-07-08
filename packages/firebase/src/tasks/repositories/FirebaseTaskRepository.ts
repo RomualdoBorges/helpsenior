@@ -1,6 +1,6 @@
-import type { Task, TaskRepository } from "@helpsenior/core";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -8,64 +8,71 @@ import {
   setDoc,
   updateDoc,
   where,
+  type Firestore,
 } from "firebase/firestore";
-import type { Firestore } from "firebase/firestore";
+
+import type { Task, TaskRepository } from "@helpsenior/core";
 
 import { TaskFirestoreMapper } from "../mappers/TaskFirestoreMapper";
 
+type FirestoreTaskData = Parameters<
+  typeof TaskFirestoreMapper.fromFirestore
+>[1];
+
 export class FirebaseTaskRepository implements TaskRepository {
-  private readonly collectionName = "tasks";
   private readonly db: Firestore;
+  private readonly collectionName = "tasks";
 
   constructor(db: Firestore) {
     this.db = db;
   }
 
   async create(task: Task): Promise<void> {
-    const taskRef = doc(this.tasksCollection(), task.id);
+    const taskReference = doc(this.db, this.collectionName, task.id);
 
-    await setDoc(taskRef, TaskFirestoreMapper.toFirestore(task));
+    await setDoc(taskReference, TaskFirestoreMapper.toFirestore(task));
   }
 
   async findById(taskId: string): Promise<Task | null> {
-    const taskRef = doc(this.tasksCollection(), taskId);
-    const taskSnapshot = await getDoc(taskRef);
+    const taskReference = doc(this.db, this.collectionName, taskId);
+    const snapshot = await getDoc(taskReference);
 
-    if (!taskSnapshot.exists()) {
+    if (!snapshot.exists()) {
       return null;
     }
 
     return TaskFirestoreMapper.fromFirestore(
-      taskSnapshot.id,
-      taskSnapshot.data() as never,
+      taskId,
+      snapshot.data() as FirestoreTaskData,
     );
   }
 
   async listByUserId(userId: string): Promise<Task[]> {
-    const tasksQuery = query(
-      this.tasksCollection(),
-      where("userId", "==", userId),
-    );
+    const tasksCollection = collection(this.db, this.collectionName);
 
-    const taskSnapshots = await getDocs(tasksQuery);
+    const tasksQuery = query(tasksCollection, where("userId", "==", userId));
 
-    return taskSnapshots.docs.map((taskSnapshot) =>
+    const snapshot = await getDocs(tasksQuery);
+
+    return snapshot.docs.map((taskDocument) =>
       TaskFirestoreMapper.fromFirestore(
-        taskSnapshot.id,
-        taskSnapshot.data() as never,
+        taskDocument.id,
+        taskDocument.data() as FirestoreTaskData,
       ),
     );
   }
 
   async update(task: Task): Promise<void> {
-    const taskRef = doc(this.tasksCollection(), task.id);
+    const taskReference = doc(this.db, this.collectionName, task.id);
 
-    await updateDoc(taskRef, {
+    await updateDoc(taskReference, {
       ...TaskFirestoreMapper.toFirestore(task),
     });
   }
 
-  private tasksCollection() {
-    return collection(this.db, this.collectionName);
+  async delete(taskId: string): Promise<void> {
+    const taskReference = doc(this.db, this.collectionName, taskId);
+
+    await deleteDoc(taskReference);
   }
 }
