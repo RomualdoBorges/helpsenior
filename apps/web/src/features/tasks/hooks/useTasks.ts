@@ -11,6 +11,7 @@ import { FirebaseTaskRepository } from "@helpsenior/firebase";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
+import { sortTasks } from "../utils/sortTasks";
 
 interface CreateTaskStepInput {
   title: string;
@@ -66,7 +67,7 @@ export function useTasks(userId: string | null) {
         userId,
       });
 
-      setTasks(result.tasks);
+      setTasks(sortTasks(result.tasks));
     } catch (caughtError) {
       setError(
         getFirebaseFirestoreErrorMessage(

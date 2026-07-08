@@ -85,25 +85,19 @@ export function CreateTaskForm({
   }
 
   return (
-    <section className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]">
-      <div>
-        <p className="m-0 text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-          Nova tarefa
-        </p>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+    >
+      <h3 className="m-0 text-xl font-bold text-slate-950">Criar tarefa</h3>
 
-        <h2 className="mt-2 text-2xl font-bold text-slate-950">
-          O que você precisa fazer?
-        </h2>
+      <p className="mt-1 text-sm font-bold text-slate-500">
+        Para avisos, horários e repetição, use a área de lembretes.
+      </p>
 
-        <p className="mt-2 text-base leading-6 text-slate-500">
-          Crie uma tarefa simples ou adicione etapas para acompanhar o passo a
-          passo. Para avisos e repetição, use a área de lembretes.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="mt-6 grid gap-5">
+      <div className="mt-4 grid gap-4">
         <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Título da tarefa</span>
+          <span className="font-bold text-slate-700">Título</span>
 
           <input
             type="text"
@@ -116,18 +110,18 @@ export function CreateTaskForm({
         </label>
 
         <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Descrição opcional</span>
+          <span className="font-bold text-slate-700">Descrição</span>
 
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Ex: Tomar o remédio da pressão após o café."
+            placeholder="Ex: Tomar o remédio da pressão após o café"
             className="min-h-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Data da tarefa</span>
+          <span className="font-bold text-slate-700">Data</span>
 
           <input
             type="date"
@@ -137,22 +131,20 @@ export function CreateTaskForm({
           />
         </label>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-950">
+            <h4 className="m-0 text-lg font-bold text-slate-950">
               Etapas opcionais
-            </h3>
+            </h4>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Use etapas quando a tarefa precisar de um passo a passo.
+            <p className="mt-1 text-sm font-bold text-slate-500">
+              Use etapas quando quiser dividir a tarefa em passos menores.
             </p>
           </div>
 
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid gap-4">
             <label className="grid gap-2">
-              <span className="font-bold text-slate-700">
-                Título da etapa
-              </span>
+              <span className="font-bold text-slate-700">Título da etapa</span>
 
               <input
                 type="text"
@@ -171,7 +163,7 @@ export function CreateTaskForm({
               <textarea
                 value={stepDescription}
                 onChange={(event) => setStepDescription(event.target.value)}
-                placeholder="Ex: Conferir se é o remédio correto."
+                placeholder="Ex: Conferir se é o remédio correto"
                 className="min-h-20 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
               />
             </label>
@@ -190,7 +182,7 @@ export function CreateTaskForm({
               {steps.map((step, index) => (
                 <li
                   key={`${step.title}-${index}`}
-                  className="rounded-xl border border-slate-200 bg-white p-4"
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -224,15 +216,15 @@ export function CreateTaskForm({
             {localError}
           </p>
         )}
+      </div>
 
-        <button
-          type="submit"
-          disabled={isCreating}
-          className="min-h-12 rounded-xl bg-slate-950 px-5 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isCreating ? "Criando..." : "Criar tarefa"}
-        </button>
-      </form>
-    </section>
+      <button
+        type="submit"
+        disabled={isCreating}
+        className="mt-4 min-h-12 rounded-xl bg-slate-950 px-5 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isCreating ? "Criando tarefa..." : "Criar tarefa"}
+      </button>
+    </form>
   );
 }

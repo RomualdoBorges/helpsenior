@@ -3,6 +3,7 @@ import type { Task } from "@helpsenior/core";
 interface TaskListProps {
   tasks: Task[];
   isLoading: boolean;
+  emptyMessage?: string;
   onCompleteTask: (taskId: string) => Promise<void>;
   onCompleteTaskStep: (taskId: string, stepId: string) => Promise<void>;
 }
@@ -31,61 +32,62 @@ function getTaskStatusLabel(task: Task) {
 
 function getTaskStatusClassName(task: Task) {
   if (task.completed) {
-    return "border-green-200 bg-green-50 text-green-700";
+    return "bg-green-100 text-green-800";
   }
 
   if (task.status === "in_progress") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "bg-blue-100 text-blue-800";
   }
 
-  return "border-slate-200 bg-slate-50 text-slate-600";
+  return "bg-amber-100 text-amber-800";
 }
 
 export function TaskList({
   tasks,
   isLoading,
+  emptyMessage = "Nenhuma tarefa cadastrada ainda.",
   onCompleteTask,
   onCompleteTaskStep,
 }: TaskListProps) {
   if (isLoading) {
     return (
-      <section className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]">
-        <p className="text-base font-bold text-slate-600">
-          Carregando tarefas...
-        </p>
-      </section>
+      <p className="mt-6 text-base font-bold text-slate-600">
+        Carregando tarefas...
+      </p>
     );
   }
 
   if (tasks.length === 0) {
     return (
-      <section className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]">
-        <p className="text-base font-bold text-slate-600">
-          Nenhuma tarefa cadastrada ainda.
-        </p>
-      </section>
+      <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-base font-bold text-slate-500">
+        {emptyMessage}
+      </p>
     );
   }
 
   return (
-    <section className="grid gap-4">
+    <div className="mt-6 grid gap-4">
       {tasks.map((task) => {
         const taskDate = formatTaskDate(task.date);
 
         return (
           <article
             key={task.id}
-            className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]"
+            className={`task-item rounded-2xl border p-5 ${
+              task.completed
+                ? "task-item-completed border-slate-200 bg-slate-100 opacity-70"
+                : "border-slate-300 bg-white"
+            }`}
           >
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold text-slate-950">
+                  <h3 className="m-0 text-xl font-bold text-slate-950">
                     {task.title}
                   </h3>
 
                   <span
-                    className={`rounded-full border px-3 py-1 text-sm font-bold ${getTaskStatusClassName(
+                    className={`rounded-full px-3 py-1 text-xs font-bold ${getTaskStatusClassName(
                       task,
                     )}`}
                   >
@@ -94,34 +96,41 @@ export function TaskList({
                 </div>
 
                 {task.description && (
-                  <p className="mt-2 text-base leading-6 text-slate-500">
+                  <p className="mt-2 text-base leading-6 text-slate-600">
                     {task.description}
                   </p>
                 )}
 
-                {taskDate && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600">
-                      Data: {taskDate}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {taskDate && (
+                    <span className="rounded-full bg-purple-50 px-3 py-1 text-sm font-bold text-purple-700">
+                      {taskDate}
                     </span>
-                  </div>
-                )}
+                  )}
+
+                  {task.steps.length > 0 && (
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">
+                      {task.steps.length} etapa
+                      {task.steps.length === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {!task.completed && (
                 <button
                   type="button"
                   onClick={() => void onCompleteTask(task.id)}
-                  className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white"
                 >
-                  Concluir tarefa
+                  Concluir
                 </button>
               )}
             </div>
 
             {task.steps.length > 0 && (
               <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <h4 className="font-bold text-slate-950">Etapas</h4>
+                <h4 className="m-0 font-bold text-slate-950">Etapas</h4>
 
                 <ol className="mt-3 grid gap-3">
                   {task.steps.map((step) => (
@@ -154,7 +163,7 @@ export function TaskList({
                             onClick={() =>
                               void onCompleteTaskStep(task.id, step.id)
                             }
-                            className="min-h-10 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 hover:border-slate-950 hover:text-slate-950"
+                            className="min-h-10 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700"
                           >
                             Concluir etapa
                           </button>
@@ -168,6 +177,6 @@ export function TaskList({
           </article>
         );
       })}
-    </section>
+    </div>
   );
 }
