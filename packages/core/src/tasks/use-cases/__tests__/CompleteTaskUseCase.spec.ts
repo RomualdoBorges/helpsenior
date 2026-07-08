@@ -1,67 +1,101 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { InMemoryTaskRepository } from "../../in-memory/InMemoryTaskRepository";
 import { CompleteTaskUseCase } from "../CompleteTaskUseCase";
 import { CreateTaskUseCase } from "../CreateTaskUseCase";
 
 describe("CompleteTaskUseCase", () => {
+  let taskRepository: InMemoryTaskRepository;
+  let createTaskUseCase: CreateTaskUseCase;
+  let completeTaskUseCase: CompleteTaskUseCase;
+
+  beforeEach(() => {
+    taskRepository = new InMemoryTaskRepository();
+    createTaskUseCase = new CreateTaskUseCase(taskRepository);
+    completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
+  });
+
   it("should complete a task", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
-    const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
-
     const { task } = await createTaskUseCase.execute({
       userId: "user-1",
-      title: "Tomar remédio",
+      title: "Tomar água",
+      description: "Beber um copo de água.",
+      date: "2026-07-10",
     });
 
-    await completeTaskUseCase.execute({
+    const result = await completeTaskUseCase.execute({
       taskId: task.id,
     });
 
-    const completedTask = await taskRepository.findById(task.id);
+    const updatedTask = await taskRepository.findById(task.id);
+    const tasks = await taskRepository.listByUserId("user-1");
 
-    expect(completedTask).not.toBeNull();
-    expect(completedTask?.status).toBe("completed");
-    expect(completedTask?.completedAt).toBeInstanceOf(Date);
-    expect(completedTask?.updatedAt).toBeInstanceOf(Date);
+    expect(result.task.id).toBe(task.id);
+    expect(result.task.completed).toBe(true);
+    expect(result.task.status).toBe("completed");
+    expect(result.task.completedAt).toBeInstanceOf(Date);
+    expect(result.task.updatedAt).toBeInstanceOf(Date);
+
+    expect(updatedTask?.completed).toBe(true);
+    expect(updatedTask?.status).toBe("completed");
+    expect(updatedTask?.completedAt).toBeInstanceOf(Date);
+
+    expect(tasks).toHaveLength(1);
   });
 
-  it("should complete all task steps when completing a task", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
-    const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
-
+  it("should complete all steps when completing a task", async () => {
     const { task } = await createTaskUseCase.execute({
       userId: "user-1",
-      title: "Preparar café",
+      title: "Tomar remédio",
       steps: [
         {
-          title: "Pegar a garrafa",
+          title: "Pegar o remédio",
         },
         {
-          title: "Colocar água",
+          title: "Tomar com água",
         },
       ],
     });
 
+    const result = await completeTaskUseCase.execute({
+      taskId: task.id,
+    });
+
+    expect(result.task.completed).toBe(true);
+    expect(result.task.status).toBe("completed");
+    expect(result.task.steps).toHaveLength(2);
+
+    expect(result.task.steps[0]?.completed).toBe(true);
+    expect(result.task.steps[0]?.completedAt).toBeInstanceOf(Date);
+
+    expect(result.task.steps[1]?.completed).toBe(true);
+    expect(result.task.steps[1]?.completedAt).toBeInstanceOf(Date);
+  });
+
+  it("should return the task when it is already completed", async () => {
+    const { task } = await createTaskUseCase.execute({
+      userId: "user-1",
+      title: "Tomar água",
+    });
+
     await completeTaskUseCase.execute({
       taskId: task.id,
     });
 
-    const completedTask = await taskRepository.findById(task.id);
+    const result = await completeTaskUseCase.execute({
+      taskId: task.id,
+    });
 
-    expect(completedTask?.steps).toHaveLength(2);
-    expect(completedTask?.steps.every((step) => step.completed)).toBe(true);
+    const tasks = await taskRepository.listByUserId("user-1");
+
+    expect(result.task.id).toBe(task.id);
+    expect(result.task.completed).toBe(true);
+    expect(result.task.status).toBe("completed");
+    expect(tasks).toHaveLength(1);
   });
 
   it("should not complete a task without taskId", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
-
-    await expect(() =>
+    await expect(
       completeTaskUseCase.execute({
         taskId: "",
       }),
@@ -69,12 +103,9 @@ describe("CompleteTaskUseCase", () => {
   });
 
   it("should not complete a task that does not exist", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
-
-    await expect(() =>
+    await expect(
       completeTaskUseCase.execute({
-        taskId: "invalid-task-id",
+        taskId: "task-1",
       }),
     ).rejects.toThrow("Tarefa não encontrada.");
   });

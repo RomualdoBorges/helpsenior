@@ -7,6 +7,40 @@ interface TaskListProps {
   onCompleteTaskStep: (taskId: string, stepId: string) => Promise<void>;
 }
 
+function formatTaskDate(date?: string) {
+  if (!date) {
+    return null;
+  }
+
+  const [year, month, day] = date.split("-");
+
+  return `${day}/${month}/${year}`;
+}
+
+function getTaskStatusLabel(task: Task) {
+  if (task.completed) {
+    return "Concluída";
+  }
+
+  if (task.status === "in_progress") {
+    return "Em andamento";
+  }
+
+  return "Pendente";
+}
+
+function getTaskStatusClassName(task: Task) {
+  if (task.completed) {
+    return "border-green-200 bg-green-50 text-green-700";
+  }
+
+  if (task.status === "in_progress") {
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  }
+
+  return "border-slate-200 bg-slate-50 text-slate-600";
+}
+
 export function TaskList({
   tasks,
   isLoading,
@@ -14,109 +48,126 @@ export function TaskList({
   onCompleteTaskStep,
 }: TaskListProps) {
   if (isLoading) {
-    return <p className="mt-6 text-slate-600">Carregando tarefas...</p>;
+    return (
+      <section className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]">
+        <p className="text-base font-bold text-slate-600">
+          Carregando tarefas...
+        </p>
+      </section>
+    );
   }
 
   if (tasks.length === 0) {
-    return <p className="mt-6 text-slate-600">Nenhuma tarefa criada ainda.</p>;
+    return (
+      <section className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]">
+        <p className="text-base font-bold text-slate-600">
+          Nenhuma tarefa cadastrada ainda.
+        </p>
+      </section>
+    );
   }
 
   return (
-    <ul className="mt-6 flex list-none flex-col gap-3 p-0">
+    <section className="grid gap-4">
       {tasks.map((task) => {
-        const isCompleted = task.status === "completed";
-        const hasSteps = task.steps.length > 0;
-        const completedSteps = task.steps.filter(
-          (step) => step.completed,
-        ).length;
+        const taskDate = formatTaskDate(task.date);
 
         return (
-          <li
+          <article
             key={task.id}
-            className={[
-              "task-item rounded-2xl border p-4",
-              isCompleted
-                ? "task-item-completed border-green-200 bg-green-50"
-                : "border-slate-300 bg-white",
-            ]
-              .filter(Boolean)
-              .join(" ")}>
-            <div className="flex items-start justify-between gap-4">
+            className="app-card rounded-[24px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42_/_0.08)]"
+          >
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
-                <strong className="block text-slate-950">{task.title}</strong>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-xl font-bold text-slate-950">
+                    {task.title}
+                  </h3>
 
-                <p
-                  className={[
-                    "mt-2",
-                    isCompleted ? "text-green-700" : "text-slate-500",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}>
-                  Status: {isCompleted ? "concluída" : "pendente"}
-                </p>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-sm font-bold ${getTaskStatusClassName(
+                      task,
+                    )}`}
+                  >
+                    {getTaskStatusLabel(task)}
+                  </span>
+                </div>
 
-                {hasSteps && (
-                  <p className="mt-1.5 text-sm text-slate-500">
-                    Etapas: {completedSteps} de {task.steps.length} concluídas
+                {task.description && (
+                  <p className="mt-2 text-base leading-6 text-slate-500">
+                    {task.description}
                   </p>
+                )}
+
+                {taskDate && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-bold text-slate-600">
+                      Data: {taskDate}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              {!isCompleted && (
+              {!task.completed && (
                 <button
                   type="button"
                   onClick={() => void onCompleteTask(task.id)}
-                  className="min-h-10 rounded-[10px] border-0 bg-green-700 px-4 font-bold text-white">
+                  className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
                   Concluir tarefa
                 </button>
               )}
             </div>
 
-            {hasSteps && (
-              <ol className="mt-4 flex list-decimal flex-col gap-2.5 pl-5">
-                {task.steps
-                  .slice()
-                  .sort((a, b) => a.order - b.order)
-                  .map((step) => {
-                    const isStepCompleted = step.completed;
+            {task.steps.length > 0 && (
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <h4 className="font-bold text-slate-950">Etapas</h4>
 
-                    return (
-                      <li
-                        key={step.id}
-                        className={
-                          isStepCompleted ? "text-green-700" : "text-slate-600"
-                        }>
-                        <div className="flex items-center justify-between gap-3">
-                          <span
-                            className={
-                              isStepCompleted ? "line-through" : undefined
-                            }>
-                            {step.title}
-                          </span>
+                <ol className="mt-3 grid gap-3">
+                  {task.steps.map((step) => (
+                    <li
+                      key={step.id}
+                      className="rounded-xl border border-slate-200 bg-white p-4"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="font-bold text-slate-950">
+                            {step.order}. {step.title}
+                          </p>
 
-                          {isStepCompleted ? (
-                            <span className="text-sm font-bold text-green-700">
-                              Concluída
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                void onCompleteTaskStep(task.id, step.id)
-                              }
-                              className="min-h-8.5 rounded-lg border border-green-700 bg-white px-3 text-sm font-bold text-green-700">
-                              Concluir etapa
-                            </button>
+                          {step.description && (
+                            <p className="mt-1 text-sm text-slate-500">
+                              {step.description}
+                            </p>
+                          )}
+
+                          {step.completed && (
+                            <p className="mt-2 text-sm font-bold text-green-700">
+                              Etapa concluída
+                            </p>
                           )}
                         </div>
-                      </li>
-                    );
-                  })}
-              </ol>
+
+                        {!step.completed && !task.completed && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void onCompleteTaskStep(task.id, step.id)
+                            }
+                            className="min-h-10 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 hover:border-slate-950 hover:text-slate-950"
+                          >
+                            Concluir etapa
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             )}
-          </li>
+          </article>
         );
       })}
-    </ul>
+    </section>
   );
 }

@@ -1,7 +1,12 @@
+import type { Task } from "../entities/Task";
 import type { TaskRepository } from "../repositories/TaskRepository";
 
-interface CompleteTaskUseCaseRequest {
+export interface CompleteTaskUseCaseInput {
   taskId: string;
+}
+
+export interface CompleteTaskUseCaseOutput {
+  task: Task;
 }
 
 export class CompleteTaskUseCase {
@@ -11,30 +16,44 @@ export class CompleteTaskUseCase {
     this.taskRepository = taskRepository;
   }
 
-  async execute(request: CompleteTaskUseCaseRequest): Promise<void> {
-    if (!request.taskId.trim()) {
+  async execute(
+    input: CompleteTaskUseCaseInput,
+  ): Promise<CompleteTaskUseCaseOutput> {
+    if (!input.taskId.trim()) {
       throw new Error("Tarefa é obrigatória.");
     }
 
-    const task = await this.taskRepository.findById(request.taskId);
+    const task = await this.taskRepository.findById(input.taskId);
 
     if (!task) {
       throw new Error("Tarefa não encontrada.");
     }
 
+    if (task.completed) {
+      return {
+        task,
+      };
+    }
+
     const now = new Date();
 
-    const completedTask = {
+    const completedTask: Task = {
       ...task,
-      status: "completed" as const,
+      status: "completed",
+      completed: true,
+      updatedAt: now,
+      completedAt: now,
       steps: task.steps.map((step) => ({
         ...step,
         completed: true,
+        completedAt: step.completedAt ?? now,
       })),
-      updatedAt: now,
-      completedAt: now,
     };
 
     await this.taskRepository.update(completedTask);
+
+    return {
+      task: completedTask,
+    };
   }
 }

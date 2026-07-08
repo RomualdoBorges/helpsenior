@@ -9,11 +9,13 @@ O projeto foi desenvolvido em formato de monorepo com separação entre domínio
 O objetivo do HelpSenior é ajudar pessoas idosas a manterem autonomia no uso de uma plataforma digital, com recursos como:
 
 - tarefas simples;
+- tarefas com data;
 - tarefas com etapas guiadas;
 - lembretes com data e horário;
 - lembretes recorrentes;
 - alerta visual para lembretes vencidos;
 - notificação do navegador com o app aberto;
+- recuperação de senha;
 - perfil do usuário;
 - preferências de acessibilidade;
 - modo alto contraste;
@@ -23,18 +25,15 @@ O objetivo do HelpSenior é ajudar pessoas idosas a manterem autonomia no uso de
 - redução de animações;
 - mensagens de erro amigáveis.
 
-## Contexto do projeto
+## Decisão de produto
 
-O HelpSenior segue a proposta de acessibilidade digital para pessoas idosas, com foco em:
+```txt
+Tarefa = o que precisa ser feito
+Etapas = como fazer
+Lembrete = quando avisar e repetir
+```
 
-- clareza visual;
-- botões e áreas clicáveis maiores;
-- navegação previsível;
-- feedback claro após ações;
-- redução de complexidade;
-- separação de responsabilidades;
-- arquitetura limpa;
-- domínio independente de UI e infraestrutura.
+Por isso, tarefas não possuem recorrência. A recorrência fica apenas nos lembretes.
 
 ## Stack principal
 
@@ -54,8 +53,6 @@ Vitest
 
 ## Arquitetura
 
-O projeto usa uma arquitetura em camadas:
-
 ```txt
 @helpsenior/core
         ↓
@@ -68,17 +65,7 @@ apps/web
 
 ### @helpsenior/core
 
-Pacote de domínio.
-
-Contém:
-
-- entidades;
-- contratos de repositório;
-- casos de uso;
-- regras de negócio;
-- testes unitários.
-
-Não depende de React, Firebase, navegador, CSS ou Tailwind.
+Pacote de domínio com entidades, contratos, casos de uso, regras de negócio e testes unitários.
 
 Módulos atuais:
 
@@ -91,16 +78,7 @@ reminders
 
 ### @helpsenior/firebase
 
-Pacote de infraestrutura Firebase.
-
-Contém:
-
-- configuração do Firebase;
-- serviço de autenticação;
-- envio de e-mail de recuperação de senha;
-- repositórios Firestore;
-- mappers entre domínio e Firestore;
-- implementação dos contratos do `@helpsenior/core`.
+Pacote de infraestrutura Firebase com autenticação, recuperação de senha, repositórios Firestore e mappers.
 
 Coleções usadas:
 
@@ -113,71 +91,11 @@ userProfiles
 
 ### @helpsenior/web
 
-Aplicação Web.
-
-Contém:
-
-- interface React;
-- roteamento;
-- hooks;
-- componentes;
-- integração com Firebase;
-- telas de tarefas, lembretes, perfil e configurações;
-- tratamento amigável de erros;
-- aplicação visual das preferências de acessibilidade.
-
-## Estrutura do monorepo
-
-```txt
-helpsenior/
-├── README.md
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── turbo.json
-│
-├── apps/
-│   └── web/
-│       ├── README.md
-│       ├── index.html
-│       ├── package.json
-│       ├── vite.config.ts
-│       ├── tsconfig.json
-│       ├── tsconfig.app.json
-│       ├── tsconfig.node.json
-│       ├── eslint.config.js
-│       ├── public/
-│       │   ├── favicon.svg
-│       │   └── icons.svg
-│       └── src/
-│           ├── config/
-│           ├── features/
-│           ├── pages/
-│           ├── shared/
-│           ├── App.tsx
-│           ├── index.css
-│           ├── main.tsx
-│           └── vite-env.d.ts
-│
-└── packages/
-    ├── core/
-    │   ├── README.md
-    │   ├── package.json
-    │   ├── tsconfig.json
-    │   └── src/
-    │
-    └── firebase/
-        ├── README.md
-        ├── package.json
-        ├── tsconfig.json
-        └── src/
-```
+Aplicação Web em React com rotas, hooks, componentes, integração Firebase e aplicação das preferências de acessibilidade.
 
 ## Funcionalidades atuais
 
 ### Autenticação
-
-O app possui:
 
 - cadastro com nome completo, e-mail e senha;
 - confirmação de senha;
@@ -191,82 +109,26 @@ O app possui:
 - sincronização imediata do nome do usuário na barra superior;
 - tratamento amigável de erros de autenticação.
 
-Exemplos de mensagens amigáveis:
-
-```txt
-Este e-mail já está cadastrado.
-Informe um e-mail válido.
-A senha precisa ter pelo menos 6 caracteres.
-E-mail ou senha incorretos.
-Não foi possível conectar. Verifique sua internet e tente novamente.
-```
-
-### Recuperação de senha
-
-O app possui fluxo de recuperação de senha usando Firebase Authentication.
-
-Na tela de login, o usuário pode clicar em:
-
-```txt
-Esqueci minha senha
-```
-
-Depois informa o e-mail cadastrado e o Firebase envia um e-mail com as instruções de redefinição de senha.
-
-Fluxo:
-
-```txt
-Usuário clica em "Esqueci minha senha"
-        ↓
-Informa o e-mail
-        ↓
-apps/web chama useAuth.resetPassword
-        ↓
-@helpsenior/firebase chama sendPasswordResetEmail
-        ↓
-Firebase Authentication envia o e-mail
-        ↓
-apps/web mostra mensagem de sucesso
-```
-
-Mensagem exibida após envio:
-
-```txt
-Enviamos um e-mail com as instruções para redefinir sua senha.
-```
-
-Durante o desenvolvimento, esse e-mail pode cair na caixa de spam ou lixo eletrônico, pois o envio é feito pelo domínio padrão do Firebase.
-
 ### Tarefas
 
-O app permite:
-
 - criar tarefa simples;
-- criar tarefa com etapas guiadas;
+- criar tarefa com descrição;
+- criar tarefa com data;
+- criar tarefa com etapas guiadas opcionais;
 - listar tarefas do usuário logado;
 - concluir tarefa inteira;
 - concluir etapa individual;
 - concluir automaticamente a tarefa quando todas as etapas forem concluídas;
 - persistir tarefas no Firestore.
 
-Exemplo:
-
-```txt
-Tomar remédio
-
-1. Pegar o remédio
-2. Conferir o horário
-3. Tomar com água
-```
-
 ### Lembretes
-
-O app permite:
 
 - criar lembrete;
 - informar data;
 - informar horário;
 - informar descrição;
+- criar lembrete recorrente;
+- informar data final da recorrência;
 - concluir lembrete;
 - listar lembretes;
 - ordenar lembretes;
@@ -277,7 +139,7 @@ O app permite:
 
 ### Lembretes recorrentes
 
-O app suporta recorrência simples:
+Recorrências disponíveis:
 
 ```txt
 Nenhuma recorrência
@@ -286,50 +148,26 @@ Toda semana
 Todo mês
 ```
 
-Também permite informar uma data final da recorrência.
-
-Ao concluir um lembrete recorrente, o sistema:
+Ao concluir um lembrete recorrente:
 
 ```txt
-1. marca o lembrete atual como concluído;
-2. calcula a próxima data;
-3. cria automaticamente o próximo lembrete.
-```
-
-Exemplo:
-
-```txt
-Tomar remédio
-Data: 2026-07-10
-Horário: 08:00
-Recorrência: Todos os dias
-```
-
-Após concluir:
-
-```txt
-Tomar remédio
-Data: 2026-07-11
-Horário: 08:00
-Recorrência: Todos os dias
+1. o lembrete atual é marcado como concluído;
+2. a próxima data é calculada;
+3. um novo lembrete é criado automaticamente.
 ```
 
 ### Alertas e notificações
-
-O app possui:
 
 - alerta visual para lembretes vencidos;
 - notificação do navegador para lembretes vencidos;
 - monitoramento global dos lembretes;
 - verificação automática a cada minuto.
 
-A notificação atual funciona com o app aberto.
-
-Ainda não há Service Worker nem Firebase Cloud Messaging.
+A notificação atual funciona com o app aberto. Ainda não há Service Worker nem Firebase Cloud Messaging.
 
 ### Perfil
 
-O app possui página de perfil com:
+A página de perfil possui:
 
 ```txt
 Nome
@@ -338,13 +176,9 @@ Telefone
 Data de nascimento
 ```
 
-O e-mail vem do Firebase Authentication.
-
-O nome é preenchido automaticamente após o cadastro.
-
 ### Preferências de acessibilidade
 
-O app possui preferências persistidas por usuário:
+Preferências persistidas por usuário:
 
 ```txt
 Tamanho da fonte
@@ -352,34 +186,6 @@ Alto contraste
 Modo simples
 Redução de animações
 Espaçamento maior
-```
-
-Essas preferências são salvas no Firestore e aplicadas visualmente na interface.
-
-### Tratamento amigável de erros
-
-O app possui mappers para transformar erros técnicos em mensagens mais claras.
-
-Auth:
-
-```txt
-src/features/auth/utils/getFirebaseAuthErrorMessage.ts
-```
-
-Firestore:
-
-```txt
-src/shared/errors/getFirebaseFirestoreErrorMessage.ts
-```
-
-Usado em:
-
-```txt
-useAuth
-useTasks
-useReminders
-useUserProfile
-useUserPreferences
 ```
 
 ## Rotas Web
@@ -400,21 +206,11 @@ Firebase Authentication
 Cloud Firestore
 ```
 
-### Authentication
-
-Método usado:
+Método de autenticação:
 
 ```txt
 E-mail/senha
 ```
-
-Ative no Firebase Console:
-
-```txt
-Authentication → Método de login → E-mail/senha
-```
-
-### Firestore
 
 Coleções atuais:
 
@@ -425,9 +221,9 @@ userPreferences
 userProfiles
 ```
 
-### Variáveis de ambiente
+## Variáveis de ambiente
 
-Crie o arquivo:
+Crie:
 
 ```txt
 apps/web/.env
@@ -444,99 +240,13 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
 
-Essas informações vêm do Firebase Console.
-
-## Segurança do Firestore
-
-As regras devem garantir que cada usuário acesse apenas os próprios dados.
-
-Regra recomendada:
-
-```js
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /tasks/{taskId} {
-      allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid;
-
-      allow read: if request.auth != null
-        && resource.data.userId == request.auth.uid;
-
-      allow update: if request.auth != null
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid;
-
-      allow delete: if request.auth != null
-        && resource.data.userId == request.auth.uid;
-    }
-
-    match /reminders/{reminderId} {
-      allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid;
-
-      allow read: if request.auth != null
-        && resource.data.userId == request.auth.uid;
-
-      allow update: if request.auth != null
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid;
-
-      allow delete: if request.auth != null
-        && resource.data.userId == request.auth.uid;
-    }
-
-    match /userPreferences/{userId} {
-      allow create: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.userId == request.auth.uid;
-
-      allow read: if request.auth != null
-        && request.auth.uid == userId;
-
-      allow update: if request.auth != null
-        && request.auth.uid == userId
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid;
-
-      allow delete: if request.auth != null
-        && request.auth.uid == userId
-        && resource.data.userId == request.auth.uid;
-    }
-
-    match /userProfiles/{userId} {
-      allow create: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.userId == request.auth.uid;
-
-      allow read: if request.auth != null
-        && request.auth.uid == userId;
-
-      allow update: if request.auth != null
-        && request.auth.uid == userId
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid;
-
-      allow delete: if request.auth != null
-        && request.auth.uid == userId
-        && resource.data.userId == request.auth.uid;
-    }
-  }
-}
-```
-
 ## Instalação
-
-Na raiz do projeto:
 
 ```bash
 pnpm install
 ```
 
-## Rodando o projeto
-
-Rodar o app Web:
+## Rodando o app Web
 
 ```bash
 pnpm --filter @helpsenior/web dev
@@ -550,103 +260,15 @@ http://localhost:5173
 
 ## Scripts principais
 
-### Typecheck geral
-
 ```bash
 pnpm typecheck
-```
-
-### Typecheck sem cache do Turbo
-
-```bash
 pnpm typecheck --force
-```
-
-### Testes do core
-
-```bash
 pnpm --filter @helpsenior/core test
-```
-
-### Typecheck do core
-
-```bash
 pnpm --filter @helpsenior/core typecheck
-```
-
-### Typecheck do Firebase
-
-```bash
 pnpm --filter @helpsenior/firebase typecheck
-```
-
-### Typecheck do Web
-
-```bash
 pnpm --filter @helpsenior/web typecheck
-```
-
-### Build do Web
-
-```bash
 pnpm --filter @helpsenior/web build
-```
-
-### Lint do Web
-
-```bash
 pnpm --filter @helpsenior/web lint
-```
-
-## Scripts por pacote
-
-### Raiz
-
-```json
-{
-  "scripts": {
-    "build": "turbo build",
-    "typecheck": "turbo typecheck",
-    "test": "turbo test",
-    "lint": "turbo lint"
-  }
-}
-```
-
-### apps/web
-
-```json
-{
-  "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
-
-### packages/core
-
-```json
-{
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
-
-### packages/firebase
-
-```json
-{
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  }
-}
 ```
 
 ## Testes
@@ -668,81 +290,25 @@ Os testes cobrem:
 - criação automática do próximo lembrete;
 - respeito à data final da recorrência.
 
-Rodar testes:
-
-```bash
-pnpm --filter @helpsenior/core test
-```
-
-## Decisões de arquitetura
-
-### Domínio independente
-
-O `@helpsenior/core` não importa React, Firebase ou bibliotecas de UI.
-
-Isso permite testar regras de negócio sem depender de navegador ou banco de dados.
-
-### Firebase isolado
-
-O `@helpsenior/firebase` implementa os contratos do `core`.
-
-Assim, a aplicação Web não precisa conhecer detalhes internos de mappers e persistência.
-
-### Web com hooks
-
-O `apps/web` usa hooks para conectar interface, casos de uso e repositórios.
-
-### Firestore sem undefined
-
-O Firestore não aceita campos com valor `undefined`.
-
-Por isso os mappers montam objetos condicionalmente.
-
-### Erros amigáveis
-
-Erros técnicos do Firebase são convertidos em mensagens compreensíveis para o usuário.
-
-### Acessibilidade como regra do produto
-
-Preferências visuais não são apenas cosméticas. Elas fazem parte do objetivo principal do HelpSenior.
-
 ## Cuidados importantes
 
-### Não versionar node_modules
-
-O repositório deve ignorar:
+Não versionar:
 
 ```txt
 node_modules
 **/node_modules
-```
-
-Se `node_modules` foi commitado por engano, remova do Git com:
-
-```bash
-git rm -r --cached node_modules apps/web/node_modules packages/core/node_modules packages/firebase/node_modules 2>/dev/null || true
-git commit -m "chore: remove node_modules from repository"
-git push
-```
-
-### Não versionar .env
-
-Arquivos `.env` não devem ser enviados para o GitHub.
-
-Use:
-
-```gitignore
+.turbo
 .env
 .env.local
 .env.*.local
 ```
 
-### Reinstalar dependências
-
-Como `node_modules` não deve ser versionado, cada ambiente deve instalar dependências com:
+Se alguma dessas pastas já foi commitada por engano:
 
 ```bash
-pnpm install
+git rm -r --cached node_modules apps/web/node_modules packages/core/node_modules packages/firebase/node_modules .turbo 2>/dev/null || true
+git commit -m "chore: remove ignored files from repository"
+git push
 ```
 
 ## Status atual
@@ -759,6 +325,7 @@ O projeto possui:
 - recuperação de senha;
 - perfil automático após cadastro;
 - tarefas;
+- tarefas com data;
 - tarefas com etapas;
 - lembretes;
 - lembretes recorrentes;
@@ -766,14 +333,14 @@ O projeto possui:
 - tratamento amigável de erros;
 - Firestore com regras por usuário;
 - documentação por pacote;
-- typecheck e build passando.
+- typecheck, testes e build passando.
 
 ## Limitações atuais
 
 O projeto ainda não possui:
 
-- tarefas recorrentes;
-- recorrência personalizada por dias da semana;
+- filtros e resumo visual de tarefas;
+- recorrência personalizada por dias da semana nos lembretes;
 - Design System;
 - responsividade refinada;
 - testes automatizados no Web;
@@ -785,8 +352,8 @@ O projeto ainda não possui:
 
 ## Próximas evoluções recomendadas
 
-1. Criar tarefas recorrentes.
-2. Criar recorrência personalizada por dias da semana.
+1. Criar filtros e resumo visual de tarefas.
+2. Criar recorrência personalizada por dias da semana nos lembretes.
 3. Melhorar responsividade.
 4. Criar Design System básico.
 5. Criar testes automatizados no Web.

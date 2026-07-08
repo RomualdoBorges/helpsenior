@@ -12,6 +12,18 @@ import { FirebaseTaskRepository } from "@helpsenior/firebase";
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 
+interface CreateTaskStepInput {
+  title: string;
+  description?: string;
+}
+
+interface CreateTaskInput {
+  title: string;
+  description?: string;
+  steps: CreateTaskStepInput[];
+  date?: string;
+}
+
 export function useTasks(userId: string | null) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,13 +80,7 @@ export function useTasks(userId: string | null) {
   }, [listTasksUseCase, userId]);
 
   const createTask = useCallback(
-    async (
-      title: string,
-      steps: Array<{
-        title: string;
-        description?: string;
-      }>,
-    ) => {
+    async (input: CreateTaskInput) => {
       if (!userId) {
         return;
       }
@@ -85,8 +91,10 @@ export function useTasks(userId: string | null) {
 
         await createTaskUseCase.execute({
           userId,
-          title,
-          steps,
+          title: input.title,
+          description: input.description,
+          steps: input.steps,
+          date: input.date,
         });
 
         await loadTasks();

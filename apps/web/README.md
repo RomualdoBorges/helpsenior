@@ -2,7 +2,7 @@
 
 Aplicação Web do HelpSenior.
 
-Este app é responsável pela interface principal da plataforma, permitindo que usuários criem conta, façam login, organizem tarefas simples ou guiadas por etapas, criem lembretes, configurem lembretes recorrentes, recebam alertas no navegador, editem o perfil e personalizem a experiência visual com recursos de acessibilidade.
+Este app é responsável pela interface principal da plataforma, permitindo que usuários criem conta, façam login, recuperem senha, organizem tarefas simples ou guiadas por etapas, criem lembretes, configurem lembretes recorrentes, recebam alertas no navegador, editem o perfil e personalizem a experiência visual com recursos de acessibilidade.
 
 O app Web consome os pacotes internos do monorepo:
 
@@ -30,6 +30,11 @@ Além disso, o usuário pode:
 
 - criar conta com nome completo, e-mail e senha;
 - entrar na conta com e-mail e senha;
+- recuperar senha por e-mail;
+- criar tarefas simples;
+- criar tarefas com descrição;
+- criar tarefas com data;
+- criar tarefas com etapas opcionais;
 - criar lembretes com data e horário;
 - criar lembretes recorrentes;
 - receber alerta visual dentro do app;
@@ -38,6 +43,22 @@ Além disso, o usuário pode:
 - salvar dados básicos de perfil;
 - navegar entre tarefas, lembretes, perfil e configurações;
 - receber mensagens de erro mais amigáveis em login, cadastro e operações com dados.
+
+## Decisão de produto
+
+O HelpSenior separa claramente tarefa e lembrete:
+
+```txt
+Tarefa = o que precisa ser feito
+Etapas = como fazer
+Lembrete = quando avisar e repetir
+```
+
+Por isso, tarefas não possuem recorrência.
+
+A recorrência fica apenas nos lembretes.
+
+Essa decisão deixa o fluxo mais simples para o usuário e evita confusão entre “atividade” e “aviso”.
 
 ## Funcionalidades atuais
 
@@ -49,12 +70,18 @@ Atualmente o app Web possui:
 - preenchimento automático do nome no perfil após cadastro;
 - atualização imediata da barra superior com o nome do usuário;
 - login com e-mail e senha;
+- recuperação de senha;
+- envio de e-mail de redefinição de senha pelo Firebase Authentication;
+- modo “Esqueci minha senha” no formulário de autenticação;
+- mensagem amigável após envio do e-mail de recuperação;
 - logout;
 - persistência de sessão com Firebase Authentication;
 - tratamento amigável de erros de autenticação;
 - tratamento amigável de erros do Firestore;
 - criação de tarefas simples;
-- criação de tarefas com etapas guiadas;
+- criação de tarefas com descrição;
+- criação de tarefas com data;
+- criação de tarefas com etapas guiadas opcionais;
 - listagem de tarefas do usuário logado;
 - conclusão de tarefa inteira;
 - conclusão de etapa individual;
@@ -91,20 +118,18 @@ Atualmente o app Web possui:
 - menu ativo conforme a rota atual;
 - estilização com Tailwind CSS;
 - separação entre interface, regra de negócio e infraestrutura.
-- recuperação de senha;
-- envio de e-mail de redefinição de senha pelo Firebase Authentication;
-- modo “Esqueci minha senha” no formulário de autenticação;
-- mensagem amigável após envio do e-mail de recuperação;
 
 ## Funcionalidades previstas
 
 As próximas evoluções previstas são:
 
-- tarefas recorrentes;
-- recorrência personalizada por dias da semana;
+- filtros e resumo visual de tarefas;
+- recorrência personalizada por dias da semana nos lembretes;
 - Design System;
 - responsividade refinada;
+- loading visual refinado;
 - testes automatizados no Web;
+- componentes reutilizáveis;
 - login social;
 - notificações com Service Worker/Firebase Cloud Messaging;
 - versão mobile.
@@ -156,6 +181,7 @@ Ele fornece recursos para tarefas:
 ```txt
 Task
 TaskStep
+TaskStatus
 TaskRepository
 CreateTaskUseCase
 ListTasksUseCase
@@ -212,6 +238,7 @@ O app Web usa esse pacote para:
 
 - autenticar usuários;
 - observar usuário logado;
+- enviar e-mail de recuperação de senha;
 - salvar tarefas no Firestore;
 - listar tarefas do usuário logado;
 - atualizar status das tarefas;
@@ -471,13 +498,13 @@ O hook é responsável por:
 - observar o usuário autenticado;
 - criar conta;
 - entrar na conta;
+- enviar e-mail de recuperação de senha;
 - sair da conta;
 - criar/atualizar o perfil após cadastro;
 - disparar evento interno quando o perfil é atualizado;
 - guardar temporariamente o nome recém-cadastrado para evitar corrida entre Auth e Firestore;
-- tratar erros de autenticação com mensagens amigáveis.
-- enviar e-mail de recuperação de senha;
-- controlar mensagem de sucesso após envio do e-mail de recuperação;
+- tratar erros de autenticação com mensagens amigáveis;
+- controlar mensagem de sucesso após envio do e-mail de recuperação.
 
 ## Cadastro com nome completo
 
@@ -514,80 +541,6 @@ e que a página:
 ```
 
 já venha com o nome preenchido.
-
-## Evento interno de atualização de perfil
-
-O app usa um evento interno para sincronizar o perfil logo após o cadastro.
-
-Evento:
-
-```txt
-helpsenior:user-profile-updated
-```
-
-Esse evento é disparado pelo `useAuth` depois que o cadastro cria/atualiza o perfil.
-
-O `useUserProfile` escuta esse evento e atualiza o estado local do perfil.
-
-Isso evita que o usuário precise recarregar a página ou sair e entrar novamente para ver o nome atualizado.
-
-## sessionStorage para nome pendente
-
-Durante o cadastro, o app salva temporariamente o nome informado no `sessionStorage`.
-
-Chave:
-
-```txt
-helpsenior:pending-user-profile-name:{userId}
-```
-
-Essa estratégia evita problema de corrida entre:
-
-```txt
-onAuthStateChanged
-```
-
-e a criação/atualização do documento de perfil no Firestore.
-
-Quando o `useUserProfile` confirma que o perfil já possui o nome correto, a chave temporária é removida.
-
-## AuthForm
-
-O formulário de autenticação fica em:
-
-```txt
-src/features/auth/components/AuthForm.tsx
-```
-
-Ele possui dois modos:
-
-```txt
-Entrar
-Criar conta
-```
-
-No modo `Entrar`, exibe:
-
-```txt
-E-mail
-Senha
-```
-
-No modo `Criar conta`, exibe:
-
-```txt
-Nome completo
-E-mail
-Senha
-Confirmar senha
-```
-
-Antes de cadastrar, o formulário valida:
-
-```txt
-Nome obrigatório
-Confirmação de senha igual à senha
-```
 
 ## Recuperação de senha
 
@@ -639,15 +592,15 @@ Fluxo:
 
 ```txt
 Usuário clica em "Esqueci minha senha"
-↓
+        ↓
 Informa o e-mail
-↓
+        ↓
 apps/web chama useAuth.resetPassword
-↓
+        ↓
 @helpsenior/firebase chama sendPasswordResetEmail
-↓
+        ↓
 Firebase Authentication envia o e-mail
-↓
+        ↓
 apps/web mostra mensagem de sucesso
 ```
 
@@ -658,6 +611,87 @@ Enviamos um e-mail com as instruções para redefinir sua senha.
 ```
 
 Durante o desenvolvimento, o e-mail pode cair na caixa de spam/lixo eletrônico, pois o envio é feito pelo domínio padrão do Firebase.
+
+## Evento interno de atualização de perfil
+
+O app usa um evento interno para sincronizar o perfil logo após o cadastro.
+
+Evento:
+
+```txt
+helpsenior:user-profile-updated
+```
+
+Esse evento é disparado pelo `useAuth` depois que o cadastro cria/atualiza o perfil.
+
+O `useUserProfile` escuta esse evento e atualiza o estado local do perfil.
+
+Isso evita que o usuário precise recarregar a página ou sair e entrar novamente para ver o nome atualizado.
+
+## sessionStorage para nome pendente
+
+Durante o cadastro, o app salva temporariamente o nome informado no `sessionStorage`.
+
+Chave:
+
+```txt
+helpsenior:pending-user-profile-name:{userId}
+```
+
+Essa estratégia evita problema de corrida entre:
+
+```txt
+onAuthStateChanged
+```
+
+e a criação/atualização do documento de perfil no Firestore.
+
+Quando o `useUserProfile` confirma que o perfil já possui o nome correto, a chave temporária é removida.
+
+## AuthForm
+
+O formulário de autenticação fica em:
+
+```txt
+src/features/auth/components/AuthForm.tsx
+```
+
+Ele possui três modos:
+
+```txt
+Entrar
+Criar conta
+Recuperar senha
+```
+
+No modo `Entrar`, exibe:
+
+```txt
+E-mail
+Senha
+```
+
+No modo `Criar conta`, exibe:
+
+```txt
+Nome completo
+E-mail
+Senha
+Confirmar senha
+```
+
+No modo `Recuperar senha`, exibe:
+
+```txt
+E-mail
+```
+
+Antes de cadastrar, o formulário valida:
+
+```txt
+Nome obrigatório
+Confirmação de senha igual à senha
+```
 
 ## Tratamento amigável de erros de autenticação
 
@@ -704,6 +738,7 @@ nas ações:
 ```txt
 signUp
 signIn
+resetPassword
 signOut
 ```
 
@@ -810,7 +845,7 @@ Não foi possível salvar as preferências.
 
 ## Tarefas
 
-As tarefas são o primeiro módulo funcional do HelpSenior.
+As tarefas representam o que o usuário precisa fazer.
 
 Elas podem ser simples:
 
@@ -818,7 +853,14 @@ Elas podem ser simples:
 Tomar remédio
 ```
 
-Ou guiadas por etapas:
+Podem ter uma data:
+
+```txt
+Ir ao médico
+Data: 2026-07-10
+```
+
+Ou podem ser guiadas por etapas:
 
 ```txt
 Tomar remédio
@@ -827,6 +869,10 @@ Tomar remédio
 2. Conferir o horário
 3. Tomar com água
 ```
+
+As etapas são opcionais.
+
+Para avisos, horários e repetição, o usuário deve usar lembretes.
 
 ## Página HomePage
 
@@ -868,6 +914,43 @@ Ele é responsável por:
 - recarregar a lista após alterações;
 - controlar estados de loading e erro;
 - traduzir erros do Firestore para mensagens amigáveis.
+
+## CreateTaskForm
+
+O componente de criação de tarefas fica em:
+
+```txt
+src/features/tasks/components/CreateTaskForm.tsx
+```
+
+Ele permite:
+
+- informar título;
+- informar descrição opcional;
+- informar data opcional;
+- adicionar etapas opcionais;
+- remover etapas;
+- criar a tarefa.
+
+O texto do formulário orienta que avisos e repetição ficam na área de lembretes.
+
+## TaskList
+
+O componente de listagem de tarefas fica em:
+
+```txt
+src/features/tasks/components/TaskList.tsx
+```
+
+Ele exibe:
+
+- título;
+- descrição;
+- status;
+- data;
+- etapas;
+- botão para concluir tarefa;
+- botão para concluir etapa.
 
 ## Lembretes
 
@@ -1358,6 +1441,31 @@ userPreferences
 userProfiles
 ```
 
+## Coleção tasks
+
+As tarefas são salvas na coleção:
+
+```txt
+tasks
+```
+
+Cada documento possui os principais campos:
+
+```txt
+userId
+title
+description
+status
+completed
+date
+steps
+createdAt
+updatedAt
+completedAt
+```
+
+A coleção `tasks` não possui campos de recorrência.
+
 ## Coleção reminders
 
 Os lembretes são salvos na coleção:
@@ -1593,10 +1701,13 @@ O app Web atualmente possui:
 - criação automática do perfil após cadastro;
 - sincronização imediata do nome do perfil após cadastro;
 - login;
+- recuperação de senha;
 - logout;
 - tratamento amigável de erros de autenticação;
 - tratamento amigável de erros do Firestore;
 - criação de tarefas;
+- criação de tarefas com descrição;
+- criação de tarefas com data;
 - criação de tarefas com etapas;
 - listagem de tarefas por usuário autenticado;
 - conclusão de tarefa;
@@ -1629,9 +1740,8 @@ O app Web atualmente possui:
 
 O app ainda não possui:
 
-- recuperação de senha;
-- tarefas recorrentes;
-- recorrência personalizada por dias da semana;
+- filtros e resumo visual de tarefas;
+- recorrência personalizada por dias da semana nos lembretes;
 - Design System;
 - responsividade refinada;
 - loading visual refinado;
@@ -1646,11 +1756,10 @@ O app ainda não possui:
 
 As próximas evoluções recomendadas são:
 
-1. Criar recuperação de senha.
-2. Criar tarefas recorrentes.
-3. Criar recorrência personalizada por dias da semana.
-4. Melhorar responsividade.
-5. Criar Design System.
-6. Criar testes automatizados no Web.
-7. Criar notificações com Service Worker/Firebase Cloud Messaging.
-8. Criar app Mobile.
+1. Criar filtros e resumo visual de tarefas.
+2. Criar recorrência personalizada por dias da semana nos lembretes.
+3. Melhorar responsividade.
+4. Criar Design System.
+5. Criar testes automatizados no Web.
+6. Criar notificações com Service Worker/Firebase Cloud Messaging.
+7. Criar app Mobile.

@@ -2,7 +2,7 @@
 
 Pacote de infraestrutura Firebase do HelpSenior.
 
-Este pacote é responsável por conectar a aplicação ao Firebase, fornecendo serviços de autenticação, persistência no Cloud Firestore, repositórios concretos e mapeadores entre o domínio do `@helpsenior/core` e os dados salvos no Firebase.
+Este pacote é responsável por conectar a aplicação ao Firebase, fornecendo serviços de autenticação, recuperação de senha, persistência no Cloud Firestore, repositórios concretos e mapeadores entre o domínio do `@helpsenior/core` e os dados salvos no Firebase.
 
 O `@helpsenior/firebase` implementa contratos definidos no pacote:
 
@@ -34,6 +34,7 @@ O pacote `@helpsenior/firebase` é responsável por:
 - criar instância do Firebase Authentication;
 - criar instância do Cloud Firestore;
 - autenticar usuários com e-mail e senha;
+- enviar e-mail de recuperação de senha;
 - observar mudanças no usuário autenticado;
 - salvar tarefas no Firestore;
 - listar tarefas do usuário autenticado;
@@ -77,6 +78,25 @@ O monorepo segue esta separação:
 @helpsenior/firebase
         ↓
 apps/web
+```
+
+## Decisão de produto
+
+O HelpSenior separa claramente tarefa e lembrete:
+
+```txt
+Tarefa = o que precisa ser feito
+Etapas = como fazer
+Lembrete = quando avisar e repetir
+```
+
+Por isso, a coleção `tasks` não possui campos de recorrência.
+
+A recorrência fica apenas em `reminders`, usando:
+
+```txt
+recurrence
+recurrenceEndDate
 ```
 
 ## Estrutura atual
@@ -217,8 +237,69 @@ em tarefas, preferências, perfil e lembretes.
 signUp
 signIn
 signOut
+resetPassword
 onAuthStateChanged
 ```
+
+## Cadastro
+
+O cadastro usa Firebase Authentication com e-mail e senha.
+
+Método interno do Firebase:
+
+```txt
+createUserWithEmailAndPassword
+```
+
+## Login
+
+O login usa Firebase Authentication com e-mail e senha.
+
+Método interno do Firebase:
+
+```txt
+signInWithEmailAndPassword
+```
+
+## Logout
+
+O logout encerra a sessão atual do usuário autenticado.
+
+Método interno do Firebase:
+
+```txt
+signOut
+```
+
+## Recuperação de senha
+
+O pacote possui suporte a recuperação de senha.
+
+Método do serviço:
+
+```txt
+resetPassword
+```
+
+Método interno do Firebase:
+
+```txt
+sendPasswordResetEmail
+```
+
+Fluxo:
+
+```txt
+apps/web chama useAuth.resetPassword
+        ↓
+useAuth chama FirebaseAuthService.resetPassword
+        ↓
+FirebaseAuthService chama sendPasswordResetEmail
+        ↓
+Firebase Authentication envia o e-mail de redefinição
+```
+
+Durante o desenvolvimento, o e-mail pode cair na caixa de spam ou lixo eletrônico, pois o envio é feito pelo domínio padrão do Firebase.
 
 ## Módulo tasks
 
@@ -271,11 +352,57 @@ userId
 title
 description
 status
+completed
+date
 steps
 createdAt
 updatedAt
 completedAt
 ```
+
+A tarefa pode ter uma data opcional, mas não possui recorrência.
+
+Recorrência pertence somente aos lembretes.
+
+## Exemplo conceitual de tarefa
+
+```json
+{
+  "userId": "firebase-user-id",
+  "title": "Tomar remédio",
+  "description": "Tomar o remédio da pressão após o café",
+  "status": "pending",
+  "completed": false,
+  "date": "2026-07-10",
+  "steps": [
+    {
+      "id": "step-id-1",
+      "title": "Pegar o remédio",
+      "order": 1,
+      "completed": false
+    },
+    {
+      "id": "step-id-2",
+      "title": "Tomar com água",
+      "order": 2,
+      "completed": false
+    }
+  ],
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}
+```
+
+## Campos que não pertencem a tasks
+
+A coleção `tasks` não deve usar:
+
+```txt
+recurrence
+recurrenceEndDate
+```
+
+Esses campos são exclusivos da coleção `reminders`.
 
 ## TaskFirestoreMapper
 
@@ -309,6 +436,16 @@ undefined
 
 Por isso o mapper remove campos opcionais quando eles não existem.
 
+Campos opcionais tratados pelo mapper de tarefas:
+
+```txt
+description
+date
+completedAt
+steps.description
+steps.completedAt
+```
+
 ## FirebaseTaskRepository
 
 Arquivo:
@@ -326,6 +463,64 @@ create
 findById
 listByUserId
 update
+```
+
+### create
+
+Salva uma nova tarefa no Firestore.
+
+```ts
+await taskRepository.create(task);
+```
+
+Internamente usa:
+
+```txt
+setDoc
+```
+
+### findById
+
+Busca uma tarefa pelo ID.
+
+```ts
+const task = await taskRepository.findById(taskId);
+```
+
+Se a tarefa não existir, retorna:
+
+```txt
+null
+```
+
+### listByUserId
+
+Lista tarefas de um usuário específico.
+
+```ts
+const tasks = await taskRepository.listByUserId(userId);
+```
+
+Internamente usa query com:
+
+```txt
+where("userId", "==", userId)
+```
+
+Isso garante que o app carregue apenas tarefas do usuário logado.
+
+### update
+
+Atualiza uma tarefa existente.
+
+```ts
+await taskRepository.update(task);
+```
+
+Internamente usa:
+
+```txt
+updateDoc
 ```
 
 ## Módulo preferences
@@ -524,6 +719,8 @@ Exemplo conceitual:
 ```
 
 ## Recorrência no Firestore
+
+A recorrência existe apenas em lembretes.
 
 O campo:
 
@@ -872,6 +1069,18 @@ export * from "./profile";
 export * from "./reminders";
 ```
 
+## Exports do módulo tasks
+
+Arquivo:
+
+```txt
+src/tasks/index.ts
+```
+
+```ts
+export { FirebaseTaskRepository } from "./repositories/FirebaseTaskRepository";
+```
+
 ## Exports do módulo reminders
 
 Arquivo:
@@ -923,6 +1132,46 @@ export const userPreferencesRepository = new FirebaseUserPreferencesRepository(
 export const userProfileRepository = new FirebaseUserProfileRepository(db);
 
 export const reminderRepository = new FirebaseReminderRepository(db);
+```
+
+## Exemplo com tarefa
+
+```ts
+import {
+  CompleteTaskUseCase,
+  CreateTaskUseCase,
+  ListTasksUseCase,
+} from "@helpsenior/core";
+import { FirebaseTaskRepository } from "@helpsenior/firebase";
+
+const taskRepository = new FirebaseTaskRepository(db);
+
+const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+const listTasksUseCase = new ListTasksUseCase(taskRepository);
+const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
+
+const { task } = await createTaskUseCase.execute({
+  userId: user.id,
+  title: "Tomar remédio",
+  description: "Tomar o remédio da pressão após o café",
+  date: "2026-07-10",
+  steps: [
+    {
+      title: "Pegar o remédio",
+    },
+    {
+      title: "Tomar com água",
+    },
+  ],
+});
+
+await completeTaskUseCase.execute({
+  taskId: task.id,
+});
+
+const { tasks } = await listTasksUseCase.execute({
+  userId: user.id,
+});
 ```
 
 ## Exemplo com lembrete recorrente
@@ -1059,23 +1308,26 @@ O pacote `@helpsenior/firebase` atualmente possui:
 - suporte a cadastro com e-mail e senha;
 - suporte a login com e-mail e senha;
 - suporte a logout;
+- suporte a recuperação de senha;
 - observador de estado de autenticação;
 - repositório Firebase para tarefas;
 - mapper de tarefas para Firestore;
+- suporte à coleção `tasks`;
+- tarefas com data opcional;
+- tarefas com etapas opcionais;
 - repositório Firebase para preferências;
 - mapper de preferências para Firestore;
+- suporte à coleção `userPreferences`;
 - repositório Firebase para perfil;
 - mapper de perfil para Firestore;
+- suporte à coleção `userProfiles`;
 - repositório Firebase para lembretes;
 - mapper de lembretes para Firestore;
+- suporte à coleção `reminders`;
 - suporte a lembretes recorrentes;
-- suporte aos campos `recurrence` e `recurrenceEndDate`;
+- suporte aos campos `recurrence` e `recurrenceEndDate` em lembretes;
 - compatibilidade com lembretes antigos sem campo `recurrence`;
 - integração com contratos do `@helpsenior/core`;
-- suporte à coleção `tasks`;
-- suporte à coleção `userPreferences`;
-- suporte à coleção `userProfiles`;
-- suporte à coleção `reminders`;
 - regras recomendadas do Firestore documentadas.
 
 ## Limitações atuais
@@ -1086,11 +1338,9 @@ O pacote ainda não possui:
 - Firebase Cloud Messaging;
 - Firebase Functions;
 - suporte a login social;
-- suporte a redefinição de senha;
 - paginação de tarefas;
 - paginação de lembretes;
 - ordenação via query no Firestore;
-- tratamento especializado de erros Firebase;
 - testes automatizados próprios;
 - suporte offline customizado;
 - camada de analytics.
@@ -1099,11 +1349,9 @@ O pacote ainda não possui:
 
 As próximas evoluções recomendadas são:
 
-1. Criar tratamento especializado para erros de autenticação.
-2. Adicionar método de recuperação de senha.
-3. Adicionar paginação ou ordenação nas tarefas.
-4. Adicionar paginação ou ordenação nos lembretes.
-5. Criar testes de integração com emuladores Firebase.
-6. Avaliar uso futuro de Firebase Storage.
-7. Avaliar uso futuro de Cloud Messaging para lembretes.
-8. Avaliar uso futuro de Cloud Functions.
+1. Adicionar paginação ou ordenação nas tarefas.
+2. Adicionar paginação ou ordenação nos lembretes.
+3. Criar testes de integração com emuladores Firebase.
+4. Avaliar uso futuro de Firebase Storage.
+5. Avaliar uso futuro de Cloud Messaging para lembretes.
+6. Avaliar uso futuro de Cloud Functions.

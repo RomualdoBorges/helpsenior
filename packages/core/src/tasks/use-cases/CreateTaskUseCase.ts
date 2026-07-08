@@ -1,8 +1,7 @@
-import type { Task } from "../entities/Task";
-import type { TaskStep } from "../entities/TaskStep";
+import type { Task, TaskStep } from "../entities/Task";
 import type { TaskRepository } from "../repositories/TaskRepository";
 
-interface CreateTaskUseCaseRequest {
+export interface CreateTaskUseCaseInput {
   userId: string;
   title: string;
   description?: string;
@@ -10,10 +9,15 @@ interface CreateTaskUseCaseRequest {
     title: string;
     description?: string;
   }>;
+  date?: string;
 }
 
-interface CreateTaskUseCaseResponse {
+export interface CreateTaskUseCaseOutput {
   task: Task;
+}
+
+function createId() {
+  return crypto.randomUUID();
 }
 
 export class CreateTaskUseCase {
@@ -23,38 +27,43 @@ export class CreateTaskUseCase {
     this.taskRepository = taskRepository;
   }
 
-  async execute(
-    request: CreateTaskUseCaseRequest,
-  ): Promise<CreateTaskUseCaseResponse> {
-    if (!request.userId.trim()) {
+  async execute(input: CreateTaskUseCaseInput): Promise<CreateTaskUseCaseOutput> {
+    if (!input.userId.trim()) {
       throw new Error("Usuário é obrigatório.");
     }
 
-    if (!request.title.trim()) {
+    if (!input.title.trim()) {
       throw new Error("Título da tarefa é obrigatório.");
     }
 
     const now = new Date();
 
-    const steps: TaskStep[] =
-      request.steps?.map((step, index) => ({
-        id: crypto.randomUUID(),
-        title: step.title,
-        description: step.description,
-        completed: false,
-        order: index + 1,
-      })) ?? [];
+    const steps: TaskStep[] = (input.steps ?? []).map((step, index) => ({
+      id: createId(),
+      title: step.title,
+      description: step.description,
+      order: index + 1,
+      completed: false,
+    }));
 
     const task: Task = {
-      id: crypto.randomUUID(),
-      userId: request.userId,
-      title: request.title,
-      description: request.description,
-      status: "pending",
+      id: createId(),
+      userId: input.userId,
+      title: input.title,
       steps,
+      status: "pending",
+      completed: false,
       createdAt: now,
       updatedAt: now,
     };
+
+    if (input.description) {
+      task.description = input.description;
+    }
+
+    if (input.date) {
+      task.date = input.date;
+    }
 
     await this.taskRepository.create(task);
 

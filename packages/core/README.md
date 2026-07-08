@@ -75,8 +75,7 @@ packages/core/
     │
     ├── tasks/
     │   ├── entities/
-    │   │   ├── Task.ts
-    │   │   └── TaskStep.ts
+    │   │   └── Task.ts
     │   ├── repositories/
     │   │   └── TaskRepository.ts
     │   ├── in-memory/
@@ -143,6 +142,22 @@ profile
 reminders
 ```
 
+## Decisão de produto
+
+O HelpSenior separa claramente tarefa e lembrete:
+
+```txt
+Tarefa = o que precisa ser feito
+Etapas = como fazer
+Lembrete = quando avisar e repetir
+```
+
+Por isso, tarefas **não possuem recorrência**.
+
+A recorrência fica apenas no módulo de lembretes.
+
+Essa decisão deixa a experiência mais simples para o usuário, principalmente no contexto de acessibilidade para pessoas idosas.
+
 ## Módulo tasks
 
 O módulo `tasks` representa as tarefas do usuário.
@@ -151,6 +166,13 @@ Uma tarefa pode ser simples:
 
 ```txt
 Tomar remédio
+```
+
+Pode ter uma data:
+
+```txt
+Ir ao médico
+Data: 2026-07-10
 ```
 
 Ou pode ser guiada por etapas:
@@ -163,6 +185,8 @@ Tomar remédio
 3. Tomar com água
 ```
 
+As etapas são opcionais e servem para dividir uma tarefa em passos menores.
+
 ## Entidade Task
 
 Arquivo:
@@ -172,39 +196,134 @@ src/tasks/entities/Task.ts
 ```
 
 ```ts
-import type { TaskStep } from "./TaskStep";
-
 export type TaskStatus = "pending" | "in_progress" | "completed";
+
+export interface TaskStep {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  completed: boolean;
+  completedAt?: Date;
+}
 
 export interface Task {
   id: string;
   userId: string;
   title: string;
   description?: string;
-  status: TaskStatus;
   steps: TaskStep[];
+  status: TaskStatus;
+  completed: boolean;
+  date?: string;
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
 }
 ```
 
-## Entidade TaskStep
-
-Arquivo:
+## Campos principais de Task
 
 ```txt
-src/tasks/entities/TaskStep.ts
+id
 ```
 
-```ts
-export interface TaskStep {
-  id: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  order: number;
-}
+Identificador único da tarefa.
+
+```txt
+userId
+```
+
+Identificador do usuário dono da tarefa.
+
+```txt
+title
+```
+
+Título da tarefa.
+
+```txt
+description
+```
+
+Descrição opcional da tarefa.
+
+```txt
+steps
+```
+
+Lista opcional de etapas da tarefa.
+
+```txt
+status
+```
+
+Status atual da tarefa:
+
+```txt
+pending
+in_progress
+completed
+```
+
+```txt
+completed
+```
+
+Indica se a tarefa foi concluída.
+
+```txt
+date
+```
+
+Data opcional da tarefa no formato:
+
+```txt
+YYYY-MM-DD
+```
+
+```txt
+createdAt
+```
+
+Data de criação da tarefa.
+
+```txt
+updatedAt
+```
+
+Data da última atualização.
+
+```txt
+completedAt
+```
+
+Data de conclusão, quando a tarefa estiver concluída.
+
+## Entidade TaskStep
+
+A etapa da tarefa faz parte da entidade `Task`.
+
+Campos principais:
+
+```txt
+id
+title
+description
+order
+completed
+completedAt
+```
+
+Exemplo de uso:
+
+```txt
+Tarefa: Preparar café
+
+Etapas:
+1. Colocar água
+2. Colocar pó
+3. Ligar a cafeteira
 ```
 
 ## Contrato TaskRepository
@@ -226,6 +345,18 @@ export interface TaskRepository {
 }
 ```
 
+O `core` não sabe onde a tarefa será salva.
+
+A persistência pode ser feita em:
+
+```txt
+Firestore
+API REST
+banco SQL
+memória
+outra infraestrutura
+```
+
 ## Casos de uso de tarefas
 
 O módulo `tasks` possui quatro casos de uso principais:
@@ -237,7 +368,7 @@ CompleteTaskUseCase
 CompleteTaskStepUseCase
 ```
 
-### CreateTaskUseCase
+## CreateTaskUseCase
 
 Cria uma tarefa.
 
@@ -245,10 +376,23 @@ Valida:
 
 - usuário obrigatório;
 - título obrigatório;
+- descrição opcional;
 - etapas opcionais;
-- status inicial como `pending`.
+- data opcional;
+- status inicial como `pending`;
+- `completed` inicial como `false`.
 
-### ListTasksUseCase
+Campos aceitos:
+
+```txt
+userId
+title
+description
+steps
+date
+```
+
+## ListTasksUseCase
 
 Lista tarefas de um usuário.
 
@@ -256,18 +400,27 @@ Valida:
 
 - usuário obrigatório.
 
-### CompleteTaskUseCase
+## CompleteTaskUseCase
 
 Conclui uma tarefa inteira.
 
 Ao concluir:
 
 - o status vira `completed`;
+- `completed` vira `true`;
 - todas as etapas também são concluídas;
 - `updatedAt` é atualizado;
 - `completedAt` é preenchido.
 
-### CompleteTaskStepUseCase
+Saída:
+
+```ts
+{
+  task: Task;
+}
+```
+
+## CompleteTaskStepUseCase
 
 Conclui uma etapa individual.
 
@@ -275,7 +428,17 @@ Ao concluir uma etapa:
 
 - a etapa vira concluída;
 - se ainda houver etapas pendentes, a tarefa fica `in_progress`;
-- se todas forem concluídas, a tarefa vira `completed`.
+- se todas forem concluídas, a tarefa vira `completed`;
+- `updatedAt` é atualizado;
+- `completedAt` é preenchido quando a tarefa inteira é concluída.
+
+Saída:
+
+```ts
+{
+  task: Task;
+}
+```
 
 ## Módulo preferences
 
@@ -570,16 +733,6 @@ recurrenceEndDate
 
 Se a próxima data calculada for maior que a data final, o próximo lembrete não é criado.
 
-Exemplo:
-
-```txt
-Data atual: 2026-07-10
-Recorrência: daily
-Data final: 2026-07-10
-```
-
-Ao concluir, nenhum próximo lembrete é criado.
-
 ## Entidade Reminder
 
 Arquivo:
@@ -608,94 +761,6 @@ export interface Reminder {
 }
 ```
 
-## Campos principais de Reminder
-
-```txt
-id
-```
-
-Identificador único do lembrete.
-
-```txt
-userId
-```
-
-Identificador do usuário dono do lembrete.
-
-```txt
-taskId
-```
-
-Identificador opcional da tarefa vinculada ao lembrete.
-
-```txt
-title
-```
-
-Título do lembrete.
-
-```txt
-description
-```
-
-Descrição opcional do lembrete.
-
-```txt
-date
-```
-
-Data do lembrete no formato:
-
-```txt
-YYYY-MM-DD
-```
-
-```txt
-time
-```
-
-Horário opcional do lembrete no formato:
-
-```txt
-HH:mm
-```
-
-```txt
-completed
-```
-
-Indica se o lembrete foi concluído.
-
-```txt
-recurrence
-```
-
-Tipo de recorrência do lembrete.
-
-```txt
-recurrenceEndDate
-```
-
-Data final opcional da recorrência.
-
-```txt
-createdAt
-```
-
-Data de criação do lembrete.
-
-```txt
-updatedAt
-```
-
-Data da última atualização.
-
-```txt
-completedAt
-```
-
-Data de conclusão, quando o lembrete estiver concluído.
-
 ## Contrato ReminderRepository
 
 Arquivo:
@@ -713,18 +778,6 @@ export interface ReminderRepository {
   listByUserId(userId: string): Promise<Reminder[]>;
   update(reminder: Reminder): Promise<void>;
 }
-```
-
-O `core` não sabe onde o lembrete será salvo.
-
-A persistência pode ser feita em:
-
-```txt
-Firestore
-API REST
-banco SQL
-memória
-outra infraestrutura
 ```
 
 ## Utilitário calculateNextReminderDate
@@ -799,6 +852,15 @@ Ao concluir:
 - se o lembrete for recorrente, cria o próximo lembrete automaticamente;
 - se existir `recurrenceEndDate`, respeita a data final da recorrência.
 
+Saída:
+
+```ts
+{
+  reminder: Reminder;
+  nextReminder: Reminder | null;
+}
+```
+
 ## Exports
 
 O arquivo principal do pacote fica em:
@@ -812,6 +874,42 @@ export * from "./tasks";
 export * from "./preferences";
 export * from "./profile";
 export * from "./reminders";
+```
+
+## Exports do módulo tasks
+
+Arquivo:
+
+```txt
+src/tasks/index.ts
+```
+
+```ts
+export type { Task, TaskStatus, TaskStep } from "./entities/Task";
+
+export type { TaskRepository } from "./repositories/TaskRepository";
+
+export { InMemoryTaskRepository } from "./in-memory/InMemoryTaskRepository";
+
+export { CreateTaskUseCase } from "./use-cases/CreateTaskUseCase";
+export type {
+  CreateTaskUseCaseInput,
+  CreateTaskUseCaseOutput,
+} from "./use-cases/CreateTaskUseCase";
+
+export { ListTasksUseCase } from "./use-cases/ListTasksUseCase";
+
+export { CompleteTaskUseCase } from "./use-cases/CompleteTaskUseCase";
+export type {
+  CompleteTaskUseCaseInput,
+  CompleteTaskUseCaseOutput,
+} from "./use-cases/CompleteTaskUseCase";
+
+export { CompleteTaskStepUseCase } from "./use-cases/CompleteTaskStepUseCase";
+export type {
+  CompleteTaskStepUseCaseInput,
+  CompleteTaskStepUseCaseOutput,
+} from "./use-cases/CompleteTaskStepUseCase";
 ```
 
 ## Exports do módulo reminders
@@ -858,6 +956,35 @@ src/preferences/use-cases/__tests__
 src/profile/use-cases/__tests__
 src/reminders/use-cases/__tests__
 ```
+
+## Testes de tarefas
+
+O módulo `tasks` possui testes para:
+
+```txt
+CreateTaskUseCase
+ListTasksUseCase
+CompleteTaskUseCase
+CompleteTaskStepUseCase
+```
+
+Os testes verificam:
+
+- criação de tarefa;
+- criação de tarefa com descrição;
+- criação de tarefa com data;
+- criação de tarefa com etapas;
+- validação de usuário obrigatório;
+- validação de título obrigatório;
+- listagem por usuário;
+- conclusão de tarefa;
+- conclusão de todas as etapas ao concluir tarefa;
+- conclusão de etapa individual;
+- tarefa em andamento quando apenas parte das etapas foi concluída;
+- tarefa concluída quando todas as etapas foram concluídas;
+- preservação da data da tarefa;
+- erro quando a tarefa não existe;
+- erro quando a etapa não existe.
 
 ## Testes de lembretes
 
@@ -926,6 +1053,50 @@ Rodar typecheck geral sem cache do Turbo:
 pnpm typecheck --force
 ```
 
+## Exemplo de uso com tarefa com etapas
+
+```ts
+import {
+  CompleteTaskStepUseCase,
+  CreateTaskUseCase,
+  InMemoryTaskRepository,
+  ListTasksUseCase,
+} from "@helpsenior/core";
+
+const repository = new InMemoryTaskRepository();
+
+const createTaskUseCase = new CreateTaskUseCase(repository);
+const listTasksUseCase = new ListTasksUseCase(repository);
+const completeTaskStepUseCase = new CompleteTaskStepUseCase(repository);
+
+const { task } = await createTaskUseCase.execute({
+  userId: "user-1",
+  title: "Tomar remédio",
+  description: "Tomar o remédio da pressão após o café.",
+  date: "2026-07-10",
+  steps: [
+    {
+      title: "Pegar o remédio",
+    },
+    {
+      title: "Conferir o nome",
+    },
+    {
+      title: "Tomar com água",
+    },
+  ],
+});
+
+await completeTaskStepUseCase.execute({
+  taskId: task.id,
+  stepId: task.steps[0]!.id,
+});
+
+const { tasks } = await listTasksUseCase.execute({
+  userId: "user-1",
+});
+```
+
 ## Exemplo de uso com lembrete recorrente
 
 ```ts
@@ -986,12 +1157,15 @@ O pacote `@helpsenior/core` atualmente possui:
 - TypeScript;
 - Vitest;
 - módulo de tarefas;
+- tarefas com etapas opcionais;
+- tarefas com data opcional;
 - módulo de preferências de acessibilidade;
 - módulo de perfil do usuário;
 - módulo de lembretes;
 - lembretes recorrentes;
 - entidade `Task`;
 - entidade `TaskStep`;
+- tipo `TaskStatus`;
 - entidade `UserPreferences`;
 - entidade `UserProfile`;
 - entidade `Reminder`;
@@ -1004,6 +1178,7 @@ O pacote `@helpsenior/core` atualmente possui:
 - casos de uso testáveis;
 - utilitário `calculateNextReminderDate`;
 - testes unitários;
+- testes unitários para tarefas;
 - testes unitários para recorrência de lembretes;
 - exports públicos organizados por módulo;
 - independência de React;
@@ -1015,10 +1190,9 @@ O pacote `@helpsenior/core` atualmente possui:
 O pacote ainda não possui:
 
 - módulo de notificações externas;
-- tarefas recorrentes;
-- recorrência personalizada por dias da semana;
-- recorrência anual;
-- intervalos customizados;
+- recorrência personalizada por dias da semana nos lembretes;
+- recorrência anual nos lembretes;
+- intervalos customizados nos lembretes;
 - regras de compartilhamento de tarefas;
 - validações avançadas de data e horário;
 - internacionalização;
@@ -1028,9 +1202,8 @@ O pacote ainda não possui:
 
 As próximas evoluções recomendadas são:
 
-1. Criar tarefas recorrentes.
-2. Criar recorrência personalizada por dias da semana.
-3. Criar value objects para validações mais fortes.
-4. Criar testes para regras avançadas de recorrência.
-5. Preparar contratos para notificações futuras.
-6. Reavaliar entidades conforme o app mobile evoluir.
+1. Criar recorrência personalizada por dias da semana nos lembretes.
+2. Criar value objects para validações mais fortes.
+3. Criar testes para regras avançadas de recorrência.
+4. Preparar contratos para notificações futuras.
+5. Reavaliar entidades conforme o app mobile evoluir.

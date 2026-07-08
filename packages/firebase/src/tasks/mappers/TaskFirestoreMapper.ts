@@ -1,23 +1,65 @@
-import type { Task } from "@helpsenior/core";
 import { Timestamp } from "firebase/firestore";
+
+import type { Task, TaskStatus, TaskStep } from "@helpsenior/core";
 
 interface FirestoreTaskStep {
   id: string;
   title: string;
   description?: string;
-  completed: boolean;
   order: number;
+  completed: boolean;
+  completedAt?: Timestamp;
 }
 
 interface FirestoreTask {
   userId: string;
   title: string;
   description?: string;
-  status: Task["status"];
   steps: FirestoreTaskStep[];
+  status: TaskStatus;
+  completed: boolean;
+  date?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   completedAt?: Timestamp;
+}
+
+function toFirestoreTaskStep(step: TaskStep): FirestoreTaskStep {
+  const firestoreStep: FirestoreTaskStep = {
+    id: step.id,
+    title: step.title,
+    order: step.order,
+    completed: step.completed,
+  };
+
+  if (step.description) {
+    firestoreStep.description = step.description;
+  }
+
+  if (step.completedAt) {
+    firestoreStep.completedAt = Timestamp.fromDate(step.completedAt);
+  }
+
+  return firestoreStep;
+}
+
+function fromFirestoreTaskStep(step: FirestoreTaskStep): TaskStep {
+  const taskStep: TaskStep = {
+    id: step.id,
+    title: step.title,
+    order: step.order,
+    completed: step.completed,
+  };
+
+  if (step.description) {
+    taskStep.description = step.description;
+  }
+
+  if (step.completedAt) {
+    taskStep.completedAt = step.completedAt.toDate();
+  }
+
+  return taskStep;
 }
 
 export class TaskFirestoreMapper {
@@ -25,27 +67,19 @@ export class TaskFirestoreMapper {
     const firestoreTask: FirestoreTask = {
       userId: task.userId,
       title: task.title,
+      steps: task.steps.map(toFirestoreTaskStep),
       status: task.status,
-      steps: task.steps.map((step) => {
-        const firestoreStep: FirestoreTaskStep = {
-          id: step.id,
-          title: step.title,
-          completed: step.completed,
-          order: step.order,
-        };
-
-        if (step.description) {
-          firestoreStep.description = step.description;
-        }
-
-        return firestoreStep;
-      }),
+      completed: task.completed,
       createdAt: Timestamp.fromDate(task.createdAt),
       updatedAt: Timestamp.fromDate(task.updatedAt),
     };
 
     if (task.description) {
       firestoreTask.description = task.description;
+    }
+
+    if (task.date) {
+      firestoreTask.date = task.date;
     }
 
     if (task.completedAt) {
@@ -56,22 +90,29 @@ export class TaskFirestoreMapper {
   }
 
   static fromFirestore(id: string, data: FirestoreTask): Task {
-    return {
+    const task: Task = {
       id,
       userId: data.userId,
       title: data.title,
-      description: data.description,
+      steps: (data.steps ?? []).map(fromFirestoreTaskStep),
       status: data.status,
-      steps: data.steps.map((step) => ({
-        id: step.id,
-        title: step.title,
-        description: step.description,
-        completed: step.completed,
-        order: step.order,
-      })),
+      completed: data.completed,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
-      completedAt: data.completedAt?.toDate(),
     };
+
+    if (data.description) {
+      task.description = data.description;
+    }
+
+    if (data.date) {
+      task.date = data.date;
+    }
+
+    if (data.completedAt) {
+      task.completedAt = data.completedAt.toDate();
+    }
+
+    return task;
   }
 }
