@@ -2,7 +2,7 @@
 
 Aplicação Web do HelpSenior.
 
-Este app é responsável pela interface principal da plataforma, permitindo que usuários criem conta, façam login, recuperem senha, organizem tarefas simples ou guiadas por etapas, criem lembretes, configurem lembretes recorrentes, recebam alertas no navegador, editem o perfil e personalizem a experiência visual com recursos de acessibilidade.
+Este app é responsável pela interface principal da plataforma, permitindo que usuários criem conta, façam login, recuperem senha, organizem tarefas simples, criem lembretes, configurem lembretes recorrentes, recebam alertas no navegador, editem o perfil e personalizem a experiência visual com recursos de acessibilidade.
 
 O app Web consome os pacotes internos do monorepo:
 
@@ -15,7 +15,7 @@ O app Web consome os pacotes internos do monorepo:
 
 O HelpSenior Web tem como objetivo ajudar pessoas idosas a organizar atividades do dia a dia com mais clareza, segurança, acessibilidade e autonomia.
 
-A aplicação permite criar tarefas simples ou divididas em etapas guiadas, facilitando o acompanhamento de ações como:
+A aplicação permite criar tarefas simples com descrição e data opcional, facilitando o acompanhamento de ações como:
 
 ```txt
 Tomar remédio
@@ -34,7 +34,6 @@ Além disso, o usuário pode:
 - criar tarefas simples;
 - criar tarefas com descrição;
 - criar tarefas com data;
-- criar tarefas com etapas opcionais;
 - criar lembretes com data e horário;
 - criar lembretes recorrentes;
 - receber alerta visual dentro do app;
@@ -50,7 +49,6 @@ O HelpSenior separa claramente tarefa e lembrete:
 
 ```txt
 Tarefa = o que precisa ser feito
-Etapas = como fazer
 Lembrete = quando avisar e repetir
 ```
 
@@ -81,11 +79,9 @@ Atualmente o app Web possui:
 - criação de tarefas simples;
 - criação de tarefas com descrição;
 - criação de tarefas com data;
-- criação de tarefas com etapas guiadas opcionais;
 - listagem de tarefas do usuário logado;
 - conclusão de tarefa inteira;
 - conclusão de etapa individual;
-- conclusão automática da tarefa quando todas as etapas são concluídas;
 - persistência das tarefas no Cloud Firestore;
 - criação de lembretes;
 - criação de lembretes recorrentes;
@@ -180,13 +176,11 @@ Ele fornece recursos para tarefas:
 
 ```txt
 Task
-TaskStep
 TaskStatus
 TaskRepository
 CreateTaskUseCase
 ListTasksUseCase
 CompleteTaskUseCase
-CompleteTaskStepUseCase
 ```
 
 Recursos para lembretes:
@@ -860,18 +854,6 @@ Ir ao médico
 Data: 2026-07-10
 ```
 
-Ou podem ser guiadas por etapas:
-
-```txt
-Tomar remédio
-
-1. Pegar o remédio
-2. Conferir o horário
-3. Tomar com água
-```
-
-As etapas são opcionais.
-
 Para avisos, horários e repetição, o usuário deve usar lembretes.
 
 ## Página HomePage
@@ -928,8 +910,6 @@ Ele permite:
 - informar título;
 - informar descrição opcional;
 - informar data opcional;
-- adicionar etapas opcionais;
-- remover etapas;
 - criar a tarefa.
 
 O texto do formulário orienta que avisos e repetição ficam na área de lembretes.
@@ -948,9 +928,7 @@ Ele exibe:
 - descrição;
 - status;
 - data;
-- etapas;
 - botão para concluir tarefa;
-- botão para concluir etapa.
 
 ## Lembretes
 
@@ -1458,7 +1436,6 @@ description
 status
 completed
 date
-steps
 createdAt
 updatedAt
 completedAt
@@ -1708,7 +1685,6 @@ O app Web atualmente possui:
 - criação de tarefas;
 - criação de tarefas com descrição;
 - criação de tarefas com data;
-- criação de tarefas com etapas;
 - listagem de tarefas por usuário autenticado;
 - conclusão de tarefa;
 - conclusão de etapa;

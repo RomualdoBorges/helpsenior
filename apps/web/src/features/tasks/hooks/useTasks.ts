@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  CompleteTaskStepUseCase,
   CompleteTaskUseCase,
   CreateTaskUseCase,
   ListTasksUseCase,
@@ -13,15 +12,9 @@ import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 import { sortTasks } from "../utils/sortTasks";
 
-interface CreateTaskStepInput {
-  title: string;
-  description?: string;
-}
-
 interface CreateTaskInput {
   title: string;
   description?: string;
-  steps: CreateTaskStepInput[];
   date?: string;
 }
 
@@ -45,11 +38,6 @@ export function useTasks(userId: string | null) {
 
   const completeTaskUseCase = useMemo(
     () => new CompleteTaskUseCase(taskRepository),
-    [taskRepository],
-  );
-
-  const completeTaskStepUseCase = useMemo(
-    () => new CompleteTaskStepUseCase(taskRepository),
     [taskRepository],
   );
 
@@ -94,7 +82,6 @@ export function useTasks(userId: string | null) {
           userId,
           title: input.title,
           description: input.description,
-          steps: input.steps,
           date: input.date,
         });
 
@@ -135,29 +122,6 @@ export function useTasks(userId: string | null) {
     [completeTaskUseCase, loadTasks],
   );
 
-  const completeTaskStep = useCallback(
-    async (taskId: string, stepId: string) => {
-      try {
-        setError(null);
-
-        await completeTaskStepUseCase.execute({
-          taskId,
-          stepId,
-        });
-
-        await loadTasks();
-      } catch (caughtError) {
-        setError(
-          getFirebaseFirestoreErrorMessage(
-            caughtError,
-            "Não foi possível concluir a etapa.",
-          ),
-        );
-      }
-    },
-    [completeTaskStepUseCase, loadTasks],
-  );
-
   useEffect(() => {
     void loadTasks();
   }, [loadTasks]);
@@ -170,6 +134,5 @@ export function useTasks(userId: string | null) {
     loadTasks,
     createTask,
     completeTask,
-    completeTaskStep,
   };
 }

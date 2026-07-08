@@ -30,9 +30,7 @@ export class CompleteTaskUseCase {
     }
 
     if (task.completed) {
-      return {
-        task,
-      };
+      return { task };
     }
 
     const now = new Date();
@@ -43,17 +41,10 @@ export class CompleteTaskUseCase {
       completed: true,
       updatedAt: now,
       completedAt: now,
-      steps: task.steps.map((step) => ({
-        ...step,
-        completed: true,
-        completedAt: step.completedAt ?? now,
-      })),
     };
 
     await this.taskRepository.update(completedTask);
 
-    return {
-      task: completedTask,
-    };
+    return { task: completedTask };
   }
 }

@@ -19,15 +19,8 @@ interface HomePageProps {
 }
 
 export function HomePage({ user }: HomePageProps) {
-  const {
-    tasks,
-    isLoading,
-    isCreating,
-    error,
-    createTask,
-    completeTask,
-    completeTaskStep,
-  } = useTasks(user.id);
+  const { tasks, isLoading, isCreating, error, createTask, completeTask } =
+    useTasks(user.id);
 
   const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("all");
 
@@ -50,33 +43,24 @@ export function HomePage({ user }: HomePageProps) {
   return (
     <section
       className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="tasks-title"
-    >
+      aria-labelledby="tasks-title">
       <div>
         <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
           Minhas tarefas
         </h2>
 
         <p className="mt-2 text-base leading-6 text-slate-500">
-          Crie tarefas simples ou guiadas por etapas para acompanhar atividades
-          importantes do dia a dia.
+          Crie tarefas simples para acompanhar atividades importantes do dia a
+          dia.
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
 
           <strong className="mt-2 block text-3xl text-slate-950">
             {taskSummary.pending}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-          <p className="m-0 text-sm font-bold text-blue-700">Em andamento</p>
-
-          <strong className="mt-2 block text-3xl text-blue-950">
-            {taskSummary.inProgress}
           </strong>
         </article>
 
@@ -127,8 +111,7 @@ export function HomePage({ user }: HomePageProps) {
                     isSelected
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-700"
-                  }`}
-                >
+                  }`}>
                   {filter.label} ({filter.count})
                 </button>
               );
@@ -143,7 +126,6 @@ export function HomePage({ user }: HomePageProps) {
             selectedFilterOption?.emptyMessage ?? "Nenhuma tarefa encontrada."
           }
           onCompleteTask={completeTask}
-          onCompleteTaskStep={completeTaskStep}
         />
       </div>
     </section>

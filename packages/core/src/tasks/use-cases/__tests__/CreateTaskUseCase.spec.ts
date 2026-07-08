@@ -5,81 +5,83 @@ import { CreateTaskUseCase } from "../CreateTaskUseCase";
 
 describe("CreateTaskUseCase", () => {
   it("should create a task", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
 
-    const { task } = await createTaskUseCase.execute({
+    const result = await useCase.execute({
       userId: "user-1",
       title: "Tomar remédio",
-      description: "Tomar o remédio da pressão.",
     });
 
-    expect(task.id).toEqual(expect.any(String));
-    expect(task.userId).toBe("user-1");
-    expect(task.title).toBe("Tomar remédio");
-    expect(task.description).toBe("Tomar o remédio da pressão.");
-    expect(task.status).toBe("pending");
-    expect(task.steps).toHaveLength(0);
-    expect(task.createdAt).toBeInstanceOf(Date);
-    expect(task.updatedAt).toBeInstanceOf(Date);
-    expect(task.completedAt).toBeUndefined();
+    expect(result.task.id).toBeDefined();
+    expect(result.task.userId).toBe("user-1");
+    expect(result.task.title).toBe("Tomar remédio");
+    expect(result.task.status).toBe("pending");
+    expect(result.task.completed).toBe(false);
+    expect(result.task.createdAt).toBeInstanceOf(Date);
+    expect(result.task.updatedAt).toBeInstanceOf(Date);
   });
 
-  it("should create a task with steps", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+  it("should create a task with description", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
 
-    const { task } = await createTaskUseCase.execute({
+    const result = await useCase.execute({
       userId: "user-1",
-      title: "Preparar café",
-      steps: [
-        {
-          title: "Pegar a garrafa",
-        },
-        {
-          title: "Colocar água",
-          description: "Usar água filtrada.",
-        },
-      ],
+      title: "Tomar remédio",
+      description: "Tomar o remédio da pressão após o café.",
     });
 
-    expect(task.steps).toHaveLength(2);
-
-    expect(task.steps[0]).toEqual({
-      id: expect.any(String),
-      title: "Pegar a garrafa",
-      description: undefined,
-      completed: false,
-      order: 1,
-    });
-
-    expect(task.steps[1]).toEqual({
-      id: expect.any(String),
-      title: "Colocar água",
-      description: "Usar água filtrada.",
-      completed: false,
-      order: 2,
-    });
+    expect(result.task.description).toBe(
+      "Tomar o remédio da pressão após o café.",
+    );
   });
 
-  it("should not create a task without userId", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+  it("should create a task with date", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
 
-    await expect(() =>
-      createTaskUseCase.execute({
+    const result = await useCase.execute({
+      userId: "user-1",
+      title: "Ir ao médico",
+      date: "2026-07-10",
+    });
+
+    expect(result.task.date).toBe("2026-07-10");
+  });
+
+  it("should save the created task in repository", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
+
+    const result = await useCase.execute({
+      userId: "user-1",
+      title: "Pagar conta",
+    });
+
+    const savedTask = await repository.findById(result.task.id);
+
+    expect(savedTask).toEqual(result.task);
+  });
+
+  it("should throw an error when userId is empty", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
+
+    await expect(
+      useCase.execute({
         userId: "",
         title: "Tomar remédio",
       }),
     ).rejects.toThrow("Usuário é obrigatório.");
   });
 
-  it("should not create a task without title", async () => {
-    const taskRepository = new InMemoryTaskRepository();
-    const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+  it("should throw an error when title is empty", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
 
-    await expect(() =>
-      createTaskUseCase.execute({
+    await expect(
+      useCase.execute({
         userId: "user-1",
         title: "",
       }),

@@ -133,7 +133,6 @@ button:disabled {
   border-color: #ffffff !important;
 }
 
-.high-contrast .task-steps-box,
 .high-contrast .preferences-toggle,
 .high-contrast .task-item {
   background: #111111 !important;
@@ -180,7 +179,6 @@ button:disabled {
 }
 
 .increased-spacing .preferences-toggle,
-.increased-spacing .task-steps-box,
 .increased-spacing .task-item {
   padding: 24px;
 }

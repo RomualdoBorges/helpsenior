@@ -86,7 +86,6 @@ O HelpSenior separa claramente tarefa e lembrete:
 
 ```txt
 Tarefa = o que precisa ser feito
-Etapas = como fazer
 Lembrete = quando avisar e repetir
 ```
 
@@ -354,7 +353,6 @@ description
 status
 completed
 date
-steps
 createdAt
 updatedAt
 completedAt
@@ -374,20 +372,6 @@ Recorrência pertence somente aos lembretes.
   "status": "pending",
   "completed": false,
   "date": "2026-07-10",
-  "steps": [
-    {
-      "id": "step-id-1",
-      "title": "Pegar o remédio",
-      "order": 1,
-      "completed": false
-    },
-    {
-      "id": "step-id-2",
-      "title": "Tomar com água",
-      "order": 2,
-      "completed": false
-    }
-  ],
   "createdAt": "Timestamp",
   "updatedAt": "Timestamp"
 }
@@ -442,8 +426,6 @@ Campos opcionais tratados pelo mapper de tarefas:
 description
 date
 completedAt
-steps.description
-steps.completedAt
 ```
 
 ## FirebaseTaskRepository
@@ -1155,14 +1137,6 @@ const { task } = await createTaskUseCase.execute({
   title: "Tomar remédio",
   description: "Tomar o remédio da pressão após o café",
   date: "2026-07-10",
-  steps: [
-    {
-      title: "Pegar o remédio",
-    },
-    {
-      title: "Tomar com água",
-    },
-  ],
 });
 
 await completeTaskUseCase.execute({
@@ -1314,7 +1288,6 @@ O pacote `@helpsenior/firebase` atualmente possui:
 - mapper de tarefas para Firestore;
 - suporte à coleção `tasks`;
 - tarefas com data opcional;
-- tarefas com etapas opcionais;
 - repositório Firebase para preferências;
 - mapper de preferências para Firestore;
 - suporte à coleção `userPreferences`;

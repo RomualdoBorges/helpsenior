@@ -111,8 +111,8 @@ function App() {
           </h1>
 
           <p className="app-description mt-4 max-w-170 text-xl leading-[1.6] text-slate-600">
-            Crie tarefas simples e etapas guiadas para ajudar pessoas idosas a
-            acompanhar a rotina com mais autonomia.
+            Crie tarefas simples e lembretes recorrentes para ajudar pessoas
+            idosas a acompanhar a rotina com mais autonomia.
           </p>
         </header>
 

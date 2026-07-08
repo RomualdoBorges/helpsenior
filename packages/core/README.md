@@ -84,7 +84,6 @@ packages/core/
     │   │   ├── CreateTaskUseCase.ts
     │   │   ├── ListTasksUseCase.ts
     │   │   ├── CompleteTaskUseCase.ts
-    │   │   ├── CompleteTaskStepUseCase.ts
     │   │   └── __tests__/
     │   └── index.ts
     │
@@ -148,7 +147,6 @@ O HelpSenior separa claramente tarefa e lembrete:
 
 ```txt
 Tarefa = o que precisa ser feito
-Etapas = como fazer
 Lembrete = quando avisar e repetir
 ```
 
@@ -175,18 +173,6 @@ Ir ao médico
 Data: 2026-07-10
 ```
 
-Ou pode ser guiada por etapas:
-
-```txt
-Tomar remédio
-
-1. Pegar o remédio
-2. Conferir o horário
-3. Tomar com água
-```
-
-As etapas são opcionais e servem para dividir uma tarefa em passos menores.
-
 ## Entidade Task
 
 Arquivo:
@@ -196,23 +182,13 @@ src/tasks/entities/Task.ts
 ```
 
 ```ts
-export type TaskStatus = "pending" | "in_progress" | "completed";
-
-export interface TaskStep {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  completed: boolean;
-  completedAt?: Date;
-}
+export type TaskStatus = "pending" | "completed";
 
 export interface Task {
   id: string;
   userId: string;
   title: string;
   description?: string;
-  steps: TaskStep[];
   status: TaskStatus;
   completed: boolean;
   date?: string;
@@ -246,23 +222,10 @@ Título da tarefa.
 description
 ```
 
-Descrição opcional da tarefa.
-
-```txt
-steps
-```
-
-Lista opcional de etapas da tarefa.
-
-```txt
-status
-```
-
 Status atual da tarefa:
 
 ```txt
 pending
-in_progress
 completed
 ```
 
@@ -299,32 +262,6 @@ completedAt
 ```
 
 Data de conclusão, quando a tarefa estiver concluída.
-
-## Entidade TaskStep
-
-A etapa da tarefa faz parte da entidade `Task`.
-
-Campos principais:
-
-```txt
-id
-title
-description
-order
-completed
-completedAt
-```
-
-Exemplo de uso:
-
-```txt
-Tarefa: Preparar café
-
-Etapas:
-1. Colocar água
-2. Colocar pó
-3. Ligar a cafeteira
-```
 
 ## Contrato TaskRepository
 
@@ -365,7 +302,6 @@ O módulo `tasks` possui quatro casos de uso principais:
 CreateTaskUseCase
 ListTasksUseCase
 CompleteTaskUseCase
-CompleteTaskStepUseCase
 ```
 
 ## CreateTaskUseCase
@@ -377,7 +313,6 @@ Valida:
 - usuário obrigatório;
 - título obrigatório;
 - descrição opcional;
-- etapas opcionais;
 - data opcional;
 - status inicial como `pending`;
 - `completed` inicial como `false`.
@@ -388,7 +323,6 @@ Campos aceitos:
 userId
 title
 description
-steps
 date
 ```
 
@@ -408,29 +342,8 @@ Ao concluir:
 
 - o status vira `completed`;
 - `completed` vira `true`;
-- todas as etapas também são concluídas;
 - `updatedAt` é atualizado;
 - `completedAt` é preenchido.
-
-Saída:
-
-```ts
-{
-  task: Task;
-}
-```
-
-## CompleteTaskStepUseCase
-
-Conclui uma etapa individual.
-
-Ao concluir uma etapa:
-
-- a etapa vira concluída;
-- se ainda houver etapas pendentes, a tarefa fica `in_progress`;
-- se todas forem concluídas, a tarefa vira `completed`;
-- `updatedAt` é atualizado;
-- `completedAt` é preenchido quando a tarefa inteira é concluída.
 
 Saída:
 
@@ -885,7 +798,7 @@ src/tasks/index.ts
 ```
 
 ```ts
-export type { Task, TaskStatus, TaskStep } from "./entities/Task";
+export type { Task, TaskStatus } from "./entities/Task";
 
 export type { TaskRepository } from "./repositories/TaskRepository";
 
@@ -904,12 +817,6 @@ export type {
   CompleteTaskUseCaseInput,
   CompleteTaskUseCaseOutput,
 } from "./use-cases/CompleteTaskUseCase";
-
-export { CompleteTaskStepUseCase } from "./use-cases/CompleteTaskStepUseCase";
-export type {
-  CompleteTaskStepUseCaseInput,
-  CompleteTaskStepUseCaseOutput,
-} from "./use-cases/CompleteTaskStepUseCase";
 ```
 
 ## Exports do módulo reminders
@@ -965,7 +872,6 @@ O módulo `tasks` possui testes para:
 CreateTaskUseCase
 ListTasksUseCase
 CompleteTaskUseCase
-CompleteTaskStepUseCase
 ```
 
 Os testes verificam:
@@ -973,18 +879,12 @@ Os testes verificam:
 - criação de tarefa;
 - criação de tarefa com descrição;
 - criação de tarefa com data;
-- criação de tarefa com etapas;
 - validação de usuário obrigatório;
 - validação de título obrigatório;
 - listagem por usuário;
 - conclusão de tarefa;
-- conclusão de todas as etapas ao concluir tarefa;
-- conclusão de etapa individual;
-- tarefa em andamento quando apenas parte das etapas foi concluída;
-- tarefa concluída quando todas as etapas foram concluídas;
 - preservação da data da tarefa;
 - erro quando a tarefa não existe;
-- erro quando a etapa não existe.
 
 ## Testes de lembretes
 
@@ -1053,50 +953,6 @@ Rodar typecheck geral sem cache do Turbo:
 pnpm typecheck --force
 ```
 
-## Exemplo de uso com tarefa com etapas
-
-```ts
-import {
-  CompleteTaskStepUseCase,
-  CreateTaskUseCase,
-  InMemoryTaskRepository,
-  ListTasksUseCase,
-} from "@helpsenior/core";
-
-const repository = new InMemoryTaskRepository();
-
-const createTaskUseCase = new CreateTaskUseCase(repository);
-const listTasksUseCase = new ListTasksUseCase(repository);
-const completeTaskStepUseCase = new CompleteTaskStepUseCase(repository);
-
-const { task } = await createTaskUseCase.execute({
-  userId: "user-1",
-  title: "Tomar remédio",
-  description: "Tomar o remédio da pressão após o café.",
-  date: "2026-07-10",
-  steps: [
-    {
-      title: "Pegar o remédio",
-    },
-    {
-      title: "Conferir o nome",
-    },
-    {
-      title: "Tomar com água",
-    },
-  ],
-});
-
-await completeTaskStepUseCase.execute({
-  taskId: task.id,
-  stepId: task.steps[0]!.id,
-});
-
-const { tasks } = await listTasksUseCase.execute({
-  userId: "user-1",
-});
-```
-
 ## Exemplo de uso com lembrete recorrente
 
 ```ts
@@ -1157,14 +1013,12 @@ O pacote `@helpsenior/core` atualmente possui:
 - TypeScript;
 - Vitest;
 - módulo de tarefas;
-- tarefas com etapas opcionais;
 - tarefas com data opcional;
 - módulo de preferências de acessibilidade;
 - módulo de perfil do usuário;
 - módulo de lembretes;
 - lembretes recorrentes;
 - entidade `Task`;
-- entidade `TaskStep`;
 - tipo `TaskStatus`;
 - entidade `UserPreferences`;
 - entidade `UserProfile`;

@@ -1,4 +1,4 @@
-export type { Task, TaskStatus, TaskStep } from "./entities/Task";
+export type { Task, TaskStatus } from "./entities/Task";
 
 export type { TaskRepository } from "./repositories/TaskRepository";
 
@@ -17,9 +17,3 @@ export type {
   CompleteTaskUseCaseInput,
   CompleteTaskUseCaseOutput,
 } from "./use-cases/CompleteTaskUseCase";
-
-export { CompleteTaskStepUseCase } from "./use-cases/CompleteTaskStepUseCase";
-export type {
-  CompleteTaskStepUseCaseInput,
-  CompleteTaskStepUseCaseOutput,
-} from "./use-cases/CompleteTaskStepUseCase";

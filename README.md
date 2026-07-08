@@ -9,8 +9,8 @@ O projeto foi desenvolvido em formato de monorepo com separação entre domínio
 O objetivo do HelpSenior é ajudar pessoas idosas a manterem autonomia no uso de uma plataforma digital, com recursos como:
 
 - tarefas simples;
-- tarefas com data;
-- tarefas com etapas guiadas;
+- tarefas com descrição;
+- tarefas com data opcional;
 - lembretes com data e horário;
 - lembretes recorrentes;
 - alerta visual para lembretes vencidos;
@@ -29,7 +29,6 @@ O objetivo do HelpSenior é ajudar pessoas idosas a manterem autonomia no uso de
 
 ```txt
 Tarefa = o que precisa ser feito
-Etapas = como fazer
 Lembrete = quando avisar e repetir
 ```
 
@@ -113,12 +112,9 @@ Aplicação Web em React com rotas, hooks, componentes, integração Firebase e 
 
 - criar tarefa simples;
 - criar tarefa com descrição;
-- criar tarefa com data;
-- criar tarefa com etapas guiadas opcionais;
+- criar tarefa com data opcional;
 - listar tarefas do usuário logado;
 - concluir tarefa inteira;
-- concluir etapa individual;
-- concluir automaticamente a tarefa quando todas as etapas forem concluídas;
 - persistir tarefas no Firestore.
 
 ### Lembretes
@@ -280,7 +276,6 @@ Os testes cobrem:
 - criação de tarefas;
 - listagem de tarefas;
 - conclusão de tarefas;
-- conclusão de etapas;
 - preferências de acessibilidade;
 - perfil do usuário;
 - criação de lembretes;
@@ -324,9 +319,8 @@ O projeto possui:
 - cadastro com nome completo;
 - recuperação de senha;
 - perfil automático após cadastro;
-- tarefas;
-- tarefas com data;
-- tarefas com etapas;
+- tarefas simples;
+- tarefas com data opcional;
 - lembretes;
 - lembretes recorrentes;
 - preferências de acessibilidade;

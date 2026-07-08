@@ -10,10 +10,6 @@ function getTaskDateTime(task: Task) {
 
 function getStatusPriority(task: Task) {
   if (task.completed) {
-    return 3;
-  }
-
-  if (task.status === "in_progress") {
     return 1;
   }
 
