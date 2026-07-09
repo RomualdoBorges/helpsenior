@@ -2,6 +2,16 @@ import { useState, type FormEvent } from "react";
 
 import type { Task } from "@helpsenior/core";
 
+import {
+  Alert,
+  Badge,
+  Button,
+  FormField,
+  Input,
+  Textarea,
+  classNames,
+} from "../../../shared/ui";
+
 interface UpdateTaskInput {
   taskId: string;
   title: string;
@@ -40,14 +50,6 @@ function getTaskStatusLabel(task: Task) {
   }
 
   return "Pendente";
-}
-
-function getTaskStatusClassName(task: Task) {
-  if (task.completed) {
-    return "bg-green-100 text-green-800";
-  }
-
-  return "bg-amber-100 text-amber-800";
 }
 
 export function TaskList({
@@ -147,74 +149,58 @@ export function TaskList({
         return (
           <article
             key={task.id}
-            className={`task-item rounded-2xl border p-5 ${
+            className={classNames(
+              "task-item rounded-2xl border p-5",
               task.completed
                 ? "task-item-completed border-slate-200 bg-slate-100 opacity-70"
-                : "border-slate-300 bg-white"
-            }`}
+                : "border-slate-300 bg-white",
+            )}
           >
             {isEditing ? (
               <form onSubmit={handleUpdateTask} className="grid gap-4">
                 <div className="grid gap-4">
-                  <label className="grid gap-2">
-                    <span className="font-bold text-slate-700">Título</span>
-
-                    <input
+                  <FormField label="Título">
+                    <Input
                       type="text"
                       value={editingTitle}
                       onChange={(event) => setEditingTitle(event.target.value)}
-                      className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                       required
                     />
-                  </label>
+                  </FormField>
 
-                  <label className="grid gap-2">
-                    <span className="font-bold text-slate-700">Descrição</span>
-
-                    <textarea
+                  <FormField label="Descrição">
+                    <Textarea
                       value={editingDescription}
                       onChange={(event) =>
                         setEditingDescription(event.target.value)
                       }
-                      className="min-h-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
                     />
-                  </label>
+                  </FormField>
 
-                  <label className="grid gap-2">
-                    <span className="font-bold text-slate-700">Data</span>
-
-                    <input
+                  <FormField label="Data">
+                    <Input
                       type="date"
                       value={editingDate}
                       onChange={(event) => setEditingDate(event.target.value)}
-                      className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                     />
-                  </label>
+                  </FormField>
 
-                  {localError && (
-                    <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 font-bold text-red-700">
-                      {localError}
-                    </p>
-                  )}
+                  {localError && <Alert tone="error">{localError}</Alert>}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    type="submit"
-                    disabled={isUpdating}
-                    className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                  >
+                  <Button type="submit" disabled={isUpdating}>
                     {isUpdating ? "Salvando..." : "Salvar"}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
-                    onClick={cancelEditingTask}
                     disabled={isUpdating}
-                    className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={cancelEditingTask}
+                    variant="secondary"
                   >
                     Cancelar
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : (
@@ -225,13 +211,12 @@ export function TaskList({
                       {task.title}
                     </h3>
 
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${getTaskStatusClassName(
-                        task,
-                      )}`}
+                    <Badge
+                      tone={task.completed ? "green" : "amber"}
+                      className="text-xs"
                     >
                       {getTaskStatusLabel(task)}
-                    </span>
+                    </Badge>
                   </div>
 
                   {task.description && (
@@ -242,44 +227,41 @@ export function TaskList({
 
                   {taskDate && (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-purple-50 px-3 py-1 text-sm font-bold text-purple-700">
-                        {taskDate}
-                      </span>
+                      <Badge tone="purple">{taskDate}</Badge>
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   {!task.completed && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => startEditingTask(task)}
                       disabled={isUpdating || isDeleting}
-                      className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      variant="secondary"
                     >
                       Editar
-                    </button>
+                    </Button>
                   )}
 
                   {!task.completed && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => void onCompleteTask(task.id)}
                       disabled={isUpdating || isDeleting}
-                      className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Concluir
-                    </button>
+                    </Button>
                   )}
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleDeleteTask(task)}
                     disabled={isUpdating || isDeleting}
-                    className="min-h-11 rounded-xl border border-red-200 bg-white px-4 font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    variant="danger"
                   >
                     Excluir
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

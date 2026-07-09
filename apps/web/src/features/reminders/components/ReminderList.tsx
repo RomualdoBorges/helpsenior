@@ -2,6 +2,17 @@ import { useState, type FormEvent } from "react";
 
 import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
+import {
+  Alert,
+  Badge,
+  Button,
+  FormField,
+  Input,
+  Select,
+  Textarea,
+  classNames,
+} from "../../../shared/ui";
+
 interface UpdateReminderInput {
   reminderId: string;
   title: string;
@@ -173,71 +184,56 @@ export function ReminderList({
         return (
           <article
             key={reminder.id}
-            className={`reminder-item rounded-2xl border p-5 ${
+            className={classNames(
+              "reminder-item rounded-2xl border p-5",
               reminder.completed
                 ? "reminder-item-completed border-slate-200 bg-slate-100 opacity-70"
-                : "border-slate-300 bg-white"
-            }`}
+                : "border-slate-300 bg-white",
+            )}
           >
             {isEditing ? (
               <form onSubmit={handleUpdateReminder} className="grid gap-4">
                 <div className="grid gap-4">
-                  <label className="grid gap-2">
-                    <span className="font-bold text-slate-700">Título</span>
-
-                    <input
+                  <FormField label="Título">
+                    <Input
                       type="text"
                       value={editingTitle}
                       onChange={(event) => setEditingTitle(event.target.value)}
-                      className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                       required
                     />
-                  </label>
+                  </FormField>
 
-                  <label className="grid gap-2">
-                    <span className="font-bold text-slate-700">Descrição</span>
-
-                    <textarea
+                  <FormField label="Descrição">
+                    <Textarea
                       value={editingDescription}
                       onChange={(event) =>
                         setEditingDescription(event.target.value)
                       }
-                      className="min-h-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
                     />
-                  </label>
+                  </FormField>
 
                   <div className="grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2">
-                      <span className="font-bold text-slate-700">Data</span>
-
-                      <input
+                    <FormField label="Data">
+                      <Input
                         type="date"
                         value={editingDate}
                         onChange={(event) => setEditingDate(event.target.value)}
-                        className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                         required
                       />
-                    </label>
+                    </FormField>
 
-                    <label className="grid gap-2">
-                      <span className="font-bold text-slate-700">Horário</span>
-
-                      <input
+                    <FormField label="Horário">
+                      <Input
                         type="time"
                         value={editingTime}
                         onChange={(event) => setEditingTime(event.target.value)}
-                        className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                       />
-                    </label>
+                    </FormField>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2">
-                      <span className="font-bold text-slate-700">
-                        Recorrência
-                      </span>
-
-                      <select
+                    <FormField label="Recorrência">
+                      <Select
                         value={editingRecurrence}
                         onChange={(event) => {
                           const recurrence = event.target
@@ -249,57 +245,43 @@ export function ReminderList({
                             setEditingRecurrenceEndDate("");
                           }
                         }}
-                        className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                       >
                         <option value="none">Sem recorrência</option>
                         <option value="daily">Todos os dias</option>
                         <option value="weekly">Toda semana</option>
                         <option value="monthly">Todo mês</option>
-                      </select>
-                    </label>
+                      </Select>
+                    </FormField>
 
                     {editingRecurrence !== "none" && (
-                      <label className="grid gap-2">
-                        <span className="font-bold text-slate-700">
-                          Repetir até
-                        </span>
-
-                        <input
+                      <FormField label="Repetir até">
+                        <Input
                           type="date"
                           value={editingRecurrenceEndDate}
                           onChange={(event) =>
                             setEditingRecurrenceEndDate(event.target.value)
                           }
-                          className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
                         />
-                      </label>
+                      </FormField>
                     )}
                   </div>
 
-                  {localError && (
-                    <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 font-bold text-red-700">
-                      {localError}
-                    </p>
-                  )}
+                  {localError && <Alert tone="error">{localError}</Alert>}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    type="submit"
-                    disabled={isUpdating}
-                    className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                  >
+                  <Button type="submit" disabled={isUpdating}>
                     {isUpdating ? "Salvando..." : "Salvar"}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={cancelEditingReminder}
                     disabled={isUpdating}
-                    className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    variant="secondary"
                   >
                     Cancelar
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : (
@@ -310,15 +292,15 @@ export function ReminderList({
                       {reminder.title}
                     </h3>
 
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        reminder.completed
-                          ? "bg-slate-200 text-slate-600"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
+                    <Badge
+                      tone={reminder.completed ? "slate" : "amber"}
+                      className={classNames(
+                        "text-xs",
+                        reminder.completed && "bg-slate-200 text-slate-600",
+                      )}
                     >
                       {reminder.completed ? "Concluído" : "Pendente"}
-                    </span>
+                    </Badge>
                   </div>
 
                   {reminder.description && (
@@ -328,54 +310,51 @@ export function ReminderList({
                   )}
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">
-                      {formatReminderDate(reminder)}
-                    </span>
+                    <Badge>{formatReminderDate(reminder)}</Badge>
 
-                    <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-700">
+                    <Badge tone="blue">
                       {getRecurrenceLabel(reminder.recurrence)}
-                    </span>
+                    </Badge>
 
                     {reminder.recurrence !== "none" &&
                       reminder.recurrenceEndDate && (
-                        <span className="rounded-full bg-purple-50 px-3 py-1 text-sm font-bold text-purple-700">
+                        <Badge tone="purple">
                           Até {formatDate(reminder.recurrenceEndDate)}
-                        </span>
+                        </Badge>
                       )}
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   {!reminder.completed && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => startEditingReminder(reminder)}
                       disabled={isUpdating || isDeleting}
-                      className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      variant="secondary"
                     >
                       Editar
-                    </button>
+                    </Button>
                   )}
 
                   {!reminder.completed && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => void onCompleteReminder(reminder.id)}
                       disabled={isUpdating || isDeleting}
-                      className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Concluir
-                    </button>
+                    </Button>
                   )}
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleDeleteReminder(reminder)}
                     disabled={isUpdating || isDeleting}
-                    className="min-h-11 rounded-xl border border-red-200 bg-white px-4 font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    variant="danger"
                   >
                     Excluir
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

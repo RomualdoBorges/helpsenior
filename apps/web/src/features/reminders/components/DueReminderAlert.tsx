@@ -1,5 +1,7 @@
 import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
+import { Badge, Button } from "../../../shared/ui";
+
 interface DueReminderAlertProps {
   reminders: Reminder[];
   onCompleteReminder: (reminderId: string) => Promise<void>;
@@ -52,19 +54,19 @@ export function DueReminderAlert({
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-amber-900">
+            <Badge className="bg-white text-amber-900">
               {formatReminderDate(firstReminder)}
-            </span>
+            </Badge>
 
-            <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-amber-900">
+            <Badge className="bg-white text-amber-900">
               {getRecurrenceLabel(firstReminder.recurrence)}
-            </span>
+            </Badge>
 
             {firstReminder.recurrence !== "none" &&
               firstReminder.recurrenceEndDate && (
-                <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-amber-900">
+                <Badge className="bg-white text-amber-900">
                   Até {firstReminder.recurrenceEndDate}
-                </span>
+                </Badge>
               )}
           </div>
 
@@ -83,12 +85,12 @@ export function DueReminderAlert({
           )}
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={() => void onCompleteReminder(firstReminder.id)}
-          className="min-h-11 rounded-xl bg-amber-950 px-4 font-bold text-white">
+          variant="warning">
           Concluir
-        </button>
+        </Button>
       </div>
     </div>
   );

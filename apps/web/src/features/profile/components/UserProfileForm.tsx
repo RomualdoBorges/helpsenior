@@ -2,6 +2,8 @@ import { useEffect, useState, type SyntheticEvent } from "react";
 
 import type { UserProfile } from "@helpsenior/core";
 
+import { Alert, Button, Card, FormField, Input } from "../../../shared/ui";
+
 interface UserProfileFormProps {
   profile: UserProfile | null;
   isLoading: boolean;
@@ -49,36 +51,30 @@ export function UserProfileForm({
 
   if (isLoading) {
     return (
-      <section
-        className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-        aria-labelledby="profile-title">
+      <Card as="section" className="mt-8" aria-labelledby="profile-title">
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
         </h2>
 
         <p className="mt-4 text-slate-600">Carregando perfil...</p>
-      </section>
+      </Card>
     );
   }
 
   if (!profile) {
     return (
-      <section
-        className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-        aria-labelledby="profile-title">
+      <Card as="section" className="mt-8" aria-labelledby="profile-title">
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
         </h2>
 
         <p className="mt-4 text-slate-600">Perfil não encontrado.</p>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <section
-      className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="profile-title">
+    <Card as="section" className="mt-8" aria-labelledby="profile-title">
       <div>
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
@@ -90,64 +86,56 @@ export function UserProfileForm({
         </p>
       </div>
 
-      {error && <p className="mt-4 font-bold text-red-700">{error}</p>}
+      {error && (
+        <Alert tone="error" className="mt-4">
+          {error}
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-2 font-bold text-slate-950">
-          <span>Nome</span>
-
-          <input
+        <FormField label="Nome">
+          <Input
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Seu nome"
             autoComplete="name"
-            className="min-h-12 rounded-xl border border-slate-300 px-4 text-base font-normal text-slate-950 placeholder:text-slate-400"
           />
-        </label>
+        </FormField>
 
-        <label className="flex flex-col gap-2 font-bold text-slate-950">
-          <span>E-mail</span>
-
-          <input
+        <FormField label="E-mail">
+          <Input
             type="email"
             value={profile.email ?? ""}
             disabled
-            className="min-h-12 rounded-xl border border-slate-300 bg-slate-100 px-4 text-base font-normal text-slate-500"
           />
-        </label>
+        </FormField>
 
-        <label className="flex flex-col gap-2 font-bold text-slate-950">
-          <span>Telefone</span>
-
-          <input
+        <FormField label="Telefone">
+          <Input
             type="tel"
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="Ex: (11) 99999-9999"
             autoComplete="tel"
-            className="min-h-12 rounded-xl border border-slate-300 px-4 text-base font-normal text-slate-950 placeholder:text-slate-400"
           />
-        </label>
+        </FormField>
 
-        <label className="flex flex-col gap-2 font-bold text-slate-950">
-          <span>Data de nascimento</span>
-
-          <input
+        <FormField label="Data de nascimento">
+          <Input
             type="date"
             value={birthDate}
             onChange={(event) => setBirthDate(event.target.value)}
-            className="min-h-12 rounded-xl border border-slate-300 px-4 text-base font-normal text-slate-950"
           />
-        </label>
+        </FormField>
 
-        <button
+        <Button
           type="submit"
           disabled={isUpdating}
-          className="min-h-12 rounded-xl border-0 bg-slate-950 px-5 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+          size="lg">
           {isUpdating ? "Salvando..." : "Salvar perfil"}
-        </button>
+        </Button>
       </form>
-    </section>
+    </Card>
   );
 }

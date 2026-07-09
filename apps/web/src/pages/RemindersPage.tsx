@@ -5,6 +5,7 @@ import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 import { CreateReminderForm } from "../features/reminders/components/CreateReminderForm";
 import { DueReminderAlert } from "../features/reminders/components/DueReminderAlert";
 import { ReminderList } from "../features/reminders/components/ReminderList";
+import { Alert, Button, Card } from "../shared/ui";
 
 type ReminderFilter = "all" | "pending" | "completed" | "recurring";
 
@@ -143,10 +144,7 @@ export function RemindersPage({
   );
 
   return (
-    <section
-      className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="reminders-title"
-    >
+    <Card as="section" className="mt-8" aria-labelledby="reminders-title">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
@@ -160,33 +158,35 @@ export function RemindersPage({
         </div>
 
         {isNotificationSupported && notificationPermission !== "granted" && (
-          <button
+          <Button
             type="button"
             onClick={() => void requestNotificationPermission()}
-            className="min-h-10 shrink-0 rounded-[10px] border border-slate-300 bg-white px-4 font-bold text-slate-950"
+            size="sm"
+            variant="secondary"
+            className="shrink-0"
           >
             Ativar notificações
-          </button>
+          </Button>
         )}
       </div>
 
       {isNotificationAllowed && (
-        <p className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-700">
+        <Alert tone="success" className="mt-4 text-sm">
           Notificações ativadas neste navegador.
-        </p>
+        </Alert>
       )}
 
       {isNotificationDenied && (
-        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <Alert tone="error" className="mt-4 text-sm">
           As notificações estão bloqueadas neste navegador. Para ativar, altere
           a permissão nas configurações do site.
-        </p>
+        </Alert>
       )}
 
       {!isNotificationSupported && (
-        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
+        <Alert tone="warning" className="mt-4 text-sm">
           Este navegador não suporta notificações.
-        </p>
+        </Alert>
       )}
 
       <div className="mt-6 grid gap-4 md:grid-cols-4">
@@ -230,7 +230,9 @@ export function RemindersPage({
       />
 
       {remindersError && (
-        <p className="mt-4 font-bold text-red-700">{remindersError}</p>
+        <Alert tone="error" className="mt-4">
+          {remindersError}
+        </Alert>
       )}
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -251,18 +253,16 @@ export function RemindersPage({
               const isSelected = selectedFilter === filter.value;
 
               return (
-                <button
+                <Button
                   key={filter.value}
                   type="button"
                   onClick={() => setSelectedFilter(filter.value)}
-                  className={`min-h-10 rounded-full border px-4 text-sm font-bold ${
-                    isSelected
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-700"
-                  }`}
+                  size="sm"
+                  variant={isSelected ? "primary" : "secondary"}
+                  className="rounded-full"
                 >
                   {filter.label} ({filterCounts[filter.value]})
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -279,6 +279,6 @@ export function RemindersPage({
           onDeleteReminder={deleteReminder}
         />
       </div>
-    </section>
+    </Card>
   );
 }

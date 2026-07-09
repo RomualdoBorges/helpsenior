@@ -9,6 +9,7 @@ import {
   getTaskSummary,
   type TaskFilter,
 } from "../features/tasks/utils/taskFilters";
+import { Alert, Button, Card } from "../shared/ui";
 
 interface HomePageUser {
   id: string;
@@ -51,10 +52,7 @@ export function HomePage({ user }: HomePageProps) {
   );
 
   return (
-    <section
-      className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="tasks-title"
-    >
+    <Card as="section" className="mt-8" aria-labelledby="tasks-title">
       <div>
         <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
           Minhas tarefas
@@ -94,7 +92,11 @@ export function HomePage({ user }: HomePageProps) {
 
       <CreateTaskForm isCreating={isCreating} onCreateTask={createTask} />
 
-      {error && <p className="mt-4 font-bold text-red-700">{error}</p>}
+      {error && (
+        <Alert tone="error" className="mt-4">
+          {error}
+        </Alert>
+      )}
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -114,18 +116,16 @@ export function HomePage({ user }: HomePageProps) {
               const isSelected = selectedFilter === filter.value;
 
               return (
-                <button
+                <Button
                   key={filter.value}
                   type="button"
                   onClick={() => setSelectedFilter(filter.value)}
-                  className={`min-h-10 rounded-full border px-4 text-sm font-bold ${
-                    isSelected
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-700"
-                  }`}
+                  size="sm"
+                  variant={isSelected ? "primary" : "secondary"}
+                  className="rounded-full"
                 >
                   {filter.label} ({filter.count})
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -144,6 +144,6 @@ export function HomePage({ user }: HomePageProps) {
           onDeleteTask={deleteTask}
         />
       </div>
-    </section>
+    </Card>
   );
 }

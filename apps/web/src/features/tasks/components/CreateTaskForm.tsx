@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 
+import { Alert, Button, FormField, Input, Textarea } from "../../../shared/ui";
+
 interface CreateTaskInput {
   title: string;
   description?: string;
@@ -58,54 +60,42 @@ export function CreateTaskForm({
       </p>
 
       <div className="mt-4 grid gap-4">
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Título</span>
-
-          <input
+        <FormField label="Título">
+          <Input
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Ex: Pagar conta de luz"
-            className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
             required
           />
-        </label>
+        </FormField>
 
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Descrição</span>
-
-          <textarea
+        <FormField label="Descrição">
+          <Textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Ex: Pagar a conta antes do vencimento"
-            className="min-h-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
           />
-        </label>
+        </FormField>
 
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Data</span>
-
-          <input
+        <FormField label="Data">
+          <Input
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
           />
-        </label>
+        </FormField>
 
-        {localError && (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 font-bold text-red-700">
-            {localError}
-          </p>
-        )}
+        {localError && <Alert tone="error">{localError}</Alert>}
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={isCreating}
-        className="mt-4 min-h-12 rounded-xl bg-slate-950 px-5 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
+        size="lg"
+        className="mt-4">
         {isCreating ? "Criando tarefa..." : "Criar tarefa"}
-      </button>
+      </Button>
     </form>
   );
 }

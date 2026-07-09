@@ -2,6 +2,14 @@ import { useState } from "react";
 
 import type { ReminderRecurrence } from "@helpsenior/core";
 
+import {
+  Button,
+  FormField,
+  Input,
+  Select,
+  Textarea,
+} from "../../../shared/ui";
+
 interface CreateReminderFormProps {
   isCreating: boolean;
   onCreateReminder: (input: {
@@ -55,95 +63,76 @@ export function CreateReminderForm({
       <h3 className="m-0 text-xl font-bold text-slate-950">Criar lembrete</h3>
 
       <div className="mt-4 grid gap-4">
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Título</span>
-
-          <input
+        <FormField label="Título">
+          <Input
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Ex: Tomar remédio"
-            className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
             required
           />
-        </label>
+        </FormField>
 
-        <label className="grid gap-2">
-          <span className="font-bold text-slate-700">Descrição</span>
-
-          <textarea
+        <FormField label="Descrição">
+          <Textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Ex: Tomar o remédio da pressão com água"
-            className="min-h-24 rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none focus:border-slate-950"
           />
-        </label>
+        </FormField>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="font-bold text-slate-700">Data</span>
-
-            <input
+          <FormField label="Data">
+            <Input
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
-              className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
               required
             />
-          </label>
+          </FormField>
 
-          <label className="grid gap-2">
-            <span className="font-bold text-slate-700">Horário</span>
-
-            <input
+          <FormField label="Horário">
+            <Input
               type="time"
               value={time}
               onChange={(event) => setTime(event.target.value)}
-              className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
             />
-          </label>
+          </FormField>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="font-bold text-slate-700">Recorrência</span>
-
-            <select
+          <FormField label="Recorrência">
+            <Select
               value={recurrence}
               onChange={(event) =>
                 setRecurrence(event.target.value as ReminderRecurrence)
-              }
-              className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950">
+              }>
               <option value="none">Nenhuma recorrência</option>
               <option value="daily">Todos os dias</option>
               <option value="weekly">Toda semana</option>
               <option value="monthly">Todo mês</option>
-            </select>
-          </label>
+            </Select>
+          </FormField>
 
           {recurrence !== "none" && (
-            <label className="grid gap-2">
-              <span className="font-bold text-slate-700">
-                Data final da recorrência
-              </span>
-
-              <input
+            <FormField label="Data final da recorrência">
+              <Input
                 type="date"
                 value={recurrenceEndDate}
                 onChange={(event) => setRecurrenceEndDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none focus:border-slate-950"
               />
-            </label>
+            </FormField>
           )}
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={isCreating}
-        className="mt-4 min-h-12 rounded-xl bg-slate-950 px-5 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
+        size="lg"
+        className="mt-4">
         {isCreating ? "Criando lembrete..." : "Criar lembrete"}
-      </button>
+      </Button>
     </form>
   );
 }

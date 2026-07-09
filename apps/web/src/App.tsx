@@ -14,6 +14,7 @@ import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RemindersPage } from "./pages/RemindersPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { Button, classNames } from "./shared/ui";
 
 import "./index.css";
 
@@ -83,12 +84,10 @@ function App() {
   if (isLoadingAuth) {
     return (
       <main
-        className={[
+        className={classNames(
           "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
           accessibilityClassName,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       >
         <section className="app-container mx-auto max-w-190">
           <p className="text-base text-slate-600">Carregando aplicação...</p>
@@ -99,12 +98,10 @@ function App() {
 
   return (
     <main
-      className={[
+      className={classNames(
         "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
         accessibilityClassName,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       <section className="app-container mx-auto max-w-190">
         <header>
@@ -142,13 +139,14 @@ function App() {
                 <p className="mt-1 text-slate-500">{user.email}</p>
               </div>
 
-              <button
+              <Button
                 type="button"
-                className="min-h-10 rounded-[10px] border border-slate-300 bg-white px-4 font-bold text-slate-950"
+                size="sm"
+                variant="secondary"
                 onClick={signOut}
               >
                 Sair
-              </button>
+              </Button>
             </section>
 
             <nav className="mt-6 flex gap-3">
@@ -156,14 +154,12 @@ function App() {
                 to="/"
                 end
                 className={({ isActive }) =>
-                  [
+                  classNames(
                     "rounded-xl border px-4 py-3 font-bold no-underline",
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-950",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
+                  )
                 }
               >
                 Tarefas
@@ -172,14 +168,12 @@ function App() {
               <NavLink
                 to="/lembretes"
                 className={({ isActive }) =>
-                  [
+                  classNames(
                     "rounded-xl border px-4 py-3 font-bold no-underline",
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-950",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
+                  )
                 }
               >
                 Lembretes
@@ -188,14 +182,12 @@ function App() {
               <NavLink
                 to="/perfil"
                 className={({ isActive }) =>
-                  [
+                  classNames(
                     "rounded-xl border px-4 py-3 font-bold no-underline",
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-950",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
+                  )
                 }
               >
                 Perfil
@@ -204,14 +196,12 @@ function App() {
               <NavLink
                 to="/configuracoes"
                 className={({ isActive }) =>
-                  [
+                  classNames(
                     "rounded-xl border px-4 py-3 font-bold no-underline",
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-950",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")
+                  )
                 }
               >
                 Configurações
