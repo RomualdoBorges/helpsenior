@@ -5,6 +5,7 @@ import {
   CreateTaskUseCase,
   DeleteTaskUseCase,
   ListTasksUseCase,
+  UpdateTaskUseCase,
   type Task,
 } from "@helpsenior/core";
 import { FirebaseTaskRepository } from "@helpsenior/firebase";
@@ -19,10 +20,18 @@ interface CreateTaskInput {
   date?: string;
 }
 
+interface UpdateTaskInput {
+  taskId: string;
+  title: string;
+  description?: string;
+  date?: string;
+}
+
 export function useTasks(userId: string | null) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +54,11 @@ export function useTasks(userId: string | null) {
 
   const deleteTaskUseCase = useMemo(
     () => new DeleteTaskUseCase(taskRepository),
+    [taskRepository],
+  );
+
+  const updateTaskUseCase = useMemo(
+    () => new UpdateTaskUseCase(taskRepository),
     [taskRepository],
   );
 
@@ -107,6 +121,34 @@ export function useTasks(userId: string | null) {
     [createTaskUseCase, loadTasks, userId],
   );
 
+  const updateTask = useCallback(
+    async (input: UpdateTaskInput) => {
+      try {
+        setIsUpdating(true);
+        setError(null);
+
+        await updateTaskUseCase.execute({
+          taskId: input.taskId,
+          title: input.title,
+          description: input.description,
+          date: input.date,
+        });
+
+        await loadTasks();
+      } catch (caughtError) {
+        setError(
+          getFirebaseFirestoreErrorMessage(
+            caughtError,
+            "Não foi possível atualizar a tarefa.",
+          ),
+        );
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [loadTasks, updateTaskUseCase],
+  );
+
   const completeTask = useCallback(
     async (taskId: string) => {
       try {
@@ -162,10 +204,12 @@ export function useTasks(userId: string | null) {
     tasks,
     isLoading,
     isCreating,
+    isUpdating,
     isDeleting,
     error,
     loadTasks,
     createTask,
+    updateTask,
     completeTask,
     deleteTask,
   };

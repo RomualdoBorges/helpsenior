@@ -20,3 +20,9 @@ export type {
 
 export { DeleteTaskUseCase } from "./use-cases/DeleteTaskUseCase";
 export type { DeleteTaskUseCaseInput } from "./use-cases/DeleteTaskUseCase";
+
+export { UpdateTaskUseCase } from "./use-cases/UpdateTaskUseCase";
+export type {
+  UpdateTaskUseCaseInput,
+  UpdateTaskUseCaseOutput,
+} from "./use-cases/UpdateTaskUseCase";

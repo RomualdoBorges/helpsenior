@@ -23,9 +23,11 @@ export function HomePage({ user }: HomePageProps) {
     tasks,
     isLoading,
     isCreating,
+    isUpdating,
     isDeleting,
     error,
     createTask,
+    updateTask,
     completeTask,
     deleteTask,
   } = useTasks(user.id);
@@ -51,7 +53,8 @@ export function HomePage({ user }: HomePageProps) {
   return (
     <section
       className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="tasks-title">
+      aria-labelledby="tasks-title"
+    >
       <div>
         <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
           Minhas tarefas
@@ -119,7 +122,8 @@ export function HomePage({ user }: HomePageProps) {
                     isSelected
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-700"
-                  }`}>
+                  }`}
+                >
                   {filter.label} ({filter.count})
                 </button>
               );
@@ -130,10 +134,12 @@ export function HomePage({ user }: HomePageProps) {
         <TaskList
           tasks={filteredTasks}
           isLoading={isLoading}
+          isUpdating={isUpdating}
           isDeleting={isDeleting}
           emptyMessage={
             selectedFilterOption?.emptyMessage ?? "Nenhuma tarefa encontrada."
           }
+          onUpdateTask={updateTask}
           onCompleteTask={completeTask}
           onDeleteTask={deleteTask}
         />
