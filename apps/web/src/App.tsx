@@ -54,9 +54,11 @@ function App() {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
+    isUpdatingReminder,
     isDeletingReminder,
     remindersError,
     createReminder,
+    updateReminder,
     completeReminder,
     deleteReminder,
   } = useReminders(user?.id ?? null);
@@ -227,9 +229,11 @@ function App() {
                     dueReminders={dueReminders}
                     isLoadingReminders={isLoadingReminders}
                     isCreatingReminder={isCreatingReminder}
+                    isUpdatingReminder={isUpdatingReminder}
                     isDeletingReminder={isDeletingReminder}
                     remindersError={remindersError}
                     createReminder={createReminder}
+                    updateReminder={updateReminder}
                     completeReminder={completeReminder}
                     deleteReminder={deleteReminder}
                     notificationPermission={notificationPermission}

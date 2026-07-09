@@ -5,6 +5,7 @@ import {
   CreateReminderUseCase,
   DeleteReminderUseCase,
   ListRemindersUseCase,
+  UpdateReminderUseCase,
   type Reminder,
   type ReminderRecurrence,
 } from "@helpsenior/core";
@@ -23,10 +24,21 @@ interface CreateReminderInput {
   recurrenceEndDate?: string;
 }
 
+interface UpdateReminderInput {
+  reminderId: string;
+  title: string;
+  description?: string;
+  date: string;
+  time?: string;
+  recurrence?: ReminderRecurrence;
+  recurrenceEndDate?: string;
+}
+
 export function useReminders(userId: string | null) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoadingReminders, setIsLoadingReminders] = useState(false);
   const [isCreatingReminder, setIsCreatingReminder] = useState(false);
+  const [isUpdatingReminder, setIsUpdatingReminder] = useState(false);
   const [isDeletingReminder, setIsDeletingReminder] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
 
@@ -52,6 +64,11 @@ export function useReminders(userId: string | null) {
 
   const deleteReminderUseCase = useMemo(
     () => new DeleteReminderUseCase(reminderRepository),
+    [reminderRepository],
+  );
+
+  const updateReminderUseCase = useMemo(
+    () => new UpdateReminderUseCase(reminderRepository),
     [reminderRepository],
   );
 
@@ -117,6 +134,37 @@ export function useReminders(userId: string | null) {
     [createReminderUseCase, loadReminders, userId],
   );
 
+  const updateReminder = useCallback(
+    async (input: UpdateReminderInput) => {
+      try {
+        setIsUpdatingReminder(true);
+        setRemindersError(null);
+
+        await updateReminderUseCase.execute({
+          reminderId: input.reminderId,
+          title: input.title,
+          description: input.description,
+          date: input.date,
+          time: input.time,
+          recurrence: input.recurrence,
+          recurrenceEndDate: input.recurrenceEndDate,
+        });
+
+        await loadReminders();
+      } catch (caughtError) {
+        setRemindersError(
+          getFirebaseFirestoreErrorMessage(
+            caughtError,
+            "Não foi possível atualizar o lembrete.",
+          ),
+        );
+      } finally {
+        setIsUpdatingReminder(false);
+      }
+    },
+    [loadReminders, updateReminderUseCase],
+  );
+
   const completeReminder = useCallback(
     async (reminderId: string) => {
       try {
@@ -172,10 +220,12 @@ export function useReminders(userId: string | null) {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
+    isUpdatingReminder,
     isDeletingReminder,
     remindersError,
     loadReminders,
     createReminder,
+    updateReminder,
     completeReminder,
     deleteReminder,
   };

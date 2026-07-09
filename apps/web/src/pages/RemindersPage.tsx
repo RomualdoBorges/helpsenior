@@ -13,9 +13,19 @@ interface RemindersPageProps {
   dueReminders: Reminder[];
   isLoadingReminders: boolean;
   isCreatingReminder: boolean;
+  isUpdatingReminder: boolean;
   isDeletingReminder: boolean;
   remindersError: string | null;
   createReminder: (input: {
+    title: string;
+    description?: string;
+    date: string;
+    time?: string;
+    recurrence?: ReminderRecurrence;
+    recurrenceEndDate?: string;
+  }) => Promise<void>;
+  updateReminder: (input: {
+    reminderId: string;
     title: string;
     description?: string;
     date: string;
@@ -102,9 +112,11 @@ export function RemindersPage({
   dueReminders,
   isLoadingReminders,
   isCreatingReminder,
+  isUpdatingReminder,
   isDeletingReminder,
   remindersError,
   createReminder,
+  updateReminder,
   completeReminder,
   deleteReminder,
   notificationPermission,
@@ -259,8 +271,10 @@ export function RemindersPage({
         <ReminderList
           reminders={filteredReminders}
           isLoading={isLoadingReminders}
+          isUpdating={isUpdatingReminder}
           isDeleting={isDeletingReminder}
           emptyMessage={emptyMessages[selectedFilter]}
+          onUpdateReminder={updateReminder}
           onCompleteReminder={completeReminder}
           onDeleteReminder={deleteReminder}
         />
