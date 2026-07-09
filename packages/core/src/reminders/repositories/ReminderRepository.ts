@@ -5,4 +5,5 @@ export interface ReminderRepository {
   findById(reminderId: string): Promise<Reminder | null>;
   listByUserId(userId: string): Promise<Reminder[]>;
   update(reminder: Reminder): Promise<void>;
+  delete(reminderId: string): Promise<void>;
 }

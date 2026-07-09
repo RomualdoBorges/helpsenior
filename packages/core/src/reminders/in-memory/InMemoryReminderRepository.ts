@@ -2,7 +2,7 @@ import type { Reminder } from "../entities/Reminder";
 import type { ReminderRepository } from "../repositories/ReminderRepository";
 
 export class InMemoryReminderRepository implements ReminderRepository {
-  private reminders: Reminder[] = [];
+  private readonly reminders: Reminder[] = [];
 
   async create(reminder: Reminder): Promise<void> {
     this.reminders.push(reminder);
@@ -23,10 +23,22 @@ export class InMemoryReminderRepository implements ReminderRepository {
       (item) => item.id === reminder.id,
     );
 
-    if (reminderIndex === -1) {
-      throw new Error("Lembrete não encontrado.");
+    if (reminderIndex < 0) {
+      return;
     }
 
     this.reminders[reminderIndex] = reminder;
+  }
+
+  async delete(reminderId: string): Promise<void> {
+    const reminderIndex = this.reminders.findIndex(
+      (reminder) => reminder.id === reminderId,
+    );
+
+    if (reminderIndex < 0) {
+      return;
+    }
+
+    this.reminders.splice(reminderIndex, 1);
   }
 }

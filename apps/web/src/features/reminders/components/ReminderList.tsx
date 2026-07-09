@@ -3,8 +3,10 @@ import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 interface ReminderListProps {
   reminders: Reminder[];
   isLoading: boolean;
+  isDeleting: boolean;
   emptyMessage?: string;
   onCompleteReminder: (reminderId: string) => Promise<void>;
+  onDeleteReminder: (reminderId: string) => Promise<void>;
 }
 
 function getRecurrenceLabel(recurrence: ReminderRecurrence) {
@@ -18,19 +20,33 @@ function getRecurrenceLabel(recurrence: ReminderRecurrence) {
   return labels[recurrence];
 }
 
-function formatReminderDate(reminder: Reminder) {
-  if (reminder.time) {
-    return `${reminder.date} às ${reminder.time}`;
+function formatDate(date: string) {
+  const [year, month, day] = date.split("-");
+
+  if (!year || !month || !day) {
+    return date;
   }
 
-  return reminder.date;
+  return `${day}/${month}/${year}`;
+}
+
+function formatReminderDate(reminder: Reminder) {
+  const formattedDate = formatDate(reminder.date);
+
+  if (reminder.time) {
+    return `${formattedDate} às ${reminder.time}`;
+  }
+
+  return formattedDate;
 }
 
 export function ReminderList({
   reminders,
   isLoading,
+  isDeleting,
   emptyMessage = "Nenhum lembrete cadastrado ainda.",
   onCompleteReminder,
+  onDeleteReminder,
 }: ReminderListProps) {
   if (isLoading) {
     return (
@@ -48,6 +64,18 @@ export function ReminderList({
     );
   }
 
+  function handleDeleteReminder(reminder: Reminder) {
+    const shouldDelete = window.confirm(
+      `Deseja excluir o lembrete "${reminder.title}"?`,
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    void onDeleteReminder(reminder.id);
+  }
+
   return (
     <div className="mt-6 grid gap-4">
       {reminders.map((reminder) => (
@@ -57,7 +85,8 @@ export function ReminderList({
             reminder.completed
               ? "reminder-item-completed border-slate-200 bg-slate-100 opacity-70"
               : "border-slate-300 bg-white"
-          }`}>
+          }`}
+        >
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -70,7 +99,8 @@ export function ReminderList({
                     reminder.completed
                       ? "bg-slate-200 text-slate-600"
                       : "bg-amber-100 text-amber-800"
-                  }`}>
+                  }`}
+                >
                   {reminder.completed ? "Concluído" : "Pendente"}
                 </span>
               </div>
@@ -93,20 +123,32 @@ export function ReminderList({
                 {reminder.recurrence !== "none" &&
                   reminder.recurrenceEndDate && (
                     <span className="rounded-full bg-purple-50 px-3 py-1 text-sm font-bold text-purple-700">
-                      Até {reminder.recurrenceEndDate}
+                      Até {formatDate(reminder.recurrenceEndDate)}
                     </span>
                   )}
               </div>
             </div>
 
-            {!reminder.completed && (
+            <div className="flex flex-wrap gap-2">
+              {!reminder.completed && (
+                <button
+                  type="button"
+                  onClick={() => void onCompleteReminder(reminder.id)}
+                  className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white"
+                >
+                  Concluir
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => void onCompleteReminder(reminder.id)}
-                className="min-h-11 rounded-xl bg-slate-950 px-4 font-bold text-white">
-                Concluir
+                onClick={() => handleDeleteReminder(reminder)}
+                disabled={isDeleting}
+                className="min-h-11 rounded-xl border border-red-200 bg-white px-4 font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Excluir
               </button>
-            )}
+            </div>
           </div>
         </article>
       ))}

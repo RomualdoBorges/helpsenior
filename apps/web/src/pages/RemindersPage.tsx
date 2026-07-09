@@ -13,6 +13,7 @@ interface RemindersPageProps {
   dueReminders: Reminder[];
   isLoadingReminders: boolean;
   isCreatingReminder: boolean;
+  isDeletingReminder: boolean;
   remindersError: string | null;
   createReminder: (input: {
     title: string;
@@ -23,6 +24,7 @@ interface RemindersPageProps {
     recurrenceEndDate?: string;
   }) => Promise<void>;
   completeReminder: (reminderId: string) => Promise<void>;
+  deleteReminder: (reminderId: string) => Promise<void>;
   notificationPermission: "default" | "granted" | "denied" | "unsupported";
   requestNotificationPermission: () => Promise<void>;
   isNotificationSupported: boolean;
@@ -100,9 +102,11 @@ export function RemindersPage({
   dueReminders,
   isLoadingReminders,
   isCreatingReminder,
+  isDeletingReminder,
   remindersError,
   createReminder,
   completeReminder,
+  deleteReminder,
   notificationPermission,
   requestNotificationPermission,
   isNotificationSupported,
@@ -129,7 +133,8 @@ export function RemindersPage({
   return (
     <section
       className="app-card mt-8 rounded-[20px] border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.06)]"
-      aria-labelledby="reminders-title">
+      aria-labelledby="reminders-title"
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
@@ -146,7 +151,8 @@ export function RemindersPage({
           <button
             type="button"
             onClick={() => void requestNotificationPermission()}
-            className="min-h-10 shrink-0 rounded-[10px] border border-slate-300 bg-white px-4 font-bold text-slate-950">
+            className="min-h-10 shrink-0 rounded-[10px] border border-slate-300 bg-white px-4 font-bold text-slate-950"
+          >
             Ativar notificações
           </button>
         )}
@@ -241,7 +247,8 @@ export function RemindersPage({
                     isSelected
                       ? "border-slate-950 bg-slate-950 text-white"
                       : "border-slate-300 bg-white text-slate-700"
-                  }`}>
+                  }`}
+                >
                   {filter.label} ({filterCounts[filter.value]})
                 </button>
               );
@@ -252,8 +259,10 @@ export function RemindersPage({
         <ReminderList
           reminders={filteredReminders}
           isLoading={isLoadingReminders}
+          isDeleting={isDeletingReminder}
           emptyMessage={emptyMessages[selectedFilter]}
           onCompleteReminder={completeReminder}
+          onDeleteReminder={deleteReminder}
         />
       </div>
     </section>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CompleteReminderUseCase,
   CreateReminderUseCase,
+  DeleteReminderUseCase,
   ListRemindersUseCase,
   type Reminder,
   type ReminderRecurrence,
@@ -26,6 +27,7 @@ export function useReminders(userId: string | null) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoadingReminders, setIsLoadingReminders] = useState(false);
   const [isCreatingReminder, setIsCreatingReminder] = useState(false);
+  const [isDeletingReminder, setIsDeletingReminder] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
 
   const reminderRepository = useMemo(
@@ -48,6 +50,11 @@ export function useReminders(userId: string | null) {
     [reminderRepository],
   );
 
+  const deleteReminderUseCase = useMemo(
+    () => new DeleteReminderUseCase(reminderRepository),
+    [reminderRepository],
+  );
+
   const loadReminders = useCallback(async () => {
     if (!userId) {
       setReminders([]);
@@ -63,10 +70,10 @@ export function useReminders(userId: string | null) {
       });
 
       setReminders(sortReminders(result.reminders));
-    } catch (error) {
+    } catch (caughtError) {
       setRemindersError(
         getFirebaseFirestoreErrorMessage(
-          error,
+          caughtError,
           "Não foi possível carregar os lembretes.",
         ),
       );
@@ -96,10 +103,10 @@ export function useReminders(userId: string | null) {
         });
 
         await loadReminders();
-      } catch (error) {
+      } catch (caughtError) {
         setRemindersError(
           getFirebaseFirestoreErrorMessage(
-            error,
+            caughtError,
             "Não foi possível criar o lembrete.",
           ),
         );
@@ -120,16 +127,41 @@ export function useReminders(userId: string | null) {
         });
 
         await loadReminders();
-      } catch (error) {
+      } catch (caughtError) {
         setRemindersError(
           getFirebaseFirestoreErrorMessage(
-            error,
+            caughtError,
             "Não foi possível concluir o lembrete.",
           ),
         );
       }
     },
     [completeReminderUseCase, loadReminders],
+  );
+
+  const deleteReminder = useCallback(
+    async (reminderId: string) => {
+      try {
+        setIsDeletingReminder(true);
+        setRemindersError(null);
+
+        await deleteReminderUseCase.execute({
+          reminderId,
+        });
+
+        await loadReminders();
+      } catch (caughtError) {
+        setRemindersError(
+          getFirebaseFirestoreErrorMessage(
+            caughtError,
+            "Não foi possível excluir o lembrete.",
+          ),
+        );
+      } finally {
+        setIsDeletingReminder(false);
+      }
+    },
+    [deleteReminderUseCase, loadReminders],
   );
 
   useEffect(() => {
@@ -140,9 +172,11 @@ export function useReminders(userId: string | null) {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
+    isDeletingReminder,
     remindersError,
     loadReminders,
     createReminder,
     completeReminder,
+    deleteReminder,
   };
 }

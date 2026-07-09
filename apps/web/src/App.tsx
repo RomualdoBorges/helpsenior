@@ -1,19 +1,19 @@
-import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { useMemo } from "react";
+import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 
-import { useReminderNotifications } from "./features/reminders/hooks/useReminderNotifications";
-import { useReminders } from "./features/reminders/hooks/useReminders";
-import { getDueReminders } from "./features/reminders/utils/getDueReminders";
 import { AuthForm } from "./features/auth/components/AuthForm";
 import { useAuth } from "./features/auth/hooks/useAuth";
 import { useUserPreferences } from "./features/preferences/hooks/useUserPreferences";
 import { getPreferenceClassNames } from "./features/preferences/utils/getPreferenceClassNames";
 import { useUserProfile } from "./features/profile/hooks/useUserProfile";
 import { useCurrentTime } from "./features/reminders/hooks/useCurrentTime";
+import { useReminderNotifications } from "./features/reminders/hooks/useReminderNotifications";
+import { useReminders } from "./features/reminders/hooks/useReminders";
+import { getDueReminders } from "./features/reminders/utils/getDueReminders";
 import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
-import { SettingsPage } from "./pages/SettingsPage";
 import { RemindersPage } from "./pages/RemindersPage";
+import { SettingsPage } from "./pages/SettingsPage";
 
 import "./index.css";
 
@@ -54,9 +54,11 @@ function App() {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
+    isDeletingReminder,
     remindersError,
     createReminder,
     completeReminder,
+    deleteReminder,
   } = useReminders(user?.id ?? null);
 
   const currentTime = useCurrentTime();
@@ -84,7 +86,8 @@ function App() {
           accessibilityClassName,
         ]
           .filter(Boolean)
-          .join(" ")}>
+          .join(" ")}
+      >
         <section className="app-container mx-auto max-w-190">
           <p className="text-base text-slate-600">Carregando aplicação...</p>
         </section>
@@ -99,7 +102,8 @@ function App() {
         accessibilityClassName,
       ]
         .filter(Boolean)
-        .join(" ")}>
+        .join(" ")}
+    >
       <section className="app-container mx-auto max-w-190">
         <header>
           <p className="app-eyebrow mb-2 text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
@@ -139,7 +143,8 @@ function App() {
               <button
                 type="button"
                 className="min-h-10 rounded-[10px] border border-slate-300 bg-white px-4 font-bold text-slate-950"
-                onClick={signOut}>
+                onClick={signOut}
+              >
                 Sair
               </button>
             </section>
@@ -157,7 +162,8 @@ function App() {
                   ]
                     .filter(Boolean)
                     .join(" ")
-                }>
+                }
+              >
                 Tarefas
               </NavLink>
 
@@ -172,7 +178,8 @@ function App() {
                   ]
                     .filter(Boolean)
                     .join(" ")
-                }>
+                }
+              >
                 Lembretes
               </NavLink>
 
@@ -187,7 +194,8 @@ function App() {
                   ]
                     .filter(Boolean)
                     .join(" ")
-                }>
+                }
+              >
                 Perfil
               </NavLink>
 
@@ -202,7 +210,8 @@ function App() {
                   ]
                     .filter(Boolean)
                     .join(" ")
-                }>
+                }
+              >
                 Configurações
               </NavLink>
             </nav>
@@ -218,9 +227,11 @@ function App() {
                     dueReminders={dueReminders}
                     isLoadingReminders={isLoadingReminders}
                     isCreatingReminder={isCreatingReminder}
+                    isDeletingReminder={isDeletingReminder}
                     remindersError={remindersError}
                     createReminder={createReminder}
                     completeReminder={completeReminder}
+                    deleteReminder={deleteReminder}
                     notificationPermission={notificationPermission}
                     requestNotificationPermission={
                       requestNotificationPermission

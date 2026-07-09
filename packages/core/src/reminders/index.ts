@@ -18,4 +18,7 @@ export type {
   CompleteReminderUseCaseOutput,
 } from "./use-cases/CompleteReminderUseCase";
 
+export { DeleteReminderUseCase } from "./use-cases/DeleteReminderUseCase";
+export type { DeleteReminderUseCaseInput } from "./use-cases/DeleteReminderUseCase";
+
 export { calculateNextReminderDate } from "./utils/calculateNextReminderDate";

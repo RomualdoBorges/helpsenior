@@ -1,6 +1,6 @@
-import type { Reminder, ReminderRepository } from "@helpsenior/core";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -8,65 +8,77 @@ import {
   setDoc,
   updateDoc,
   where,
+  type Firestore,
 } from "firebase/firestore";
-import type { Firestore } from "firebase/firestore";
+
+import type { Reminder, ReminderRepository } from "@helpsenior/core";
 
 import { ReminderFirestoreMapper } from "../mappers/ReminderFirestoreMapper";
 
+type FirestoreReminderData = Parameters<
+  typeof ReminderFirestoreMapper.fromFirestore
+>[1];
+
 export class FirebaseReminderRepository implements ReminderRepository {
-  private readonly collectionName = "reminders";
   private readonly db: Firestore;
+  private readonly collectionName = "reminders";
 
   constructor(db: Firestore) {
     this.db = db;
   }
 
   async create(reminder: Reminder): Promise<void> {
-    const reminderRef = doc(this.remindersCollection(), reminder.id);
+    const reminderReference = doc(this.db, this.collectionName, reminder.id);
 
-    await setDoc(reminderRef, ReminderFirestoreMapper.toFirestore(reminder));
+    await setDoc(
+      reminderReference,
+      ReminderFirestoreMapper.toFirestore(reminder),
+    );
   }
 
   async findById(reminderId: string): Promise<Reminder | null> {
-    const reminderRef = doc(this.remindersCollection(), reminderId);
+    const reminderReference = doc(this.db, this.collectionName, reminderId);
+    const snapshot = await getDoc(reminderReference);
 
-    const reminderSnapshot = await getDoc(reminderRef);
-
-    if (!reminderSnapshot.exists()) {
+    if (!snapshot.exists()) {
       return null;
     }
 
     return ReminderFirestoreMapper.fromFirestore(
-      reminderSnapshot.id,
-      reminderSnapshot.data() as never,
+      reminderId,
+      snapshot.data() as FirestoreReminderData,
     );
   }
 
   async listByUserId(userId: string): Promise<Reminder[]> {
+    const remindersCollection = collection(this.db, this.collectionName);
+
     const remindersQuery = query(
-      this.remindersCollection(),
+      remindersCollection,
       where("userId", "==", userId),
     );
 
-    const reminderSnapshots = await getDocs(remindersQuery);
+    const snapshot = await getDocs(remindersQuery);
 
-    return reminderSnapshots.docs.map((reminderSnapshot) =>
+    return snapshot.docs.map((reminderDocument) =>
       ReminderFirestoreMapper.fromFirestore(
-        reminderSnapshot.id,
-        reminderSnapshot.data() as never,
+        reminderDocument.id,
+        reminderDocument.data() as FirestoreReminderData,
       ),
     );
   }
 
   async update(reminder: Reminder): Promise<void> {
-    const reminderRef = doc(this.remindersCollection(), reminder.id);
+    const reminderReference = doc(this.db, this.collectionName, reminder.id);
 
-    await updateDoc(reminderRef, {
+    await updateDoc(reminderReference, {
       ...ReminderFirestoreMapper.toFirestore(reminder),
     });
   }
 
-  private remindersCollection() {
-    return collection(this.db, this.collectionName);
+  async delete(reminderId: string): Promise<void> {
+    const reminderReference = doc(this.db, this.collectionName, reminderId);
+
+    await deleteDoc(reminderReference);
   }
 }
