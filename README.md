@@ -1,43 +1,12 @@
 # HelpSenior
 
-HelpSenior é uma aplicação Web focada em acessibilidade para pessoas idosas, criada para organizar tarefas, lembretes, perfil e preferências visuais de forma simples, clara e previsível.
+HelpSenior é uma aplicação Web focada em acessibilidade para pessoas idosas. A proposta é ajudar o usuário a organizar tarefas, lembretes, perfil e preferências visuais de forma simples, clara e previsível.
 
-O projeto foi desenvolvido em formato de monorepo com separação entre domínio, infraestrutura Firebase e aplicação Web.
+O projeto está organizado como um monorepo com separação entre domínio, infraestrutura Firebase e aplicação Web.
 
-## Objetivo
-
-O objetivo do HelpSenior é ajudar pessoas idosas a manterem autonomia no uso de uma plataforma digital, com recursos como:
-
-- tarefas simples;
-- tarefas com descrição;
-- tarefas com data opcional;
-- lembretes com data e horário;
-- lembretes recorrentes;
-- alerta visual para lembretes vencidos;
-- notificação do navegador com o app aberto;
-- recuperação de senha;
-- perfil do usuário;
-- preferências de acessibilidade;
-- modo alto contraste;
-- tamanho de fonte ajustável;
-- modo simples;
-- espaçamento ampliado;
-- redução de animações;
-- mensagens de erro amigáveis.
-
-## Decisão de produto
+## Stack
 
 ```txt
-Tarefa = o que precisa ser feito
-Lembrete = quando avisar e repetir
-```
-
-Por isso, tarefas não possuem recorrência. A recorrência fica apenas nos lembretes.
-
-## Stack principal
-
-```txt
-Monorepo
 pnpm
 Turbo
 TypeScript
@@ -57,113 +26,84 @@ Vitest
         ↓
 @helpsenior/firebase
         ↓
-apps/web
+@helpsenior/web
 ```
 
-## Pacotes
+- `@helpsenior/core`: entidades, contratos de repositório, casos de uso, regras de negócio e testes unitários.
+- `@helpsenior/firebase`: serviços Firebase, repositórios Firestore e mappers entre Firestore e domínio.
+- `@helpsenior/web`: interface React, rotas, hooks, componentes, autenticação e aplicação das preferências de acessibilidade.
 
-### @helpsenior/core
-
-Pacote de domínio com entidades, contratos, casos de uso, regras de negócio e testes unitários.
-
-Módulos atuais:
+## Decisão de produto
 
 ```txt
-tasks
-preferences
-profile
-reminders
+Tarefa = o que precisa ser feito
+Lembrete = quando avisar e repetir
 ```
 
-### @helpsenior/firebase
-
-Pacote de infraestrutura Firebase com autenticação, recuperação de senha, repositórios Firestore e mappers.
-
-Coleções usadas:
-
-```txt
-tasks
-reminders
-userPreferences
-userProfiles
-```
-
-### @helpsenior/web
-
-Aplicação Web em React com rotas, hooks, componentes, integração Firebase e aplicação das preferências de acessibilidade.
+Por isso, tarefas não possuem recorrência. Recorrência existe apenas em lembretes.
 
 ## Funcionalidades atuais
 
 ### Autenticação
 
-- cadastro com nome completo, e-mail e senha;
-- confirmação de senha;
+- cadastro com nome completo, e-mail, senha e confirmação de senha;
 - login com e-mail e senha;
 - logout;
-- recuperação de senha;
-- envio de e-mail de redefinição pelo Firebase Authentication;
-- mensagem amigável após envio do e-mail de recuperação;
+- recuperação de senha por e-mail pelo Firebase Authentication;
 - persistência de sessão;
-- criação automática do perfil após cadastro;
-- sincronização imediata do nome do usuário na barra superior;
-- tratamento amigável de erros de autenticação.
+- criação/atualização automática do perfil após cadastro;
+- exibição do nome do usuário na barra superior;
+- mensagens amigáveis para erros de autenticação.
 
 ### Tarefas
 
-- criar tarefa simples;
-- criar tarefa com descrição;
-- criar tarefa com data opcional;
+- criar tarefas com título obrigatório;
+- informar descrição opcional;
+- informar data opcional;
 - listar tarefas do usuário logado;
-- concluir tarefa inteira;
-- persistir tarefas no Firestore.
+- filtrar tarefas por todas, pendentes, concluídas e com data;
+- exibir resumo de tarefas pendentes, concluídas e com data;
+- editar tarefas pendentes;
+- concluir tarefas;
+- excluir tarefas;
+- persistir tarefas no Cloud Firestore.
 
 ### Lembretes
 
-- criar lembrete;
-- informar data;
-- informar horário;
-- informar descrição;
-- criar lembrete recorrente;
+- criar lembretes com título e data;
+- informar descrição e horário opcionais;
+- criar lembretes recorrentes;
 - informar data final da recorrência;
-- concluir lembrete;
-- listar lembretes;
-- ordenar lembretes;
-- filtrar lembretes;
-- exibir contadores por filtro;
-- exibir resumo rápido;
-- persistir lembretes no Firestore.
-
-### Lembretes recorrentes
+- listar, ordenar e filtrar lembretes;
+- exibir resumo de vencidos, pendentes, recorrentes e concluídos;
+- editar lembretes pendentes;
+- concluir lembretes;
+- excluir lembretes;
+- persistir lembretes no Cloud Firestore.
 
 Recorrências disponíveis:
 
 ```txt
-Nenhuma recorrência
+Sem recorrência
 Todos os dias
 Toda semana
 Todo mês
 ```
 
-Ao concluir um lembrete recorrente:
-
-```txt
-1. o lembrete atual é marcado como concluído;
-2. a próxima data é calculada;
-3. um novo lembrete é criado automaticamente.
-```
+Ao concluir um lembrete recorrente, o lembrete atual é marcado como concluído e o próximo lembrete é criado automaticamente quando ainda está dentro da data final configurada.
 
 ### Alertas e notificações
 
-- alerta visual para lembretes vencidos;
-- notificação do navegador para lembretes vencidos;
-- monitoramento global dos lembretes;
-- verificação automática a cada minuto.
+- alerta visual para lembretes vencidos dentro do app;
+- notificação do navegador para lembretes vencidos com o app aberto;
+- pedido de permissão de notificações no navegador;
+- verificação automática de lembretes a cada minuto.
 
-A notificação atual funciona com o app aberto. Ainda não há Service Worker nem Firebase Cloud Messaging.
+Ainda não há Service Worker nem Firebase Cloud Messaging, então as notificações não funcionam com o app fechado.
 
 ### Perfil
 
-A página de perfil possui:
+O perfil do usuário salva:
 
 ```txt
 Nome
@@ -193,6 +133,17 @@ Espaçamento maior
 /configuracoes  → Preferências de acessibilidade
 ```
 
+## Estrutura
+
+```txt
+apps/
+└── web/
+
+packages/
+├── core/
+└── firebase/
+```
+
 ## Firebase
 
 O projeto usa:
@@ -208,7 +159,7 @@ Método de autenticação:
 E-mail/senha
 ```
 
-Coleções atuais:
+Coleções usadas:
 
 ```txt
 tasks
@@ -219,7 +170,7 @@ userProfiles
 
 ## Variáveis de ambiente
 
-Crie:
+Crie o arquivo:
 
 ```txt
 apps/web/.env
@@ -248,7 +199,7 @@ pnpm install
 pnpm --filter @helpsenior/web dev
 ```
 
-Acesse:
+Por padrão, o Vite sobe em:
 
 ```txt
 http://localhost:5173
@@ -257,108 +208,39 @@ http://localhost:5173
 ## Scripts principais
 
 ```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm test
 pnpm typecheck
-pnpm typecheck --force
 pnpm --filter @helpsenior/core test
-pnpm --filter @helpsenior/core typecheck
-pnpm --filter @helpsenior/firebase typecheck
-pnpm --filter @helpsenior/web typecheck
+pnpm --filter @helpsenior/web dev
 pnpm --filter @helpsenior/web build
-pnpm --filter @helpsenior/web lint
+pnpm --filter @helpsenior/firebase typecheck
 ```
 
 ## Testes
 
-O pacote `@helpsenior/core` possui testes unitários com Vitest.
+O pacote `@helpsenior/core` possui testes unitários com Vitest para:
 
-Os testes cobrem:
-
-- criação de tarefas;
-- listagem de tarefas;
-- conclusão de tarefas;
-- preferências de acessibilidade;
-- perfil do usuário;
-- criação de lembretes;
-- listagem de lembretes;
-- conclusão de lembretes;
-- lembretes recorrentes;
-- criação automática do próximo lembrete;
-- respeito à data final da recorrência.
-
-## Cuidados importantes
-
-Não versionar:
-
-```txt
-node_modules
-**/node_modules
-.turbo
-.env
-.env.local
-.env.*.local
-```
-
-Se alguma dessas pastas já foi commitada por engano:
-
-```bash
-git rm -r --cached node_modules apps/web/node_modules packages/core/node_modules packages/firebase/node_modules .turbo 2>/dev/null || true
-git commit -m "chore: remove ignored files from repository"
-git push
-```
-
-## Status atual
-
-O projeto possui:
-
-- monorepo com pnpm;
-- Turbo;
-- app Web em React/Vite;
-- pacote de domínio isolado;
-- pacote Firebase isolado;
-- autenticação;
-- cadastro com nome completo;
-- recuperação de senha;
-- perfil automático após cadastro;
-- tarefas simples;
-- tarefas com data opcional;
+- tarefas;
 - lembretes;
 - lembretes recorrentes;
 - preferências de acessibilidade;
-- tratamento amigável de erros;
-- Firestore com regras por usuário;
-- documentação por pacote;
-- typecheck, testes e build passando.
+- perfil do usuário.
+
+## Status atual
+
+O projeto possui app Web funcional com autenticação, tarefas, lembretes, perfil, configurações de acessibilidade e persistência no Firebase.
 
 ## Limitações atuais
 
-O projeto ainda não possui:
-
-- filtros e resumo visual de tarefas;
-- recorrência personalizada por dias da semana nos lembretes;
-- Design System;
-- responsividade refinada;
-- testes automatizados no Web;
-- login social;
-- notificações com app fechado;
-- Service Worker;
-- Firebase Cloud Messaging;
-- app Mobile.
-
-## Próximas evoluções recomendadas
-
-1. Criar filtros e resumo visual de tarefas.
-2. Criar recorrência personalizada por dias da semana nos lembretes.
-3. Melhorar responsividade.
-4. Criar Design System básico.
-5. Criar testes automatizados no Web.
-6. Criar notificações com Service Worker/Firebase Cloud Messaging.
-7. Criar app Mobile.
-
-## Repositório
-
-```txt
-git@github.com:RomualdoBorges/helpsenior.git
-```
+- não há testes automatizados no app Web;
+- não há notificações com app fechado;
+- não há Service Worker;
+- não há Firebase Cloud Messaging;
+- não há login social;
+- não há app Mobile.
 
 ## Licença
 
