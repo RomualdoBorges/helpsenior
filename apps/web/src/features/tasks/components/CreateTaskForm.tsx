@@ -51,10 +51,10 @@ export function CreateTaskForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      className="create-form mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <h3 className="m-0 text-xl font-bold text-slate-950">Criar tarefa</h3>
 
-      <p className="mt-1 text-sm font-bold text-slate-500">
+      <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
         Use tarefas para registrar o que precisa ser feito. Para avisos,
         horários e repetição, use a área de lembretes.
       </p>

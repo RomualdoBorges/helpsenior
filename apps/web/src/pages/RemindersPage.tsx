@@ -151,7 +151,7 @@ export function RemindersPage({
             Meus lembretes
           </h2>
 
-          <p className="mt-2 text-base leading-6 text-slate-500">
+          <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
             Crie lembretes com data, horário e recorrência para acompanhar
             compromissos e atividades importantes.
           </p>
@@ -189,7 +189,7 @@ export function RemindersPage({
         </Alert>
       )}
 
-      <div className="mt-6 grid gap-4 md:grid-cols-4">
+      <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-4">
         <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
           <p className="m-0 text-sm font-bold text-amber-800">Vencidos</p>
           <strong className="mt-2 block text-3xl text-amber-950">
@@ -235,7 +235,7 @@ export function RemindersPage({
         </Alert>
       )}
 
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="m-0 text-xl font-bold text-slate-950">

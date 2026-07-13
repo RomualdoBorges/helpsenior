@@ -58,13 +58,13 @@ export function HomePage({ user }: HomePageProps) {
           Minhas tarefas
         </h2>
 
-        <p className="mt-2 text-base leading-6 text-slate-500">
+        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
           Crie tarefas simples para acompanhar atividades importantes do dia a
           dia.
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
 
@@ -98,7 +98,7 @@ export function HomePage({ user }: HomePageProps) {
         </Alert>
       )}
 
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="m-0 text-xl font-bold text-slate-950">

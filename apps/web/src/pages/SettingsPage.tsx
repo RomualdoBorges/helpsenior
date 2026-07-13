@@ -15,7 +15,6 @@ interface SettingsPageProps {
     fontSize?: FontSizePreference;
     contrast?: ContrastPreference;
     simpleMode?: boolean;
-    reduceMotion?: boolean;
     increasedSpacing?: boolean;
   }) => Promise<void>;
 }

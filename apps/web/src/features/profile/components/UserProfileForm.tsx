@@ -94,7 +94,7 @@ function UserProfileFields({
           Meu perfil
         </h2>
 
-        <p className="mt-2 text-base leading-6 text-slate-500">
+        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
           Atualize seus dados básicos para personalizar sua experiência no
           HelpSenior.
         </p>

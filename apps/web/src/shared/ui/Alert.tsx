@@ -25,7 +25,7 @@ export function Alert({
   return (
     <p
       className={classNames(
-        "rounded-xl border px-4 py-3 font-bold",
+        "app-alert rounded-xl border px-4 py-3 font-bold",
         toneClassNames[tone],
         className,
       )}

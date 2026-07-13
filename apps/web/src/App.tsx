@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { AuthForm } from "./features/auth/components/AuthForm";
@@ -80,6 +80,18 @@ function App() {
   } = useReminderNotifications(dueReminders);
 
   const accessibilityClassName = getPreferenceClassNames(preferences);
+
+  useEffect(() => {
+    const preferenceClassNames = accessibilityClassName
+      .split(" ")
+      .filter(Boolean);
+
+    document.documentElement.classList.add(...preferenceClassNames);
+
+    return () => {
+      document.documentElement.classList.remove(...preferenceClassNames);
+    };
+  }, [accessibilityClassName]);
 
   async function handleSignIn(email: string, password: string) {
     const isSignedIn = await signIn(email, password);

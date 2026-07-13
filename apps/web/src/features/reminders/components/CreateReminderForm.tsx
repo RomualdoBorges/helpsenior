@@ -59,7 +59,7 @@ export function CreateReminderForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      className="create-form mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <h3 className="m-0 text-xl font-bold text-slate-950">Criar lembrete</h3>
 
       <div className="mt-4 grid gap-4">

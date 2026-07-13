@@ -40,8 +40,9 @@ export function Button({
   return (
     <button
       type={type}
+      data-variant={variant}
       className={classNames(
-        "rounded-xl font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+        "rounded-xl font-bold disabled:cursor-not-allowed disabled:opacity-60",
         sizeClassNames[size],
         variantClassNames[variant],
         fullWidth && "w-full",

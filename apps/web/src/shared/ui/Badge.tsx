@@ -27,7 +27,7 @@ export function Badge({
   return (
     <span
       className={classNames(
-        "rounded-full px-3 py-1 text-sm font-bold",
+        "app-badge rounded-full px-3 py-1 text-sm font-bold",
         toneClassNames[tone],
         className,
       )}

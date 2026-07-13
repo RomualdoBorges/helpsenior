@@ -11,7 +11,6 @@ export function getPreferenceClassNames(
     `font-size-${preferences.fontSize}`,
     preferences.contrast === "high" ? "high-contrast" : "",
     preferences.simpleMode ? "simple-mode" : "",
-    preferences.reduceMotion ? "reduce-motion" : "",
     preferences.increasedSpacing ? "increased-spacing" : "",
   ]
     .filter(Boolean)
