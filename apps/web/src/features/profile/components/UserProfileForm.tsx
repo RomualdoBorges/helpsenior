@@ -1,4 +1,4 @@
-import { useEffect, useState, type SyntheticEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
 
 import type { UserProfile } from "@helpsenior/core";
 
@@ -23,32 +23,6 @@ export function UserProfileForm({
   error,
   onUpdateProfile,
 }: UserProfileFormProps) {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-
-  useEffect(() => {
-    if (!profile) {
-      return;
-    }
-
-    setName(profile.name);
-    setPhone(profile.phone ?? "");
-    setBirthDate(profile.birthDate ?? "");
-  }, [profile]);
-
-  async function handleSubmit(
-    event: SyntheticEvent<HTMLFormElement, SubmitEvent>,
-  ) {
-    event.preventDefault();
-
-    await onUpdateProfile({
-      name: name.trim(),
-      phone: phone.trim() || undefined,
-      birthDate: birthDate || undefined,
-    });
-  }
-
   if (isLoading) {
     return (
       <Card as="section" className="mt-8" aria-labelledby="profile-title">
@@ -71,6 +45,46 @@ export function UserProfileForm({
         <p className="mt-4 text-slate-600">Perfil não encontrado.</p>
       </Card>
     );
+  }
+
+  return (
+    <UserProfileFields
+      key={profile.updatedAt.getTime()}
+      profile={profile}
+      isUpdating={isUpdating}
+      error={error}
+      onUpdateProfile={onUpdateProfile}
+    />
+  );
+}
+
+interface UserProfileFieldsProps {
+  profile: UserProfile;
+  isUpdating: boolean;
+  error: string | null;
+  onUpdateProfile: UserProfileFormProps["onUpdateProfile"];
+}
+
+function UserProfileFields({
+  profile,
+  isUpdating,
+  error,
+  onUpdateProfile,
+}: UserProfileFieldsProps) {
+  const [name, setName] = useState(profile.name);
+  const [phone, setPhone] = useState(profile.phone ?? "");
+  const [birthDate, setBirthDate] = useState(profile.birthDate ?? "");
+
+  async function handleSubmit(
+    event: SyntheticEvent<HTMLFormElement, SubmitEvent>,
+  ) {
+    event.preventDefault();
+
+    await onUpdateProfile({
+      name: name.trim(),
+      phone: phone.trim() || undefined,
+      birthDate: birthDate || undefined,
+    });
   }
 
   return (

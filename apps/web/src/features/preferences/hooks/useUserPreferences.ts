@@ -96,7 +96,11 @@ export function useUserPreferences(userId: string | null) {
   );
 
   useEffect(() => {
-    void loadPreferences();
+    const timeoutId = window.setTimeout(() => {
+      void loadPreferences();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadPreferences]);
 
   return {

@@ -197,7 +197,11 @@ export function useTasks(userId: string | null) {
   );
 
   useEffect(() => {
-    void loadTasks();
+    const timeoutId = window.setTimeout(() => {
+      void loadTasks();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadTasks]);
 
   return {

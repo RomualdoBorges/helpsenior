@@ -213,7 +213,11 @@ export function useReminders(userId: string | null) {
   );
 
   useEffect(() => {
-    void loadReminders();
+    const timeoutId = window.setTimeout(() => {
+      void loadReminders();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadReminders]);
 
   return {

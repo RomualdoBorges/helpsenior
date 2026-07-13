@@ -131,7 +131,11 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
   );
 
   useEffect(() => {
-    void loadProfile();
+    const timeoutId = window.setTimeout(() => {
+      void loadProfile();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadProfile]);
 
   useEffect(() => {
