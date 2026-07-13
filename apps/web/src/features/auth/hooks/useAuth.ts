@@ -119,8 +119,10 @@ export function useAuth() {
       const authenticatedUser = await authService.signIn(email, password);
 
       setUser(authenticatedUser);
+      return true;
     } catch (error) {
       setAuthError(getFirebaseAuthErrorMessage(error));
+      return false;
     } finally {
       setIsSubmittingAuth(false);
     }

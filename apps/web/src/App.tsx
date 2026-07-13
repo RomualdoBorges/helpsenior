@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { AuthForm } from "./features/auth/components/AuthForm";
 import { useAuth } from "./features/auth/hooks/useAuth";
@@ -10,15 +10,15 @@ import { useCurrentTime } from "./features/reminders/hooks/useCurrentTime";
 import { useReminderNotifications } from "./features/reminders/hooks/useReminderNotifications";
 import { useReminders } from "./features/reminders/hooks/useReminders";
 import { getDueReminders } from "./features/reminders/utils/getDueReminders";
-import { HomePage } from "./pages/HomePage";
-import { ProfilePage } from "./pages/ProfilePage";
-import { RemindersPage } from "./pages/RemindersPage";
-import { SettingsPage } from "./pages/SettingsPage";
+import { AppRoutes } from "./routes/AppRoutes";
+import { AppNavigation } from "./shared/layout/AppNavigation";
 import { Button, classNames } from "./shared/ui";
 
 import "./index.css";
 
 function App() {
+  const navigate = useNavigate();
+
   const {
     user,
     isAuthenticated,
@@ -81,6 +81,14 @@ function App() {
 
   const accessibilityClassName = getPreferenceClassNames(preferences);
 
+  async function handleSignIn(email: string, password: string) {
+    const isSignedIn = await signIn(email, password);
+
+    if (isSignedIn) {
+      navigate("/", { replace: true });
+    }
+  }
+
   if (isLoadingAuth) {
     return (
       <main
@@ -124,7 +132,7 @@ function App() {
             isSubmitting={isSubmittingAuth}
             error={authError}
             successMessage={authSuccessMessage}
-            onSignIn={signIn}
+            onSignIn={handleSignIn}
             onSignUp={signUp}
             onResetPassword={resetPassword}
           />
@@ -149,122 +157,43 @@ function App() {
               </Button>
             </section>
 
-            <nav className="mt-6 flex gap-3">
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  classNames(
-                    "rounded-xl border px-4 py-3 font-bold no-underline",
-                    isActive
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-950",
-                  )
-                }
-              >
-                Tarefas
-              </NavLink>
+            <AppNavigation />
 
-              <NavLink
-                to="/lembretes"
-                className={({ isActive }) =>
-                  classNames(
-                    "rounded-xl border px-4 py-3 font-bold no-underline",
-                    isActive
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-950",
-                  )
-                }
-              >
-                Lembretes
-              </NavLink>
-
-              <NavLink
-                to="/perfil"
-                className={({ isActive }) =>
-                  classNames(
-                    "rounded-xl border px-4 py-3 font-bold no-underline",
-                    isActive
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-950",
-                  )
-                }
-              >
-                Perfil
-              </NavLink>
-
-              <NavLink
-                to="/configuracoes"
-                className={({ isActive }) =>
-                  classNames(
-                    "rounded-xl border px-4 py-3 font-bold no-underline",
-                    isActive
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-300 bg-white text-slate-950",
-                  )
-                }
-              >
-                Configurações
-              </NavLink>
-            </nav>
-
-            <Routes>
-              <Route path="/" element={<HomePage user={user} />} />
-
-              <Route
-                path="/lembretes"
-                element={
-                  <RemindersPage
-                    reminders={reminders}
-                    dueReminders={dueReminders}
-                    isLoadingReminders={isLoadingReminders}
-                    isCreatingReminder={isCreatingReminder}
-                    isUpdatingReminder={isUpdatingReminder}
-                    isDeletingReminder={isDeletingReminder}
-                    remindersError={remindersError}
-                    createReminder={createReminder}
-                    updateReminder={updateReminder}
-                    completeReminder={completeReminder}
-                    deleteReminder={deleteReminder}
-                    notificationPermission={notificationPermission}
-                    requestNotificationPermission={
-                      requestNotificationPermission
-                    }
-                    isNotificationSupported={isNotificationSupported}
-                    isNotificationAllowed={isNotificationAllowed}
-                    isNotificationDenied={isNotificationDenied}
-                  />
-                }
-              />
-
-              <Route
-                path="/perfil"
-                element={
-                  <ProfilePage
-                    profile={profile}
-                    isLoadingProfile={isLoadingProfile}
-                    isUpdatingProfile={isUpdatingProfile}
-                    profileError={profileError}
-                    updateProfile={updateProfile}
-                  />
-                }
-              />
-
-              <Route
-                path="/configuracoes"
-                element={
-                  <SettingsPage
-                    preferences={preferences}
-                    isLoadingPreferences={isLoadingPreferences}
-                    isUpdatingPreferences={isUpdatingPreferences}
-                    preferencesError={preferencesError}
-                    updatePreferences={updatePreferences}
-                  />
-                }
-              />
-
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <AppRoutes
+              homePageProps={{ user }}
+              remindersPageProps={{
+                reminders,
+                dueReminders,
+                isLoadingReminders,
+                isCreatingReminder,
+                isUpdatingReminder,
+                isDeletingReminder,
+                remindersError,
+                createReminder,
+                updateReminder,
+                completeReminder,
+                deleteReminder,
+                notificationPermission,
+                requestNotificationPermission,
+                isNotificationSupported,
+                isNotificationAllowed,
+                isNotificationDenied,
+              }}
+              profilePageProps={{
+                profile,
+                isLoadingProfile,
+                isUpdatingProfile,
+                profileError,
+                updateProfile,
+              }}
+              settingsPageProps={{
+                preferences,
+                isLoadingPreferences,
+                isUpdatingPreferences,
+                preferencesError,
+                updatePreferences,
+              }}
+            />
           </>
         )}
       </section>
