@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { UpdateUserProfileUseCase } from "@helpsenior/core";
-import {
-  FirebaseUserProfileRepository,
-  type AuthUser,
-} from "@helpsenior/firebase";
+import type { AuthUser } from "@helpsenior/firebase/auth";
 
-import { authService, db } from "../../../config/firebase";
+import { authService } from "../../../config/firebaseAuth";
 import { getFirebaseAuthErrorMessage } from "../utils/getFirebaseAuthErrorMessage";
 
 export function useAuth() {
@@ -18,16 +14,6 @@ export function useAuth() {
     null,
   );
   const isSigningUpRef = useRef(false);
-
-  const userProfileRepository = useMemo(
-    () => new FirebaseUserProfileRepository(db),
-    [],
-  );
-
-  const updateUserProfileUseCase = useMemo(
-    () => new UpdateUserProfileUseCase(userProfileRepository),
-    [userProfileRepository],
-  );
 
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged((currentUser) => {
@@ -59,6 +45,22 @@ export function useAuth() {
           input.password,
         );
 
+        const [coreModule, firebaseModule, firebaseConfigModule] =
+          await Promise.all([
+            import("@helpsenior/core"),
+            import("@helpsenior/firebase/profile"),
+            import("../../../config/firebase"),
+          ]);
+
+        const userProfileRepository =
+          new firebaseModule.FirebaseUserProfileRepository(
+            firebaseConfigModule.db,
+          );
+
+        const updateUserProfileUseCase = new coreModule.UpdateUserProfileUseCase(
+          userProfileRepository,
+        );
+
         await updateUserProfileUseCase.execute({
           userId: createdUser.id,
           email: createdUser.email,
@@ -80,7 +82,7 @@ export function useAuth() {
         setIsSubmittingAuth(false);
       }
     },
-    [updateUserProfileUseCase],
+    [],
   );
 
   const signIn = useCallback(async (email: string, password: string) => {

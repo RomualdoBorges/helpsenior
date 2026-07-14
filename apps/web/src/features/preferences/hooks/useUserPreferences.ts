@@ -5,7 +5,7 @@ import {
   UpdateUserPreferencesUseCase,
   type UserPreferences,
 } from "@helpsenior/core";
-import { FirebaseUserPreferencesRepository } from "@helpsenior/firebase";
+import { FirebaseUserPreferencesRepository } from "@helpsenior/firebase/preferences";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";

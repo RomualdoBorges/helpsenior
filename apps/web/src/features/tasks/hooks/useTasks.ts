@@ -8,7 +8,7 @@ import {
   UpdateTaskUseCase,
   type Task,
 } from "@helpsenior/core";
-import { FirebaseTaskRepository } from "@helpsenior/firebase";
+import { FirebaseTaskRepository } from "@helpsenior/firebase/tasks";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";

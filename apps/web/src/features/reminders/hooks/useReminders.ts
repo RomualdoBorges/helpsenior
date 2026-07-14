@@ -9,7 +9,7 @@ import {
   type Reminder,
   type ReminderRecurrence,
 } from "@helpsenior/core";
-import { FirebaseReminderRepository } from "@helpsenior/firebase";
+import { FirebaseReminderRepository } from "@helpsenior/firebase/reminders";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";

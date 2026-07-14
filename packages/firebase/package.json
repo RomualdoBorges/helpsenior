@@ -5,6 +5,17 @@
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth/index.ts",
+    "./config": "./src/config/firebase.ts",
+    "./config/auth": "./src/config/firebaseAuth.ts",
+    "./config/firestore": "./src/config/firestore.ts",
+    "./preferences": "./src/preferences/index.ts",
+    "./profile": "./src/profile/index.ts",
+    "./reminders": "./src/reminders/index.ts",
+    "./tasks": "./src/tasks/index.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

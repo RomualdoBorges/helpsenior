@@ -5,7 +5,7 @@ import {
   UpdateUserProfileUseCase,
   type UserProfile,
 } from "@helpsenior/core";
-import { FirebaseUserProfileRepository } from "@helpsenior/firebase";
+import { FirebaseUserProfileRepository } from "@helpsenior/firebase/profile";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";

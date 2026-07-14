@@ -1,18 +1,15 @@
-import { useEffect, useMemo } from "react";
+import { lazy, Suspense } from "react";
+
 import { useAuth } from "./features/auth/hooks/useAuth";
-import { useUserPreferences } from "./features/preferences/hooks/useUserPreferences";
-import { getPreferenceClassNames } from "./features/preferences/utils/getPreferenceClassNames";
-import { useUserProfile } from "./features/profile/hooks/useUserProfile";
-import { useCurrentTime } from "./features/reminders/hooks/useCurrentTime";
-import { useReminderNotifications } from "./features/reminders/hooks/useReminderNotifications";
-import { useReminders } from "./features/reminders/hooks/useReminders";
-import { getDueReminders } from "./features/reminders/utils/getDueReminders";
 import { LoginPage } from "./pages/LoginPage";
-import { AppRoutes } from "./routes/AppRoutes";
-import { AppBar } from "./shared/layout/AppBar";
-import { classNames } from "./shared/ui";
 
 import "./index.css";
+
+const AuthenticatedApp = lazy(() =>
+  import("./AuthenticatedApp").then((module) => ({
+    default: module.AuthenticatedApp,
+  })),
+);
 
 function App() {
   const {
@@ -28,90 +25,13 @@ function App() {
     signOut,
   } = useAuth();
 
-  const {
-    preferences,
-    isLoadingPreferences,
-    isUpdatingPreferences,
-    preferencesError,
-    updatePreferences,
-  } = useUserPreferences(user?.id ?? null);
-
-  const {
-    profile,
-    isLoadingProfile,
-    isUpdatingProfile,
-    profileError,
-    updateProfile,
-  } = useUserProfile({
-    userId: user?.id ?? null,
-    email: user?.email ?? null,
-  });
-
-  const {
-    reminders,
-    isLoadingReminders,
-    isCreatingReminder,
-    isUpdatingReminder,
-    isDeletingReminder,
-    remindersError,
-    createReminder,
-    updateReminder,
-    completeReminder,
-    deleteReminder,
-  } = useReminders(user?.id ?? null);
-
-  const currentTime = useCurrentTime();
-
-  const dueReminders = useMemo(
-    () => getDueReminders(reminders, currentTime),
-    [currentTime, reminders],
-  );
-
-  const {
-    permission: notificationPermission,
-    requestPermission: requestNotificationPermission,
-    isNotificationSupported,
-    isNotificationAllowed,
-    isNotificationDenied,
-  } = useReminderNotifications(dueReminders);
-
-  const accessibilityClassName = getPreferenceClassNames(preferences);
-
-  useEffect(() => {
-    const preferenceClassNames = accessibilityClassName
-      .split(" ")
-      .filter(Boolean);
-
-    document.documentElement.classList.add(...preferenceClassNames);
-
-    return () => {
-      document.documentElement.classList.remove(...preferenceClassNames);
-    };
-  }, [accessibilityClassName]);
-
   if (isLoadingAuth) {
-    return (
-      <main
-        className={classNames(
-          "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
-          accessibilityClassName,
-        )}
-      >
-        <section className="app-container mx-auto max-w-6xl">
-          <p className="text-base text-slate-600">Carregando aplicação...</p>
-        </section>
-      </main>
-    );
+    return <AppLoadingFallback />;
   }
 
   if (!isAuthenticated || !user) {
     return (
-      <main
-        className={classNames(
-          "app-shell min-h-screen bg-slate-50 text-slate-950",
-          accessibilityClassName,
-        )}
-      >
+      <main className="app-shell min-h-screen bg-slate-50 text-slate-950">
         <LoginPage
           isSubmitting={isSubmittingAuth}
           error={authError}
@@ -125,55 +45,21 @@ function App() {
   }
 
   return (
-    <main
-      className={classNames(
-        "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
-        accessibilityClassName,
-      )}
-    >
-      <section className="app-container mx-auto min-h-screen max-w-6xl bg-white px-6 pb-10">
-        <AppBar
-          alerts={dueReminders}
-          userName={profile?.name}
-          userEmail={user.email}
-          onSignOut={signOut}
-        />
+    <Suspense fallback={<AppLoadingFallback />}>
+      <AuthenticatedApp user={user} onSignOut={signOut} />
+    </Suspense>
+  );
+}
 
-        <AppRoutes
-          homePageProps={{ user }}
-          remindersPageProps={{
-            reminders,
-            dueReminders,
-            isLoadingReminders,
-            isCreatingReminder,
-            isUpdatingReminder,
-            isDeletingReminder,
-            remindersError,
-            createReminder,
-            updateReminder,
-            completeReminder,
-            deleteReminder,
-            notificationPermission,
-            requestNotificationPermission,
-            isNotificationSupported,
-            isNotificationAllowed,
-            isNotificationDenied,
-          }}
-          profilePageProps={{
-            profile,
-            isLoadingProfile,
-            isUpdatingProfile,
-            profileError,
-            updateProfile,
-          }}
-          settingsPageProps={{
-            preferences,
-            isLoadingPreferences,
-            isUpdatingPreferences,
-            preferencesError,
-            updatePreferences,
-          }}
-        />
+function AppLoadingFallback() {
+  return (
+    <main
+      className="app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <section className="app-container mx-auto max-w-6xl">
+        <p className="text-base text-slate-600">Carregando aplicação...</p>
       </section>
     </main>
   );
