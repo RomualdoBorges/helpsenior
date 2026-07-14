@@ -93,7 +93,7 @@ export function AuthForm({
   }
 
   return (
-    <section className="mx-auto mt-10 max-w-130 rounded-3xl border border-slate-300 bg-white p-6 shadow-[0_10px_30px_rgb(15_23_42/0.08)]">
+    <section className="mx-auto w-full max-w-130">
       <div>
         <p className="m-0 text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
           HelpSenior

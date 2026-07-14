@@ -9,7 +9,7 @@ import {
   getTaskSummary,
   type TaskFilter,
 } from "../features/tasks/utils/taskFilters";
-import { Alert, Button, Card } from "../shared/ui";
+import { Alert, Button } from "../shared/ui";
 
 interface HomePageUser {
   id: string;
@@ -52,7 +52,10 @@ export function HomePage({ user }: HomePageProps) {
   );
 
   return (
-    <Card as="section" className="mt-8" aria-labelledby="tasks-title">
+    <section
+      className="mx-auto mt-8 w-full max-w-6xl"
+      aria-labelledby="tasks-title"
+    >
       <div>
         <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
           Minhas tarefas
@@ -144,6 +147,6 @@ export function HomePage({ user }: HomePageProps) {
           onDeleteTask={deleteTask}
         />
       </div>
-    </Card>
+    </section>
   );
 }

@@ -6,7 +6,6 @@ import type {
 
 import {
   Alert,
-  Card,
   FormField,
   Select,
   ToggleField,
@@ -34,30 +33,39 @@ export function UserPreferencesPanel({
 }: UserPreferencesPanelProps) {
   if (isLoading) {
     return (
-      <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+      <section
+        className="mx-auto mt-8 w-full max-w-6xl"
+        aria-labelledby="preferences-title"
+      >
         <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
           Preferências de acessibilidade
         </h2>
 
         <p className="mt-4 text-slate-600">Carregando preferências...</p>
-      </Card>
+      </section>
     );
   }
 
   if (!preferences) {
     return (
-      <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+      <section
+        className="mx-auto mt-8 w-full max-w-6xl"
+        aria-labelledby="preferences-title"
+      >
         <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
           Preferências de acessibilidade
         </h2>
 
         <p className="mt-4 text-slate-600">Preferências não encontradas.</p>
-      </Card>
+      </section>
     );
   }
 
   return (
-    <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+    <section
+      className="mx-auto mt-8 w-full max-w-6xl"
+      aria-labelledby="preferences-title"
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
@@ -132,6 +140,6 @@ export function UserPreferencesPanel({
           }
         />
       </div>
-    </Card>
+    </section>
   );
 }

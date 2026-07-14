@@ -2,7 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 
 import type { UserProfile } from "@helpsenior/core";
 
-import { Alert, Button, Card, FormField, Input } from "../../../shared/ui";
+import { Alert, Button, FormField, Input } from "../../../shared/ui";
 
 interface UserProfileFormProps {
   profile: UserProfile | null;
@@ -25,25 +25,31 @@ export function UserProfileForm({
 }: UserProfileFormProps) {
   if (isLoading) {
     return (
-      <Card as="section" className="mt-8" aria-labelledby="profile-title">
+      <section
+        className="mx-auto mt-8 w-full max-w-6xl"
+        aria-labelledby="profile-title"
+      >
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
         </h2>
 
         <p className="mt-4 text-slate-600">Carregando perfil...</p>
-      </Card>
+      </section>
     );
   }
 
   if (!profile) {
     return (
-      <Card as="section" className="mt-8" aria-labelledby="profile-title">
+      <section
+        className="mx-auto mt-8 w-full max-w-6xl"
+        aria-labelledby="profile-title"
+      >
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
         </h2>
 
         <p className="mt-4 text-slate-600">Perfil não encontrado.</p>
-      </Card>
+      </section>
     );
   }
 
@@ -72,7 +78,7 @@ function UserProfileFields({
   onUpdateProfile,
 }: UserProfileFieldsProps) {
   const [name, setName] = useState(profile.name);
-  const [phone, setPhone] = useState(profile.phone ?? "");
+  const [phone, setPhone] = useState(formatPhone(profile.phone ?? ""));
   const [birthDate, setBirthDate] = useState(profile.birthDate ?? "");
 
   async function handleSubmit(
@@ -82,13 +88,16 @@ function UserProfileFields({
 
     await onUpdateProfile({
       name: name.trim(),
-      phone: phone.trim() || undefined,
+      phone: getPhoneDigits(phone) || undefined,
       birthDate: birthDate || undefined,
     });
   }
 
   return (
-    <Card as="section" className="mt-8" aria-labelledby="profile-title">
+    <section
+      className="mx-auto mt-8 w-full max-w-6xl"
+      aria-labelledby="profile-title"
+    >
       <div>
         <h2 id="profile-title" className="m-0 text-[28px] font-bold">
           Meu perfil
@@ -129,9 +138,11 @@ function UserProfileFields({
           <Input
             type="tel"
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => setPhone(formatPhone(event.target.value))}
             placeholder="Ex: (11) 99999-9999"
             autoComplete="tel"
+            inputMode="numeric"
+            maxLength={15}
           />
         </FormField>
 
@@ -150,6 +161,35 @@ function UserProfileFields({
           {isUpdating ? "Salvando..." : "Salvar perfil"}
         </Button>
       </form>
-    </Card>
+    </section>
   );
+}
+
+function getPhoneDigits(value: string) {
+  return value.replace(/\D/g, "").slice(0, 11);
+}
+
+function formatPhone(value: string) {
+  const digits = getPhoneDigits(value);
+
+  if (digits.length === 0) {
+    return "";
+  }
+
+  if (digits.length < 3) {
+    return `(${digits}`;
+  }
+
+  const areaCode = digits.slice(0, 2);
+  const phoneNumber = digits.slice(2);
+
+  if (phoneNumber.length <= 4) {
+    return `(${areaCode}) ${phoneNumber}`;
+  }
+
+  const firstPartLength = phoneNumber.length > 8 ? 5 : 4;
+  const firstPart = phoneNumber.slice(0, firstPartLength);
+  const secondPart = phoneNumber.slice(firstPartLength);
+
+  return `(${areaCode}) ${firstPart}${secondPart ? `-${secondPart}` : ""}`;
 }

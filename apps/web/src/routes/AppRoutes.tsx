@@ -5,6 +5,7 @@ import { HomePage } from "../pages/HomePage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { RemindersPage } from "../pages/RemindersPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { WelcomePage } from "../pages/WelcomePage";
 
 interface AppRoutesProps {
   homePageProps: ComponentProps<typeof HomePage>;
@@ -21,7 +22,8 @@ export function AppRoutes({
 }: AppRoutesProps) {
   return (
     <Routes>
-      <Route path="/" element={<HomePage {...homePageProps} />} />
+      <Route path="/" element={<WelcomePage />} />
+      <Route path="/tarefas" element={<HomePage {...homePageProps} />} />
       <Route
         path="/lembretes"
         element={<RemindersPage {...remindersPageProps} />}

@@ -69,7 +69,8 @@ html.font-size-extra_large {
 
 html.high-contrast,
 html.high-contrast body,
-.app-shell.high-contrast {
+.app-shell.high-contrast,
+.high-contrast .app-container {
   background: #000000;
   color: #ffffff;
 }
@@ -88,17 +89,35 @@ html.high-contrast body,
 
 .high-contrast .app-card,
 .high-contrast .user-bar,
+.high-contrast .app-bar,
+.high-contrast .app-navigation,
+.high-contrast .account-menu,
+.high-contrast .alerts-menu,
 .high-contrast .preferences-toggle,
 .high-contrast .task-item,
 .high-contrast .reminder-item,
 .high-contrast .due-reminder-alert,
 .high-contrast .accessibility-panel,
+.high-contrast .accessibility-summary article,
 .high-contrast .create-form,
-.high-contrast .app-card article {
+.high-contrast .app-card article,
+.high-contrast .welcome-action {
   background: #111111 !important;
   border-color: #ffffff !important;
   color: #ffffff !important;
   box-shadow: none !important;
+}
+
+.high-contrast a {
+  color: #ffffff !important;
+}
+
+.high-contrast a:hover {
+  background: #262626 !important;
+}
+
+.high-contrast :focus-visible {
+  outline-color: #ffff00 !important;
 }
 
 .high-contrast input,
@@ -112,6 +131,16 @@ html.high-contrast body,
 .high-contrast input::placeholder,
 .high-contrast textarea::placeholder {
   color: #d1d5db !important;
+  opacity: 1;
+}
+
+.high-contrast input:disabled,
+.high-contrast select:disabled,
+.high-contrast textarea:disabled,
+.high-contrast button:disabled {
+  background: #262626 !important;
+  color: #d1d5db !important;
+  opacity: 1;
 }
 
 .high-contrast button {
@@ -129,6 +158,11 @@ html.high-contrast body,
   color: #000000 !important;
 }
 
+.high-contrast nav a[aria-current="page"]:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
 .high-contrast button[data-variant="danger"] {
   border-color: #fca5a5 !important;
   color: #fecaca !important;
@@ -137,6 +171,18 @@ html.high-contrast body,
 .high-contrast nav a {
   background: #111111 !important;
   border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast #app-navigation a {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.high-contrast #app-navigation a[aria-current="page"] {
+  background: transparent !important;
+  border-bottom-color: #ffffff !important;
   color: #ffffff !important;
 }
 

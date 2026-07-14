@@ -5,7 +5,7 @@ import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 import { CreateReminderForm } from "../features/reminders/components/CreateReminderForm";
 import { DueReminderAlert } from "../features/reminders/components/DueReminderAlert";
 import { ReminderList } from "../features/reminders/components/ReminderList";
-import { Alert, Button, Card } from "../shared/ui";
+import { Alert, Button } from "../shared/ui";
 
 type ReminderFilter = "all" | "pending" | "completed" | "recurring";
 
@@ -144,7 +144,10 @@ export function RemindersPage({
   );
 
   return (
-    <Card as="section" className="mt-8" aria-labelledby="reminders-title">
+    <section
+      className="mx-auto mt-8 w-full max-w-6xl"
+      aria-labelledby="reminders-title"
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
@@ -279,6 +282,6 @@ export function RemindersPage({
           onDeleteReminder={deleteReminder}
         />
       </div>
-    </Card>
+    </section>
   );
 }
