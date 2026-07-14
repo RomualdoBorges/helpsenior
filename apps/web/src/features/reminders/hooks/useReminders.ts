@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   CompleteReminderUseCase,
@@ -41,6 +41,12 @@ export function useReminders(userId: string | null) {
   const [isUpdatingReminder, setIsUpdatingReminder] = useState(false);
   const [isDeletingReminder, setIsDeletingReminder] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
+  const loadRequestIdRef = useRef(0);
+  const activeUserIdRef = useRef(userId);
+
+  useEffect(() => {
+    activeUserIdRef.current = userId;
+  }, [userId]);
 
   const reminderRepository = useMemo(
     () => new FirebaseReminderRepository(db),
@@ -73,8 +79,16 @@ export function useReminders(userId: string | null) {
   );
 
   const loadReminders = useCallback(async () => {
+    if (userId !== activeUserIdRef.current) {
+      return;
+    }
+
+    const requestId = ++loadRequestIdRef.current;
+
     if (!userId) {
       setReminders([]);
+      setIsLoadingReminders(false);
+      setRemindersError(null);
       return;
     }
 
@@ -86,16 +100,31 @@ export function useReminders(userId: string | null) {
         userId,
       });
 
-      setReminders(sortReminders(result.reminders));
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setReminders(sortReminders(result.reminders));
+      }
     } catch (caughtError) {
-      setRemindersError(
-        getFirebaseFirestoreErrorMessage(
-          caughtError,
-          "Não foi possível carregar os lembretes.",
-        ),
-      );
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setRemindersError(
+          getFirebaseFirestoreErrorMessage(
+            caughtError,
+            "Não foi possível carregar os lembretes.",
+          ),
+        );
+      }
     } finally {
-      setIsLoadingReminders(false);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setIsLoadingReminders(false);
+      }
     }
   }, [listRemindersUseCase, userId]);
 
@@ -217,7 +246,10 @@ export function useReminders(userId: string | null) {
       void loadReminders();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      loadRequestIdRef.current += 1;
+    };
   }, [loadReminders]);
 
   return {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   GetUserProfileUseCase,
@@ -31,6 +31,12 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const loadRequestIdRef = useRef(0);
+  const activeUserIdRef = useRef(userId);
+
+  useEffect(() => {
+    activeUserIdRef.current = userId;
+  }, [userId]);
 
   const userProfileRepository = useMemo(
     () => new FirebaseUserProfileRepository(db),
@@ -48,8 +54,16 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
   );
 
   const loadProfile = useCallback(async () => {
+    if (userId !== activeUserIdRef.current) {
+      return;
+    }
+
+    const requestId = ++loadRequestIdRef.current;
+
     if (!userId) {
       setProfile(null);
+      setIsLoadingProfile(false);
+      setProfileError(null);
       return;
     }
 
@@ -73,6 +87,13 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
           name: pendingName,
         });
 
+        if (
+          requestId !== loadRequestIdRef.current ||
+          userId !== activeUserIdRef.current
+        ) {
+          return;
+        }
+
         setProfile(updatedResult.profile);
 
         sessionStorage.removeItem(getPendingUserProfileNameStorageKey(userId));
@@ -84,16 +105,31 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
         sessionStorage.removeItem(getPendingUserProfileNameStorageKey(userId));
       }
 
-      setProfile(result.profile);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setProfile(result.profile);
+      }
     } catch (error) {
-      setProfileError(
-        getFirebaseFirestoreErrorMessage(
-          error,
-          "Não foi possível carregar o perfil.",
-        ),
-      );
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setProfileError(
+          getFirebaseFirestoreErrorMessage(
+            error,
+            "Não foi possível carregar o perfil.",
+          ),
+        );
+      }
     } finally {
-      setIsLoadingProfile(false);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setIsLoadingProfile(false);
+      }
     }
   }, [email, getUserProfileUseCase, updateUserProfileUseCase, userId]);
 
@@ -135,7 +171,10 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
       void loadProfile();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      loadRequestIdRef.current += 1;
+    };
   }, [loadProfile]);
 
   useEffect(() => {

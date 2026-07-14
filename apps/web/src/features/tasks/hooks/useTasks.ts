@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   CompleteTaskUseCase,
@@ -34,6 +34,12 @@ export function useTasks(userId: string | null) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadRequestIdRef = useRef(0);
+  const activeUserIdRef = useRef(userId);
+
+  useEffect(() => {
+    activeUserIdRef.current = userId;
+  }, [userId]);
 
   const taskRepository = useMemo(() => new FirebaseTaskRepository(db), []);
 
@@ -63,8 +69,16 @@ export function useTasks(userId: string | null) {
   );
 
   const loadTasks = useCallback(async () => {
+    if (userId !== activeUserIdRef.current) {
+      return;
+    }
+
+    const requestId = ++loadRequestIdRef.current;
+
     if (!userId) {
       setTasks([]);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
@@ -76,16 +90,31 @@ export function useTasks(userId: string | null) {
         userId,
       });
 
-      setTasks(sortTasks(result.tasks));
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setTasks(sortTasks(result.tasks));
+      }
     } catch (caughtError) {
-      setError(
-        getFirebaseFirestoreErrorMessage(
-          caughtError,
-          "Não foi possível carregar as tarefas.",
-        ),
-      );
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setError(
+          getFirebaseFirestoreErrorMessage(
+            caughtError,
+            "Não foi possível carregar as tarefas.",
+          ),
+        );
+      }
     } finally {
-      setIsLoading(false);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setIsLoading(false);
+      }
     }
   }, [listTasksUseCase, userId]);
 
@@ -201,7 +230,10 @@ export function useTasks(userId: string | null) {
       void loadTasks();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      loadRequestIdRef.current += 1;
+    };
   }, [loadTasks]);
 
   return {

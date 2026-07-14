@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   GetUserPreferencesUseCase,
@@ -22,6 +22,12 @@ export function useUserPreferences(userId: string | null) {
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const [preferencesError, setPreferencesError] = useState<string | null>(null);
+  const loadRequestIdRef = useRef(0);
+  const activeUserIdRef = useRef(userId);
+
+  useEffect(() => {
+    activeUserIdRef.current = userId;
+  }, [userId]);
 
   const userPreferencesRepository = useMemo(
     () => new FirebaseUserPreferencesRepository(db),
@@ -39,8 +45,16 @@ export function useUserPreferences(userId: string | null) {
   );
 
   const loadPreferences = useCallback(async () => {
+    if (userId !== activeUserIdRef.current) {
+      return;
+    }
+
+    const requestId = ++loadRequestIdRef.current;
+
     if (!userId) {
       setPreferences(null);
+      setIsLoadingPreferences(false);
+      setPreferencesError(null);
       return;
     }
 
@@ -52,16 +66,31 @@ export function useUserPreferences(userId: string | null) {
         userId,
       });
 
-      setPreferences(result.preferences);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setPreferences(result.preferences);
+      }
     } catch (error) {
-      setPreferencesError(
-        getFirebaseFirestoreErrorMessage(
-          error,
-          "Não foi possível carregar as preferências.",
-        ),
-      );
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setPreferencesError(
+          getFirebaseFirestoreErrorMessage(
+            error,
+            "Não foi possível carregar as preferências.",
+          ),
+        );
+      }
     } finally {
-      setIsLoadingPreferences(false);
+      if (
+        requestId === loadRequestIdRef.current &&
+        userId === activeUserIdRef.current
+      ) {
+        setIsLoadingPreferences(false);
+      }
     }
   }, [getUserPreferencesUseCase, userId]);
 
@@ -100,7 +129,10 @@ export function useUserPreferences(userId: string | null) {
       void loadPreferences();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      loadRequestIdRef.current += 1;
+    };
   }, [loadPreferences]);
 
   return {
