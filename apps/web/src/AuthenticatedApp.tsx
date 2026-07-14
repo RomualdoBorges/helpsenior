@@ -6,7 +6,6 @@ import { useUserPreferences } from "./features/preferences/hooks/useUserPreferen
 import { getPreferenceClassNames } from "./features/preferences/utils/getPreferenceClassNames";
 import { useUserProfile } from "./features/profile/hooks/useUserProfile";
 import { useCurrentTime } from "./features/reminders/hooks/useCurrentTime";
-import { useReminderNotifications } from "./features/reminders/hooks/useReminderNotifications";
 import { useReminders } from "./features/reminders/hooks/useReminders";
 import { getDueReminders } from "./features/reminders/utils/getDueReminders";
 import { AppRoutes } from "./routes/AppRoutes";
@@ -61,14 +60,6 @@ export function AuthenticatedApp({
     [currentTime, reminders],
   );
 
-  const {
-    permission: notificationPermission,
-    requestPermission: requestNotificationPermission,
-    isNotificationSupported,
-    isNotificationAllowed,
-    isNotificationDenied,
-  } = useReminderNotifications(dueReminders);
-
   const accessibilityClassName = getPreferenceClassNames(preferences);
 
   useEffect(() => {
@@ -112,11 +103,6 @@ export function AuthenticatedApp({
             updateReminder,
             completeReminder,
             deleteReminder,
-            notificationPermission,
-            requestNotificationPermission,
-            isNotificationSupported,
-            isNotificationAllowed,
-            isNotificationDenied,
           }}
           profilePageProps={{
             profile,

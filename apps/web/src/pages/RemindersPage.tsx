@@ -36,11 +36,6 @@ interface RemindersPageProps {
   }) => Promise<void>;
   completeReminder: (reminderId: string) => Promise<void>;
   deleteReminder: (reminderId: string) => Promise<void>;
-  notificationPermission: "default" | "granted" | "denied" | "unsupported";
-  requestNotificationPermission: () => Promise<void>;
-  isNotificationSupported: boolean;
-  isNotificationAllowed: boolean;
-  isNotificationDenied: boolean;
 }
 
 const reminderFilters: Array<{
@@ -120,11 +115,6 @@ export function RemindersPage({
   updateReminder,
   completeReminder,
   deleteReminder,
-  notificationPermission,
-  requestNotificationPermission,
-  isNotificationSupported,
-  isNotificationAllowed,
-  isNotificationDenied,
 }: RemindersPageProps) {
   const [selectedFilter, setSelectedFilter] = useState<ReminderFilter>("all");
 
@@ -148,49 +138,16 @@ export function RemindersPage({
       className="mx-auto mt-8 w-full max-w-6xl"
       aria-labelledby="reminders-title"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
-            Meus lembretes
-          </h2>
+      <div>
+        <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
+          Meus lembretes
+        </h2>
 
-          <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-            Crie lembretes com data, horário e recorrência para acompanhar
-            compromissos e atividades importantes.
-          </p>
-        </div>
-
-        {isNotificationSupported && notificationPermission !== "granted" && (
-          <Button
-            type="button"
-            onClick={() => void requestNotificationPermission()}
-            size="sm"
-            variant="secondary"
-            className="shrink-0"
-          >
-            Ativar notificações
-          </Button>
-        )}
+        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
+          Crie lembretes com data, horário e recorrência para acompanhar
+          compromissos e atividades importantes.
+        </p>
       </div>
-
-      {isNotificationAllowed && (
-        <Alert tone="success" className="mt-4 text-sm">
-          Notificações ativadas neste navegador.
-        </Alert>
-      )}
-
-      {isNotificationDenied && (
-        <Alert tone="error" className="mt-4 text-sm">
-          As notificações estão bloqueadas neste navegador. Para ativar, altere
-          a permissão nas configurações do site.
-        </Alert>
-      )}
-
-      {!isNotificationSupported && (
-        <Alert tone="warning" className="mt-4 text-sm">
-          Este navegador não suporta notificações.
-        </Alert>
-      )}
 
       <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-4">
         <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">

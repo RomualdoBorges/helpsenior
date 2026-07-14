@@ -54,13 +54,17 @@ function App() {
 function AppLoadingFallback() {
   return (
     <main
-      className="app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950"
+      className="app-shell flex min-h-screen items-center justify-center bg-slate-50 text-slate-950"
       aria-live="polite"
       aria-busy="true"
     >
-      <section className="app-container mx-auto max-w-6xl">
-        <p className="text-base text-slate-600">Carregando aplicação...</p>
-      </section>
+      <div role="status">
+        <div
+          className="size-12 animate-spin rounded-full border-4 border-slate-200 border-t-black"
+          aria-hidden="true"
+        />
+        <span className="sr-only">Carregando aplicação...</span>
+      </div>
     </main>
   );
 }
