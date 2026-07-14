@@ -108,6 +108,19 @@ html.high-contrast body,
   box-shadow: none !important;
 }
 
+.high-contrast .create-task-dialog,
+.high-contrast .create-task-dialog::backdrop,
+.high-contrast .create-reminder-dialog,
+.high-contrast .create-reminder-dialog::backdrop {
+  background: #000000 !important;
+}
+
+.high-contrast .create-task-dialog,
+.high-contrast .create-reminder-dialog {
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
 .high-contrast a {
   color: #ffffff !important;
 }

@@ -17,14 +17,14 @@ import { sortTasks } from "../utils/sortTasks";
 interface CreateTaskInput {
   title: string;
   description?: string;
-  date?: string;
+  date: string;
 }
 
 interface UpdateTaskInput {
   taskId: string;
   title: string;
   description?: string;
-  date?: string;
+  date: string;
 }
 
 export function useTasks(userId: string | null) {
@@ -121,7 +121,7 @@ export function useTasks(userId: string | null) {
   const createTask = useCallback(
     async (input: CreateTaskInput) => {
       if (!userId) {
-        return;
+        return false;
       }
 
       try {
@@ -136,6 +136,8 @@ export function useTasks(userId: string | null) {
         });
 
         await loadTasks();
+
+        return true;
       } catch (caughtError) {
         setError(
           getFirebaseFirestoreErrorMessage(
@@ -143,6 +145,8 @@ export function useTasks(userId: string | null) {
             "Não foi possível criar a tarefa.",
           ),
         );
+
+        return false;
       } finally {
         setIsCreating(false);
       }

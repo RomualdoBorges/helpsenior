@@ -131,7 +131,7 @@ export function useReminders(userId: string | null) {
   const createReminder = useCallback(
     async (input: CreateReminderInput) => {
       if (!userId) {
-        return;
+        return false;
       }
 
       try {
@@ -149,6 +149,8 @@ export function useReminders(userId: string | null) {
         });
 
         await loadReminders();
+
+        return true;
       } catch (caughtError) {
         setRemindersError(
           getFirebaseFirestoreErrorMessage(
@@ -156,6 +158,8 @@ export function useReminders(userId: string | null) {
             "Não foi possível criar o lembrete.",
           ),
         );
+
+        return false;
       } finally {
         setIsCreatingReminder(false);
       }

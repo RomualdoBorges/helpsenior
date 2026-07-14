@@ -2,7 +2,13 @@ import { useState, type SyntheticEvent } from "react";
 
 import type { UserProfile } from "@helpsenior/core";
 
-import { Alert, Button, FormField, Input } from "../../../shared/ui";
+import {
+  Alert,
+  Button,
+  FormField,
+  Input,
+  PageHeader,
+} from "../../../shared/ui";
 
 interface UserProfileFormProps {
   profile: UserProfile | null;
@@ -26,12 +32,10 @@ export function UserProfileForm({
   if (isLoading) {
     return (
       <section
-        className="mx-auto mt-8 w-full max-w-6xl"
+        className="mx-auto mt-8 w-full max-w-7xl"
         aria-labelledby="profile-title"
       >
-        <h2 id="profile-title" className="m-0 text-[28px] font-bold">
-          Meu perfil
-        </h2>
+        <PageHeader titleId="profile-title" title="Meu perfil" />
 
         <p className="mt-4 text-slate-600">Carregando perfil...</p>
       </section>
@@ -41,12 +45,10 @@ export function UserProfileForm({
   if (!profile) {
     return (
       <section
-        className="mx-auto mt-8 w-full max-w-6xl"
+        className="mx-auto mt-8 w-full max-w-7xl"
         aria-labelledby="profile-title"
       >
-        <h2 id="profile-title" className="m-0 text-[28px] font-bold">
-          Meu perfil
-        </h2>
+        <PageHeader titleId="profile-title" title="Meu perfil" />
 
         <p className="mt-4 text-slate-600">Perfil não encontrado.</p>
       </section>
@@ -95,19 +97,14 @@ function UserProfileFields({
 
   return (
     <section
-      className="mx-auto mt-8 w-full max-w-6xl"
+      className="mx-auto mt-8 w-full max-w-7xl"
       aria-labelledby="profile-title"
     >
-      <div>
-        <h2 id="profile-title" className="m-0 text-[28px] font-bold">
-          Meu perfil
-        </h2>
-
-        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-          Atualize seus dados básicos para personalizar sua experiência no
-          HelpSenior.
-        </p>
-      </div>
+      <PageHeader
+        titleId="profile-title"
+        title="Meu perfil"
+        description="Atualize seus dados básicos para personalizar sua experiência no HelpSenior."
+      />
 
       {error && (
         <Alert tone="error" className="mt-4">

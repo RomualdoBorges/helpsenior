@@ -1,9 +1,9 @@
 import { lazy, Suspense, type ComponentProps } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-const HomePage = lazy(() =>
-  import("../pages/HomePage").then((module) => ({
-    default: module.HomePage,
+const TasksPage = lazy(() =>
+  import("../pages/TasksPage").then((module) => ({
+    default: module.TasksPage,
   })),
 );
 
@@ -25,21 +25,21 @@ const SettingsPage = lazy(() =>
   })),
 );
 
-const WelcomePage = lazy(() =>
-  import("../pages/WelcomePage").then((module) => ({
-    default: module.WelcomePage,
+const HomePage = lazy(() =>
+  import("../pages/HomePage").then((module) => ({
+    default: module.HomePage,
   })),
 );
 
 interface AppRoutesProps {
-  homePageProps: ComponentProps<typeof HomePage>;
+  tasksPageProps: ComponentProps<typeof TasksPage>;
   profilePageProps: ComponentProps<typeof ProfilePage>;
   remindersPageProps: ComponentProps<typeof RemindersPage>;
   settingsPageProps: ComponentProps<typeof SettingsPage>;
 }
 
 export function AppRoutes({
-  homePageProps,
+  tasksPageProps,
   profilePageProps,
   remindersPageProps,
   settingsPageProps,
@@ -47,8 +47,8 @@ export function AppRoutes({
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/tarefas" element={<HomePage {...homePageProps} />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/tarefas" element={<TasksPage {...tasksPageProps} />} />
         <Route
           path="/lembretes"
           element={<RemindersPage {...remindersPageProps} />}
@@ -70,7 +70,7 @@ export function AppRoutes({
 function RouteLoadingFallback() {
   return (
     <section
-      className="mx-auto mt-8 w-full max-w-6xl"
+      className="mx-auto mt-8 w-full max-w-7xl"
       aria-live="polite"
       aria-busy="true"
     >

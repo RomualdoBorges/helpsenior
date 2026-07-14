@@ -17,10 +17,7 @@ interface AuthenticatedAppProps {
   onSignOut: () => Promise<void>;
 }
 
-export function AuthenticatedApp({
-  user,
-  onSignOut,
-}: AuthenticatedAppProps) {
+export function AuthenticatedApp({ user, onSignOut }: AuthenticatedAppProps) {
   const {
     preferences,
     isLoadingPreferences,
@@ -77,11 +74,10 @@ export function AuthenticatedApp({
   return (
     <main
       className={classNames(
-        "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
+        "app-shell min-h-screen bg-white px-6 py-10 text-slate-950",
         accessibilityClassName,
-      )}
-    >
-      <section className="app-container mx-auto min-h-screen max-w-6xl bg-white px-6 pb-10">
+      )}>
+      <section className="app-container mx-auto max-w-7xl px-6 pb-10">
         <AppBar
           alerts={dueReminders}
           userName={profile?.name}
@@ -90,7 +86,7 @@ export function AuthenticatedApp({
         />
 
         <AppRoutes
-          homePageProps={{ user }}
+          tasksPageProps={{ user }}
           remindersPageProps={{
             reminders,
             dueReminders,

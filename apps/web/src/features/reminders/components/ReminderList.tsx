@@ -8,6 +8,7 @@ import {
   Button,
   FormField,
   Input,
+  ListState,
   Select,
   Textarea,
   classNames,
@@ -87,19 +88,14 @@ export function ReminderList({
   const [editingRecurrenceEndDate, setEditingRecurrenceEndDate] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
-  if (isLoading) {
+  if (isLoading || reminders.length === 0) {
     return (
-      <p className="mt-6 text-base font-bold text-slate-600">
-        Carregando lembretes...
-      </p>
-    );
-  }
-
-  if (reminders.length === 0) {
-    return (
-      <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-base font-bold text-slate-500">
-        {emptyMessage}
-      </p>
+      <ListState
+        isLoading={isLoading}
+        isEmpty={reminders.length === 0}
+        loadingMessage="Carregando lembretes..."
+        emptyMessage={emptyMessage}
+      />
     );
   }
 
@@ -286,42 +282,53 @@ export function ReminderList({
               </form>
             ) : (
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="m-0 text-xl font-bold text-slate-950">
-                      {reminder.title}
-                    </h3>
+                <div className="flex min-w-0 items-center gap-4">
+                  <input
+                    type="checkbox"
+                    checked={reminder.completed}
+                    onChange={() => void onCompleteReminder(reminder.id)}
+                    disabled={reminder.completed || isUpdating || isDeleting}
+                    aria-label={`Concluir lembrete: ${reminder.title}`}
+                    className="size-8 shrink-0 cursor-pointer rounded-md border-2 border-slate-700 accent-green-700 disabled:cursor-default"
+                  />
 
-                    <Badge
-                      tone={reminder.completed ? "slate" : "amber"}
-                      className={classNames(
-                        "text-xs",
-                        reminder.completed && "bg-slate-200 text-slate-600",
-                      )}
-                    >
-                      {reminder.completed ? "Concluído" : "Pendente"}
-                    </Badge>
-                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="m-0 text-xl font-bold text-slate-950">
+                        {reminder.title}
+                      </h3>
 
-                  {reminder.description && (
-                    <p className="mt-2 text-base leading-6 text-slate-600">
-                      {reminder.description}
-                    </p>
-                  )}
+                      <Badge
+                        tone={reminder.completed ? "slate" : "amber"}
+                        className={classNames(
+                          "text-xs",
+                          reminder.completed && "bg-slate-200 text-slate-600",
+                        )}
+                      >
+                        {reminder.completed ? "Concluído" : "Pendente"}
+                      </Badge>
+                    </div>
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Badge>{formatReminderDate(reminder)}</Badge>
+                    {reminder.description && (
+                      <p className="mt-2 text-base leading-6 text-slate-600">
+                        {reminder.description}
+                      </p>
+                    )}
 
-                    <Badge tone="blue">
-                      {getRecurrenceLabel(reminder.recurrence)}
-                    </Badge>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Badge>{formatReminderDate(reminder)}</Badge>
 
-                    {reminder.recurrence !== "none" &&
-                      reminder.recurrenceEndDate && (
-                        <Badge tone="purple">
-                          Até {formatDate(reminder.recurrenceEndDate)}
-                        </Badge>
-                      )}
+                      <Badge tone="blue">
+                        {getRecurrenceLabel(reminder.recurrence)}
+                      </Badge>
+
+                      {reminder.recurrence !== "none" &&
+                        reminder.recurrenceEndDate && (
+                          <Badge tone="purple">
+                            Até {formatDate(reminder.recurrenceEndDate)}
+                          </Badge>
+                        )}
+                    </div>
                   </div>
                 </div>
 
@@ -334,16 +341,6 @@ export function ReminderList({
                       variant="secondary"
                     >
                       Editar
-                    </Button>
-                  )}
-
-                  {!reminder.completed && (
-                    <Button
-                      type="button"
-                      onClick={() => void onCompleteReminder(reminder.id)}
-                      disabled={isUpdating || isDeleting}
-                    >
-                      Concluir
                     </Button>
                   )}
 

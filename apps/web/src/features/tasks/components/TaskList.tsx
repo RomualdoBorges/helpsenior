@@ -8,6 +8,7 @@ import {
   Button,
   FormField,
   Input,
+  ListState,
   Textarea,
   classNames,
 } from "../../../shared/ui";
@@ -16,7 +17,7 @@ interface UpdateTaskInput {
   taskId: string;
   title: string;
   description?: string;
-  date?: string;
+  date: string;
 }
 
 interface TaskListProps {
@@ -68,19 +69,14 @@ export function TaskList({
   const [editingDate, setEditingDate] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
-  if (isLoading) {
+  if (isLoading || tasks.length === 0) {
     return (
-      <p className="mt-6 text-base font-bold text-slate-600">
-        Carregando tarefas...
-      </p>
-    );
-  }
-
-  if (tasks.length === 0) {
-    return (
-      <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-base font-bold text-slate-500">
-        {emptyMessage}
-      </p>
+      <ListState
+        isLoading={isLoading}
+        isEmpty={tasks.length === 0}
+        loadingMessage="Carregando tarefas..."
+        emptyMessage={emptyMessage}
+      />
     );
   }
 
@@ -118,11 +114,16 @@ export function TaskList({
       return;
     }
 
+    if (!editingDate) {
+      setLocalError("Informe a data da tarefa.");
+      return;
+    }
+
     await onUpdateTask({
       taskId: editingTaskId,
       title: editingTitle.trim(),
       description: editingDescription.trim() || undefined,
-      date: editingDate || undefined,
+      date: editingDate,
     });
 
     cancelEditingTask();
@@ -182,6 +183,7 @@ export function TaskList({
                       type="date"
                       value={editingDate}
                       onChange={(event) => setEditingDate(event.target.value)}
+                      required
                     />
                   </FormField>
 
@@ -205,31 +207,42 @@ export function TaskList({
               </form>
             ) : (
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="m-0 text-xl font-bold text-slate-950">
-                      {task.title}
-                    </h3>
+                <div className="flex min-w-0 items-center gap-4">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => void onCompleteTask(task.id)}
+                    disabled={task.completed || isUpdating || isDeleting}
+                    aria-label={`Concluir tarefa: ${task.title}`}
+                    className="size-8 shrink-0 cursor-pointer rounded-md border-2 border-slate-700 accent-green-700 disabled:cursor-default"
+                  />
 
-                    <Badge
-                      tone={task.completed ? "green" : "amber"}
-                      className="text-xs"
-                    >
-                      {getTaskStatusLabel(task)}
-                    </Badge>
-                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="m-0 text-xl font-bold text-slate-950">
+                        {task.title}
+                      </h3>
 
-                  {task.description && (
-                    <p className="mt-2 text-base leading-6 text-slate-600">
-                      {task.description}
-                    </p>
-                  )}
-
-                  {taskDate && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Badge tone="purple">{taskDate}</Badge>
+                      <Badge
+                        tone={task.completed ? "green" : "amber"}
+                        className="text-xs"
+                      >
+                        {getTaskStatusLabel(task)}
+                      </Badge>
                     </div>
-                  )}
+
+                    {task.description && (
+                      <p className="mt-2 text-base leading-6 text-slate-600">
+                        {task.description}
+                      </p>
+                    )}
+
+                    {taskDate && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Badge tone="purple">{taskDate}</Badge>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -241,16 +254,6 @@ export function TaskList({
                       variant="secondary"
                     >
                       Editar
-                    </Button>
-                  )}
-
-                  {!task.completed && (
-                    <Button
-                      type="button"
-                      onClick={() => void onCompleteTask(task.id)}
-                      disabled={isUpdating || isDeleting}
-                    >
-                      Concluir
                     </Button>
                   )}
 

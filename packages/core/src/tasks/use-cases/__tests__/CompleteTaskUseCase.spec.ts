@@ -14,6 +14,7 @@ function createTask(overrides?: Partial<Task>): Task {
     title: "Tomar remédio",
     status: "pending",
     completed: false,
+    date: "2026-07-10",
     createdAt: now,
     updatedAt: now,
     ...overrides,

@@ -5,7 +5,13 @@ import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 import { CreateReminderForm } from "../features/reminders/components/CreateReminderForm";
 import { DueReminderAlert } from "../features/reminders/components/DueReminderAlert";
 import { ReminderList } from "../features/reminders/components/ReminderList";
-import { Alert, Button } from "../shared/ui";
+import {
+  Alert,
+  Button,
+  FilterBar,
+  PageHeader,
+  SummaryCard,
+} from "../shared/ui";
 
 type ReminderFilter = "all" | "pending" | "completed" | "recurring";
 
@@ -24,7 +30,7 @@ interface RemindersPageProps {
     time?: string;
     recurrence?: ReminderRecurrence;
     recurrenceEndDate?: string;
-  }) => Promise<void>;
+  }) => Promise<boolean>;
   updateReminder: (input: {
     reminderId: string;
     title: string;
@@ -117,6 +123,7 @@ export function RemindersPage({
   deleteReminder,
 }: RemindersPageProps) {
   const [selectedFilter, setSelectedFilter] = useState<ReminderFilter>("all");
+  const [isCreateReminderOpen, setIsCreateReminderOpen] = useState(false);
 
   const filteredReminders = useMemo(
     () => filterReminders(reminders, selectedFilter),
@@ -135,48 +142,39 @@ export function RemindersPage({
 
   return (
     <section
-      className="mx-auto mt-8 w-full max-w-6xl"
-      aria-labelledby="reminders-title"
-    >
-      <div>
-        <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
-          Meus lembretes
-        </h2>
-
-        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-          Crie lembretes com data, horário e recorrência para acompanhar
-          compromissos e atividades importantes.
-        </p>
-      </div>
+      className="mx-auto mt-8 w-full max-w-7xl"
+      aria-labelledby="reminders-title">
+      <PageHeader
+        titleId="reminders-title"
+        title="Meus lembretes"
+        description="Crie lembretes com data, horário e recorrência para acompanhar compromissos e atividades importantes."
+        action={
+          <Button
+            type="button"
+            size="lg"
+            onClick={() => setIsCreateReminderOpen(true)}>
+            Novo lembrete
+          </Button>
+        }
+      />
 
       <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-4">
-        <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="m-0 text-sm font-bold text-amber-800">Vencidos</p>
-          <strong className="mt-2 block text-3xl text-amber-950">
-            {reminderSummary.due}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
-          <strong className="mt-2 block text-3xl text-slate-950">
-            {reminderSummary.pending}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-          <p className="m-0 text-sm font-bold text-blue-700">Recorrentes</p>
-          <strong className="mt-2 block text-3xl text-blue-950">
-            {reminderSummary.recurring}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-green-200 bg-green-50 p-4">
-          <p className="m-0 text-sm font-bold text-green-700">Concluídos</p>
-          <strong className="mt-2 block text-3xl text-green-950">
-            {reminderSummary.completed}
-          </strong>
-        </article>
+        <SummaryCard
+          label="Vencidos"
+          value={reminderSummary.due}
+          tone="warning"
+        />
+        <SummaryCard label="Pendentes" value={reminderSummary.pending} />
+        <SummaryCard
+          label="Recorrentes"
+          value={reminderSummary.recurring}
+          tone="info"
+        />
+        <SummaryCard
+          label="Concluídos"
+          value={reminderSummary.completed}
+          tone="success"
+        />
       </div>
 
       <DueReminderAlert
@@ -185,7 +183,9 @@ export function RemindersPage({
       />
 
       <CreateReminderForm
+        isOpen={isCreateReminderOpen}
         isCreating={isCreatingReminder}
+        onClose={() => setIsCreateReminderOpen(false)}
         onCreateReminder={createReminder}
       />
 
@@ -195,38 +195,20 @@ export function RemindersPage({
         </Alert>
       )}
 
-      <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h3 className="m-0 text-xl font-bold text-slate-950">
-              Lista de lembretes
-            </h3>
-
-            <p className="mt-1 text-sm font-bold text-slate-500">
-              {filteredReminders.length} de {reminders.length} lembrete
-              {reminders.length === 1 ? "" : "s"}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {reminderFilters.map((filter) => {
-              const isSelected = selectedFilter === filter.value;
-
-              return (
-                <Button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setSelectedFilter(filter.value)}
-                  size="sm"
-                  variant={isSelected ? "primary" : "secondary"}
-                  className="rounded-full"
-                >
-                  {filter.label} ({filterCounts[filter.value]})
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+      <div className="accessibility-panel mt-6 rounded-2xl">
+        <FilterBar
+          title="Lista de lembretes"
+          itemLabel="lembrete"
+          filterLabel="Filtrar lembretes"
+          visibleCount={filteredReminders.length}
+          totalCount={reminders.length}
+          options={reminderFilters.map((filter) => ({
+            ...filter,
+            count: filterCounts[filter.value],
+          }))}
+          selectedValue={selectedFilter}
+          onChange={setSelectedFilter}
+        />
 
         <ReminderList
           reminders={filteredReminders}

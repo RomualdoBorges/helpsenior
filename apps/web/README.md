@@ -120,6 +120,7 @@ apps/web/
 │   │   └── tasks/
 │   ├── pages/
 │   │   ├── HomePage.tsx
+│   │   ├── TasksPage.tsx
 │   │   ├── ProfilePage.tsx
 │   │   ├── RemindersPage.tsx
 │   │   └── SettingsPage.tsx

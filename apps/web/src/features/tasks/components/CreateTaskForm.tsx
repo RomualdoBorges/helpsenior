@@ -1,20 +1,30 @@
 import { useState, type FormEvent } from "react";
 
-import { Alert, Button, FormField, Input, Textarea } from "../../../shared/ui";
+import {
+  Alert,
+  FormField,
+  Input,
+  ModalForm,
+  Textarea,
+} from "../../../shared/ui";
 
 interface CreateTaskInput {
   title: string;
   description?: string;
-  date?: string;
+  date: string;
 }
 
 interface CreateTaskFormProps {
+  isOpen: boolean;
   isCreating: boolean;
-  onCreateTask: (input: CreateTaskInput) => Promise<void>;
+  onClose: () => void;
+  onCreateTask: (input: CreateTaskInput) => Promise<boolean>;
 }
 
 export function CreateTaskForm({
+  isOpen,
   isCreating,
+  onClose,
   onCreateTask,
 }: CreateTaskFormProps) {
   const [title, setTitle] = useState("");
@@ -29,6 +39,11 @@ export function CreateTaskForm({
     setLocalError(null);
   }
 
+  function closeForm() {
+    resetForm();
+    onClose();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -39,63 +54,66 @@ export function CreateTaskForm({
       return;
     }
 
-    await onCreateTask({
+    if (!date) {
+      setLocalError("Informe a data da tarefa.");
+      return;
+    }
+
+    const wasCreated = await onCreateTask({
       title: title.trim(),
       description: description.trim() || undefined,
-      date: date || undefined,
+      date,
     });
 
-    resetForm();
+    if (wasCreated) {
+      closeForm();
+    } else {
+      setLocalError("Não foi possível criar a tarefa. Tente novamente.");
+    }
   }
 
   return (
-    <form
+    <ModalForm
+      isOpen={isOpen}
+      isSubmitting={isCreating}
+      onClose={closeForm}
       onSubmit={handleSubmit}
-      className="create-form mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <h3 className="m-0 text-xl font-bold text-slate-950">Criar tarefa</h3>
+      titleId="create-task-title"
+      title="Criar tarefa"
+      descriptionId="create-task-description"
+      description="Registre o que precisa ser feito. Para avisos, horários e repetição, use a área de lembretes."
+      submitLabel="Criar tarefa"
+      busyLabel="Criando tarefa..."
+      className="create-task-dialog">
+      <FormField label="Título">
+        <Input
+          autoFocus
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Ex: Pagar conta de luz"
+          required
+        />
+      </FormField>
 
-      <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-        Use tarefas para registrar o que precisa ser feito. Para avisos,
-        horários e repetição, use a área de lembretes.
-      </p>
+      <FormField label="Descrição">
+        <Textarea
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          placeholder="Ex: Pagar a conta antes do vencimento"
+        />
+      </FormField>
 
-      <div className="mt-4 grid gap-4">
-        <FormField label="Título">
-          <Input
-            type="text"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Ex: Pagar conta de luz"
-            required
-          />
-        </FormField>
+      <FormField label="Data">
+        <Input
+          type="date"
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+          required
+        />
+      </FormField>
 
-        <FormField label="Descrição">
-          <Textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Ex: Pagar a conta antes do vencimento"
-          />
-        </FormField>
-
-        <FormField label="Data">
-          <Input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-          />
-        </FormField>
-
-        {localError && <Alert tone="error">{localError}</Alert>}
-      </div>
-
-      <Button
-        type="submit"
-        disabled={isCreating}
-        size="lg"
-        className="mt-4">
-        {isCreating ? "Criando tarefa..." : "Criar tarefa"}
-      </Button>
-    </form>
+      {localError && <Alert tone="error">{localError}</Alert>}
+    </ModalForm>
   );
 }

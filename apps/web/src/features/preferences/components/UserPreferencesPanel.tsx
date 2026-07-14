@@ -7,6 +7,7 @@ import type {
 import {
   Alert,
   FormField,
+  PageHeader,
   Select,
   ToggleField,
 } from "../../../shared/ui";
@@ -34,12 +35,13 @@ export function UserPreferencesPanel({
   if (isLoading) {
     return (
       <section
-        className="mx-auto mt-8 w-full max-w-6xl"
+        className="mx-auto mt-8 w-full max-w-7xl"
         aria-labelledby="preferences-title"
       >
-        <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
-          Preferências de acessibilidade
-        </h2>
+        <PageHeader
+          titleId="preferences-title"
+          title="Preferências de acessibilidade"
+        />
 
         <p className="mt-4 text-slate-600">Carregando preferências...</p>
       </section>
@@ -49,12 +51,13 @@ export function UserPreferencesPanel({
   if (!preferences) {
     return (
       <section
-        className="mx-auto mt-8 w-full max-w-6xl"
+        className="mx-auto mt-8 w-full max-w-7xl"
         aria-labelledby="preferences-title"
       >
-        <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
-          Preferências de acessibilidade
-        </h2>
+        <PageHeader
+          titleId="preferences-title"
+          title="Preferências de acessibilidade"
+        />
 
         <p className="mt-4 text-slate-600">Preferências não encontradas.</p>
       </section>
@@ -63,25 +66,19 @@ export function UserPreferencesPanel({
 
   return (
     <section
-      className="mx-auto mt-8 w-full max-w-6xl"
+      className="mx-auto mt-8 w-full max-w-7xl"
       aria-labelledby="preferences-title"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
-            Preferências de acessibilidade
-          </h2>
-
-          <p className="preferences-description mt-2 text-base leading-6 text-slate-500">
-            Ajuste a experiência visual para deixar o HelpSenior mais
-            confortável e fácil de usar.
-          </p>
-        </div>
-
-        {isUpdating && (
-          <span className="text-sm font-bold text-slate-500">Salvando...</span>
-        )}
-      </div>
+      <PageHeader
+        titleId="preferences-title"
+        title="Preferências de acessibilidade"
+        description="Ajuste a experiência visual para deixar o HelpSenior mais confortável e fácil de usar."
+        action={
+          isUpdating ? (
+            <span className="text-sm font-bold text-slate-500">Salvando...</span>
+          ) : null
+        }
+      />
 
       {error && (
         <Alert tone="error" className="app-error mt-4">

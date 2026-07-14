@@ -14,16 +14,19 @@ describe("ListTasksUseCase", () => {
     await createTaskUseCase.execute({
       userId: "user-1",
       title: "Tomar remédio",
+      date: "2026-07-10",
     });
 
     await createTaskUseCase.execute({
       userId: "user-1",
       title: "Beber água",
+      date: "2026-07-11",
     });
 
     await createTaskUseCase.execute({
       userId: "user-2",
       title: "Caminhar",
+      date: "2026-07-12",
     });
 
     const { tasks } = await listTasksUseCase.execute({
