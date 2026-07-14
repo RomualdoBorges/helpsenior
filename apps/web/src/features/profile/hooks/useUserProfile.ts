@@ -9,11 +9,6 @@ import { FirebaseUserProfileRepository } from "@helpsenior/firebase";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
-import {
-  USER_PROFILE_UPDATED_EVENT,
-  getPendingUserProfileNameStorageKey,
-  type UserProfileUpdatedEventDetail,
-} from "../../auth/hooks/useAuth";
 
 interface UseUserProfileInput {
   userId: string | null;
@@ -76,35 +71,6 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
         email,
       });
 
-      const pendingName = sessionStorage.getItem(
-        getPendingUserProfileNameStorageKey(userId),
-      );
-
-      if (pendingName && result.profile.name !== pendingName) {
-        const updatedResult = await updateUserProfileUseCase.execute({
-          userId,
-          email,
-          name: pendingName,
-        });
-
-        if (
-          requestId !== loadRequestIdRef.current ||
-          userId !== activeUserIdRef.current
-        ) {
-          return;
-        }
-
-        setProfile(updatedResult.profile);
-
-        sessionStorage.removeItem(getPendingUserProfileNameStorageKey(userId));
-
-        return;
-      }
-
-      if (pendingName && result.profile.name === pendingName) {
-        sessionStorage.removeItem(getPendingUserProfileNameStorageKey(userId));
-      }
-
       if (
         requestId === loadRequestIdRef.current &&
         userId === activeUserIdRef.current
@@ -131,7 +97,7 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
         setIsLoadingProfile(false);
       }
     }
-  }, [email, getUserProfileUseCase, updateUserProfileUseCase, userId]);
+  }, [email, getUserProfileUseCase, userId]);
 
   const updateProfile = useCallback(
     async (input: UpdateUserProfileInput) => {
@@ -176,44 +142,6 @@ export function useUserProfile({ userId, email }: UseUserProfileInput) {
       loadRequestIdRef.current += 1;
     };
   }, [loadProfile]);
-
-  useEffect(() => {
-    function handleUserProfileUpdated(event: Event) {
-      const customEvent = event as CustomEvent<UserProfileUpdatedEventDetail>;
-
-      const detail = customEvent.detail;
-
-      if (!detail?.userId) {
-        return;
-      }
-
-      const now = new Date();
-
-      setProfile({
-        userId: detail.userId,
-        email: detail.email,
-        name: detail.name,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      if (userId === detail.userId) {
-        void loadProfile();
-      }
-    }
-
-    window.addEventListener(
-      USER_PROFILE_UPDATED_EVENT,
-      handleUserProfileUpdated,
-    );
-
-    return () => {
-      window.removeEventListener(
-        USER_PROFILE_UPDATED_EVENT,
-        handleUserProfileUpdated,
-      );
-    };
-  }, [loadProfile, userId]);
 
   return {
     profile,
