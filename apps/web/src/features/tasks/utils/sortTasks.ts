@@ -25,10 +25,11 @@ export function sortTasks(tasks: Task[]) {
       return statusPriorityDifference;
     }
 
-    const dateDifference = getTaskDateTime(taskA) - getTaskDateTime(taskB);
+    const taskADateTime = getTaskDateTime(taskA);
+    const taskBDateTime = getTaskDateTime(taskB);
 
-    if (dateDifference !== 0) {
-      return dateDifference;
+    if (taskADateTime !== taskBDateTime) {
+      return taskADateTime - taskBDateTime;
     }
 
     return taskB.createdAt.getTime() - taskA.createdAt.getTime();
