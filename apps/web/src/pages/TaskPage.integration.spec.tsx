@@ -31,26 +31,18 @@ const completedTask: Task = {
   completed: true,
 };
 
-vi.mock("../features/tasks/hooks/useTasks", async (importOriginal) => {
-  const original =
-    await importOriginal<
-      typeof import("../features/tasks/hooks/useTasks")
-    >();
-
-  return {
-    ...original,
-    useTasks: () => ({
-      tasks: [pendingTask, completedTask],
-      isLoading: false,
-      isCreating: false,
-      error: null,
-      createTask: taskPageMocks.createTask,
-      updateTask: taskPageMocks.updateTask,
-      completeTask: taskPageMocks.completeTask,
-      deleteTask: taskPageMocks.deleteTask,
-    }),
-  };
-});
+vi.mock("../features/tasks/hooks/useTasks", () => ({
+  useTasks: () => ({
+    tasks: [pendingTask, completedTask],
+    isLoading: false,
+    isCreating: false,
+    error: null,
+    createTask: taskPageMocks.createTask,
+    updateTask: taskPageMocks.updateTask,
+    completeTask: taskPageMocks.completeTask,
+    deleteTask: taskPageMocks.deleteTask,
+  }),
+}));
 
 vi.mock("../features/activities/hooks/useActivities", () => ({
   useActivities: () => ({
