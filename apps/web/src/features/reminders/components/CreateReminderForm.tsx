@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 
-import type { Reminder, ReminderRecurrence, Task } from "@helpsenior/core";
+import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
-import {
-  Button,
-  FormField,
-  Input,
-  Select,
-  Textarea,
-} from "../../../shared/ui";
-import type { CreateReminderInput, UpdateReminderInput } from "../hooks/useReminders";
-import { TaskSelect } from "../../tasks/components/TaskSelect";
+import { Button, FormField, Input, Select, Textarea } from "../../../shared/ui";
+import type {
+  CreateReminderInput,
+  UpdateReminderInput,
+} from "../hooks/useReminders";
 
 interface CreateReminderFormProps {
   reminder?: Reminder | null;
-  tasks: Task[];
   isCreating: boolean;
   onCreateReminder: (input: CreateReminderInput) => Promise<void>;
   onUpdateReminder: (input: UpdateReminderInput) => Promise<void>;
@@ -22,7 +17,6 @@ interface CreateReminderFormProps {
 
 export function CreateReminderForm({
   reminder,
-  tasks,
   isCreating,
   onCreateReminder,
   onUpdateReminder,
@@ -33,7 +27,6 @@ export function CreateReminderForm({
   const [time, setTime] = useState("");
   const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
   const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
-  const [taskId, setTaskId] = useState("");
 
   function resetForm() {
     setTitle("");
@@ -42,14 +35,12 @@ export function CreateReminderForm({
     setTime("");
     setRecurrence("none");
     setRecurrenceEndDate("");
-    setTaskId("");
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    
-    if(reminder) {
+    if (reminder) {
       await onUpdateReminder({
         reminderId: reminder.id,
         title,
@@ -57,13 +48,12 @@ export function CreateReminderForm({
         date,
         time: time.trim() ? time : undefined,
         recurrence,
-        taskId: taskId,
+        taskId: reminder.taskId,
         recurrenceEndDate:
           recurrence !== "none" && recurrenceEndDate.trim()
             ? recurrenceEndDate
             : undefined,
       });
-
     } else {
       await onCreateReminder({
         title,
@@ -71,7 +61,6 @@ export function CreateReminderForm({
         date,
         time: time.trim() ? time : undefined,
         recurrence,
-        taskId: taskId,
         recurrenceEndDate:
           recurrence !== "none" && recurrenceEndDate.trim()
             ? recurrenceEndDate
@@ -81,36 +70,37 @@ export function CreateReminderForm({
 
     resetForm();
   }
-      
+
   useEffect(() => {
     if (reminder) {
       setTitle(reminder.title);
       setDate(reminder.date);
-      
-      if (reminder.description)
-        setDescription(reminder.description);
 
-      if (reminder.time)
-        setTime(reminder.time);
+      if (reminder.description) setDescription(reminder.description);
 
-      if (reminder.recurrence)
-        setRecurrence(reminder.recurrence);
+      if (reminder.time) setTime(reminder.time);
+
+      if (reminder.recurrence) setRecurrence(reminder.recurrence);
 
       if (reminder.recurrenceEndDate)
         setRecurrenceEndDate(reminder.recurrenceEndDate);
-
-      if (reminder.taskId)
-        setTaskId(reminder.taskId);
     }
   }, [reminder]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="create-form mt-1">
-      <h3 className="reminder-form-title m-0 text-xl font-bold text-violet-700">
+    <form onSubmit={handleSubmit} className="create-form mt-2">
+      <h3
+        id="create-reminder"
+        className="reminder-form-title m-0 text-xl font-bold text-violet-700"
+      >
         {reminder ? "Atualizar lembrete" : "Criar lembrete"}
       </h3>
+
+      <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
+        {reminder
+          ? "Atualize os dados do lembrete conforme necessário."
+          : "Defina quando deseja receber o aviso e, se precisar, escolha uma recorrência."}
+      </p>
 
       <div className="mt-4 grid gap-4">
         <FormField label="Título">
@@ -128,14 +118,6 @@ export function CreateReminderForm({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Ex: Tomar o remédio da pressão com água"
-          />
-        </FormField>
-        
-        <FormField label="Tarefa (opcional)">
-          <TaskSelect
-            value={taskId}
-            tasks={tasks}
-            onSelected={setTaskId}
           />
         </FormField>
 
@@ -158,9 +140,10 @@ export function CreateReminderForm({
           </FormField>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4">
           <FormField label="Recorrência">
             <Select
+              className="w-full"
               value={recurrence}
               onChange={(event) =>
                 setRecurrence(event.target.value as ReminderRecurrence)
@@ -188,7 +171,7 @@ export function CreateReminderForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="reminders-primary-action mt-4">
+        className="reminders-primary-action mb-4 mt-4 w-full">
         {reminder ? "Atualizar lembrete" : "Criar lembrete"}
       </Button>
     </form>

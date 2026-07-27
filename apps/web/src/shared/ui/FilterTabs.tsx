@@ -23,7 +23,7 @@ export function FilterTabs<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="flex w-fit max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white p-0.5 shadow-sm">
+      className="flex w-fit max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white p-0.5">
       {options.map((option, index) => {
         const isSelected = value === option.value;
 

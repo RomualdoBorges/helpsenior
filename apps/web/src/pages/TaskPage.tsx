@@ -66,12 +66,6 @@ export function TaskPage({ user }: TaskPageProps) {
     (option) => option.value === selectedFilter,
   );
 
-  async function handleActivityDetail(activityId: string) {
-    navigate("/", {
-      state: { activityId },
-    });
-  }
-
   async function handleCreateTask(task: CreateTaskInput) {
     await createTask(task);
     setTaskStatus("");
@@ -232,34 +226,41 @@ export function TaskPage({ user }: TaskPageProps) {
                 "Nenhuma tarefa encontrada."
               }
               onCompleteTask={completeTask}
-              onSelectedTask={setSelectedTask}
-              onActivityDetail={handleActivityDetail}
+              onDeleteTask={handleDeleteTask}
+              onEditTask={(task) => {
+                setSelectedTask(task);
+                setTaskStatus("updating");
+              }}
             />
           </div>
         </Card>
       ) : (
         <div className="tasks-page">
-          <Card as="section" className="mt-4" aria-labelledby="create-task">
+          <Card as="section" aria-labelledby="create-task">
             <div className="flex md:justify-between">
               {!taskId ? (
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="primary"
+                  className="tasks-primary-action flex items-center gap-2"
                   onClick={() => {
                     setSelectedTask(null);
                     setTaskStatus("");
                   }}>
+                  <span aria-hidden="true">←</span>
                   Voltar para a lista
                 </Button>
               ) : (
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="primary"
+                  className="tasks-primary-action flex items-center gap-2"
                   onClick={() => {
                     setSelectedTask(null);
                     setTaskStatus("");
                     navigate("/lembretes");
                   }}>
+                  <span aria-hidden="true">←</span>
                   Voltar para Lembretes
                 </Button>
               )}
@@ -279,18 +280,6 @@ export function TaskPage({ user }: TaskPageProps) {
                     variant="danger"
                     onClick={() => handleDeleteTask(selectedTask!)}>
                     Excluir Tarefa
-                  </Button>
-                </div>
-              )}
-              {taskStatus === "updating" && (
-                <div className="block md:flex md:gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      setTaskStatus("");
-                    }}>
-                    Sair da edição de tarefa
                   </Button>
                 </div>
               )}

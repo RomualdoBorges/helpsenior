@@ -40,8 +40,9 @@ export function ActivitySelect({
     }
 
     return (
-        <div className={classNames(`gap-6 overflow-y-auto`)}>
+        <div className={classNames("w-full gap-6 overflow-y-auto")}>
             <Select
+                className="w-full"
                 value={value}
                 onChange={(event) => onSelected(event.target.value)}
             >

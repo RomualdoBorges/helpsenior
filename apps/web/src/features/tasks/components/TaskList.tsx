@@ -13,8 +13,8 @@ interface TaskListProps {
   isLoading: boolean;
   emptyMessage?: string;
   onCompleteTask: (taskId: string) => Promise<void>;
-  onSelectedTask: (task: Task) => void;
-  onActivityDetail: (activityId: string) => Promise<void>;
+  onDeleteTask: (task: Task) => Promise<void>;
+  onEditTask: (task: Task) => void;
 }
 
 function formatTaskDate(date?: string) {
@@ -39,11 +39,9 @@ export function TaskList({
   isLoading,
   emptyMessage = "Nenhuma tarefa cadastrada ainda.",
   onCompleteTask,
-  onActivityDetail,
-  onSelectedTask,
+  onDeleteTask,
+  onEditTask,
 }: TaskListProps) {
-
-  const activityTitle = (activityId: string) => activities.find((activity) => activityId === activity.id)?.title || "";
 
   if (isLoading) {
     return (
@@ -62,9 +60,12 @@ export function TaskList({
   }
 
   return (
-    <div className="mt-6 grid gap-4">
+    <div className="mt-6 grid gap-4 pb-6">
       {tasks.map((task) => {
         const taskDate = formatTaskDate(task.date);
+        const linkedActivity = task.activityId
+          ? activities.find((activity) => activity.id === task.activityId)
+          : undefined;
 
         return (
           <article
@@ -77,7 +78,7 @@ export function TaskList({
             )}
           >
               <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
-                <div style={{width: "stretch"}} onClick={() => onSelectedTask(task)}>
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="task-item-title m-0 text-xl font-bold text-violet-700">
                       {task.title}
@@ -117,34 +118,108 @@ export function TaskList({
                     </div>
                   )}
 
-                  {/* {task.activityId && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Badge tone="slate">{activityTitle(task.activityId)}</Badge>
-                    </div>
-                  )} */}
+                  {linkedActivity && (
+                    <section
+                      className="mt-4"
+                      aria-label={`Atividade anexada: ${linkedActivity.title}`}
+                    >
+                      <h4 className="activity-steps-title m-0 text-base font-bold text-slate-800">
+                        Passo a passo
+                      </h4>
+
+                      <ol className="mt-2 space-y-2">
+                        {[...linkedActivity.steps]
+                          .sort((firstStep, secondStep) => {
+                            return firstStep.order - secondStep.order;
+                          })
+                          .map((step) => (
+                            <li
+                              key={step.order}
+                              className="flex items-start gap-3 text-base leading-6 text-slate-600"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="activity-step-number flex size-7 shrink-0 items-center justify-center rounded-full bg-violet-100 text-sm font-bold text-violet-700"
+                              >
+                                {step.order}
+                              </span>
+                              <span>{step.description}</span>
+                            </li>
+                          ))}
+                      </ol>
+                    </section>
+                  )}
                 </div>
 
-                <div style={{height: "stretch"}} className="flex flex-col min-w-auto justify-between">
-                  <div className="flex flex-col">                    
-                    {task.activityId && (
-                      <>
-                        <p className="text-sm text-center font-bold leading-6 text-black-600">
-                          Atividade anexada
-                        </p>
-                          
-                        <div className="flex flex-wrap justify-center gap-2 cursor-pointer" onClick={() => onActivityDetail(task.activityId!)}>
-                          <Badge tone="slate" className="text-lg text-center">{activityTitle(task.activityId)}</Badge>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap justify-end mt-4">
+                <div className="flex shrink-0 flex-col justify-between">
+                  <div className="mt-4 flex flex-wrap justify-end gap-2 md:mt-0">
                     {!task.completed && (
                       <Button
                         type="button"
-                        className="tasks-primary-action"
+                        size="sm"
+                        variant="secondary"
+                        className="inline-flex items-center gap-2"
+                        onClick={() => onEditTask(task)}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="size-4"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                        </svg>
+                        Editar
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="danger"
+                      className="inline-flex items-center gap-2"
+                      onClick={() => void onDeleteTask(task)}
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        className="size-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4h8v2" />
+                        <path d="M19 6 18 20H6L5 6" />
+                        <path d="M10 11v5M14 11v5" />
+                      </svg>
+                      Excluir
+                    </Button>
+                    {!task.completed && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="tasks-primary-action inline-flex items-center gap-2"
                         onClick={() => void onCompleteTask(task.id)}
                       >
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="size-4"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m5 12 4 4L19 6" />
+                        </svg>
                         Concluir
                       </Button>
                     )}

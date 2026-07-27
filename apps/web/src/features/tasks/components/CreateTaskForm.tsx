@@ -84,7 +84,7 @@ export function CreateTaskForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="create-form mt-4">
+      className="create-form mt-2">
       <h3 className="task-form-title m-0 text-xl font-bold text-violet-700">
         {task ? "Atualizar tarefa" : "Criar tarefa"}
       </h3>
@@ -136,7 +136,7 @@ export function CreateTaskForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="tasks-primary-action mt-4">
+        className="tasks-primary-action mb-4 mt-4 w-full">
         {task ? "Atualizar tarefa" : "Criar tarefa"}
       </Button>
     </form>

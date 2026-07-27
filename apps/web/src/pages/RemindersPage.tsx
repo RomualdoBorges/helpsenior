@@ -10,7 +10,6 @@ import type {
   CreateReminderInput,
   UpdateReminderInput,
 } from "../features/reminders/hooks/useReminders";
-import { useTasks } from "../features/tasks/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
 
 type ReminderFilter = "all" | "pending" | "completed" | "recurring";
@@ -103,7 +102,6 @@ function getReminderSummary(reminders: Reminder[], dueReminders: Reminder[]) {
 }
 
 export function RemindersPage({
-  user,
   reminders,
   dueReminders,
   isLoadingReminders,
@@ -120,7 +118,6 @@ export function RemindersPage({
   isNotificationDenied,
 }: RemindersPageProps) {
   const navigate = useNavigate();
-  const { tasks } = useTasks(user?.id ?? null);
 
   const [selectedFilter, setSelectedFilter] = useState<ReminderFilter>("all");
   const [reminderStatus, setReminderStatus] = useState<"creating" | "">("");
@@ -354,6 +351,7 @@ export function RemindersPage({
               isLoading={isLoadingReminders}
               emptyMessage={emptyMessages[selectedFilter]}
               onCompleteReminder={completeReminder}
+              onDeleteReminder={handleDeleteReminder}
               onSelectedReminder={setSelectedReminder}
               onTaskDetail={handleTaskDetail}
             />
@@ -361,15 +359,17 @@ export function RemindersPage({
         </Card>
       ) : (
         <div className="reminders-page">
-          <Card as="section" className="mt-4" aria-labelledby="create-task">
+          <Card as="section" aria-labelledby="create-reminder">
             <div className="flex md:justify-between">
               <Button
                 size="sm"
-                variant="secondary"
+                variant="primary"
+                className="reminders-primary-action flex items-center gap-2"
                 onClick={() => {
                   setReminderStatus("");
                   setSelectedReminder(null);
                 }}>
+                <span aria-hidden="true">←</span>
                 Voltar para a lista
               </Button>
 
@@ -395,7 +395,6 @@ export function RemindersPage({
               <Card as="section" className="mt-8" aria-labelledby="create-form">
                 <CreateReminderForm
                   reminder={selectedReminder}
-                  tasks={tasks}
                   isCreating={isCreatingReminder}
                   onUpdateReminder={handleUpdateReminder}
                   onCreateReminder={handleCreateReminder}

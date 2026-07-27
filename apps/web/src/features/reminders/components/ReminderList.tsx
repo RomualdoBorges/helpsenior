@@ -12,6 +12,7 @@ interface ReminderListProps {
   isLoading: boolean;
   emptyMessage?: string;
   onCompleteReminder: (reminderId: string) => Promise<void>;
+  onDeleteReminder: (reminder: Reminder) => Promise<void>;
   onSelectedReminder: (reminder: Reminder) => void;
   onTaskDetail: (taskId: string) => Promise<void>;
 }
@@ -42,6 +43,7 @@ export function ReminderList({
   isLoading,
   emptyMessage = "Nenhum lembrete cadastrado ainda.",
   onCompleteReminder,
+  onDeleteReminder,
   onSelectedReminder,
   onTaskDetail,
 }: ReminderListProps) {
@@ -77,13 +79,7 @@ export function ReminderList({
             )}
           >
             <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
-              <div style={{width: "stretch"}}
-                onClick={() => {
-                  // if (!reminder.completed) {
-                    onSelectedReminder(reminder)
-                  // }
-                }}
-              >
+              <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="reminder-item-title m-0 text-xl font-bold text-violet-700">
                     {reminder.title}
@@ -136,21 +132,83 @@ export function ReminderList({
                 </div>
               </div>
 
-              <div style={{height: "stretch"}} className="flex flex-col min-w-fit gap-2 justify-between">
-                { !reminder.completed && (
+              <div className="flex min-w-fit flex-wrap justify-end gap-2">
+                {!reminder.completed && (
                   <Button
                     type="button"
-                    className="reminders-primary-action"
+                    size="sm"
+                    variant="secondary"
+                    className="inline-flex items-center gap-2"
+                    onClick={() => onSelectedReminder(reminder)}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="size-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                    </svg>
+                    Editar
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="danger"
+                  className="inline-flex items-center gap-2"
+                  onClick={() => void onDeleteReminder(reminder)}
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="size-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M19 6 18 20H6L5 6" />
+                    <path d="M10 11v5M14 11v5" />
+                  </svg>
+                  Excluir
+                </Button>
+                {!reminder.completed && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="reminders-primary-action inline-flex items-center gap-2"
                     onClick={() => void onCompleteReminder(reminder.id)}
                   >
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="size-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m5 12 4 4L19 6" />
+                    </svg>
                     Concluir
                   </Button>
                 )}
-                { reminder.taskId && (
+                {reminder.taskId && (
                   <Button
                     type="button"
+                    size="sm"
                     onClick={() => onTaskDetail(reminder.taskId!)}
-                    variant="danger"
+                    variant="secondary"
                   >
                     Ver Tarefa
                   </Button>
