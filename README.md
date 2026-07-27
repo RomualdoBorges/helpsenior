@@ -127,7 +127,9 @@ Espaçamento maior
 ## Rotas Web
 
 ```txt
-/               → Tarefas
+/               → Início
+/atividades     → Atividades
+/tarefas        → Tarefas
 /lembretes      → Lembretes
 /perfil         → Perfil do usuário
 /configuracoes  → Preferências de acessibilidade
@@ -216,6 +218,9 @@ pnpm typecheck
 pnpm --filter @helpsenior/core test
 pnpm --filter @helpsenior/web dev
 pnpm --filter @helpsenior/web build
+pnpm --filter @helpsenior/web test
+pnpm --filter @helpsenior/web test:integration
+pnpm --filter @helpsenior/web test:e2e
 pnpm --filter @helpsenior/firebase typecheck
 ```
 
@@ -229,13 +234,30 @@ O pacote `@helpsenior/core` possui testes unitários com Vitest para:
 - preferências de acessibilidade;
 - perfil do usuário.
 
+O app `@helpsenior/web` possui:
+
+- 71 testes unitários para utilitários, componentes e hooks;
+- 6 testes de integração para páginas de tarefas e lembretes;
+- 3 testes E2E de autenticação com Playwright e Chromium.
+
+Para preparar e executar os testes E2E:
+
+```bash
+pnpm --filter @helpsenior/web exec playwright install chromium
+pnpm --filter @helpsenior/web test:e2e
+```
+
+## Integração contínua
+
+O workflow `.github/workflows/ci.yml` executa lint, typecheck, testes, build e E2E em pull requests e pushes para `main`. O relatório do Playwright fica disponível como artefato da execução.
+
 ## Status atual
 
 O projeto possui app Web funcional com autenticação, tarefas, lembretes, perfil, configurações de acessibilidade e persistência no Firebase.
 
 ## Limitações atuais
 
-- não há testes automatizados no app Web;
+- os testes E2E autenticados ainda não usam Firebase Emulator;
 - não há notificações com app fechado;
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
