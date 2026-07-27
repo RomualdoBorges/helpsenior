@@ -1,11 +1,11 @@
 import type { Activity } from "../entities/Activity";
 import type { ActivityRepository } from "../repositories/ActivityRepository";
 
-interface ListActivitiesUseCaseRequest {
+export interface ListActivitiesUseCaseInput {
   userId: string;
 }
 
-interface ListActivitiesUseCaseResponse {
+export interface ListActivitiesUseCaseOutput {
   activities: Activity[];
 }
 
@@ -16,7 +16,7 @@ export class ListActivitiesUseCase {
     this.activityRepository = activityRepository;
   }
 
-  async execute(request: ListActivitiesUseCaseRequest): Promise<ListActivitiesUseCaseResponse> {
+  async execute(request: ListActivitiesUseCaseInput): Promise<ListActivitiesUseCaseOutput> {
     if (!request.userId.trim()) {
       throw new Error("Usuário é obrigatório.");
     }

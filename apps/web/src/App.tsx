@@ -53,15 +53,6 @@ function App() {
 
   const {
     reminders,
-    isLoadingReminders,
-    isCreatingReminder,
-    isUpdatingReminder,
-    isDeletingReminder,
-    remindersError,
-    createReminder,
-    updateReminder,
-    completeReminder,
-    deleteReminder,
   } = useReminders(user?.id ?? null);
 
   const currentTime = useCurrentTime();
@@ -124,7 +115,7 @@ function App() {
       )}
     >
       <section className="app-container mx-auto max-w-190">
-        <header>
+        {/* <header>
           <p className="app-eyebrow mb-2 text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
             HelpSenior
           </p>
@@ -137,20 +128,37 @@ function App() {
             Crie tarefas simples e lembretes recorrentes para ajudar pessoas
             idosas a acompanhar a rotina com mais autonomia.
           </p>
-        </header>
+        </header> */}
 
         {!isAuthenticated || !user ? (
-          <AuthForm
-            isSubmitting={isSubmittingAuth}
-            error={authError}
-            successMessage={authSuccessMessage}
-            onSignIn={handleSignIn}
-            onSignUp={signUp}
-            onResetPassword={resetPassword}
-          />
+          <>
+            <header>
+              <p className="app-eyebrow mb-2 text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
+                HelpSenior
+              </p>
+
+              <h1 className="m-0 max-w-180 text-[44px] font-bold leading-[1.1] text-slate-950">
+                Organize atividades com mais clareza e segurança.
+              </h1>
+
+              <p className="app-description mt-4 max-w-170 text-xl leading-[1.6] text-slate-600">
+                Crie tarefas simples e lembretes recorrentes para ajudar pessoas
+                idosas a acompanhar a rotina com mais autonomia.
+              </p>
+            </header>
+
+            <AuthForm
+              isSubmitting={isSubmittingAuth}
+              error={authError}
+              successMessage={authSuccessMessage}
+              onSignIn={handleSignIn}
+              onSignUp={signUp}
+              onResetPassword={resetPassword}
+            />
+          </>
         ) : (
           <>
-            <section className="user-bar mt-8 flex items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-white px-5 py-4">
+            <section className="user-bar flex items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-white px-5 py-4">
               <div>
                 <strong className="block text-slate-950">
                   {profile?.name ? `Olá, ${profile.name}` : "Conta conectada"}
@@ -173,18 +181,11 @@ function App() {
 
             <AppRoutes
               homePageProps={{ user }}
+              taskPageProps={{ user }}
               remindersPageProps={{
+                user,
                 reminders,
                 dueReminders,
-                isLoadingReminders,
-                isCreatingReminder,
-                isUpdatingReminder,
-                isDeletingReminder,
-                remindersError,
-                createReminder,
-                updateReminder,
-                completeReminder,
-                deleteReminder,
                 notificationPermission,
                 requestNotificationPermission,
                 isNotificationSupported,

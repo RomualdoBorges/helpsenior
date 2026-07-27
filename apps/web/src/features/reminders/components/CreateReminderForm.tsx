@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import type { ReminderRecurrence } from "@helpsenior/core";
+import type { Reminder, ReminderRecurrence, Task } from "@helpsenior/core";
 
 import {
   Button,
@@ -9,22 +9,23 @@ import {
   Select,
   Textarea,
 } from "../../../shared/ui";
+import type { CreateReminderInput, UpdateReminderInput } from "../hooks/useReminders";
+import { TaskSelect } from "../../tasks/components/TaskSelect";
 
 interface CreateReminderFormProps {
+  reminder?: Reminder | null;
+  tasks: Task[];
   isCreating: boolean;
-  onCreateReminder: (input: {
-    title: string;
-    description?: string;
-    date: string;
-    time?: string;
-    recurrence?: ReminderRecurrence;
-    recurrenceEndDate?: string;
-  }) => Promise<void>;
+  onCreateReminder: (input: CreateReminderInput) => Promise<void>;
+  onUpdateReminder: (input: UpdateReminderInput) => Promise<void>;
 }
 
 export function CreateReminderForm({
+  reminder,
+  tasks,
   isCreating,
   onCreateReminder,
+  onUpdateReminder,
 }: CreateReminderFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -32,34 +33,81 @@ export function CreateReminderForm({
   const [time, setTime] = useState("");
   const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
   const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
+  const [taskId, setTaskId] = useState("");
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    await onCreateReminder({
-      title,
-      description: description.trim() ? description : undefined,
-      date,
-      time: time.trim() ? time : undefined,
-      recurrence,
-      recurrenceEndDate:
-        recurrence !== "none" && recurrenceEndDate.trim()
-          ? recurrenceEndDate
-          : undefined,
-    });
-
+  function resetForm() {
     setTitle("");
     setDescription("");
     setDate("");
     setTime("");
     setRecurrence("none");
     setRecurrenceEndDate("");
+    setTaskId("");
   }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    
+    if(reminder) {
+      await onUpdateReminder({
+        reminderId: reminder.id,
+        title,
+        description: description.trim() ? description : undefined,
+        date,
+        time: time.trim() ? time : undefined,
+        recurrence,
+        taskId: taskId,
+        recurrenceEndDate:
+          recurrence !== "none" && recurrenceEndDate.trim()
+            ? recurrenceEndDate
+            : undefined,
+      });
+
+    } else {
+      await onCreateReminder({
+        title,
+        description: description.trim() ? description : undefined,
+        date,
+        time: time.trim() ? time : undefined,
+        recurrence,
+        taskId: taskId,
+        recurrenceEndDate:
+          recurrence !== "none" && recurrenceEndDate.trim()
+            ? recurrenceEndDate
+            : undefined,
+      });
+    }
+
+    resetForm();
+  }
+      
+  useEffect(() => {
+    if (reminder) {
+      setTitle(reminder.title);
+      setDate(reminder.date);
+      
+      if (reminder.description)
+        setDescription(reminder.description);
+
+      if (reminder.time)
+        setTime(reminder.time);
+
+      if (reminder.recurrence)
+        setRecurrence(reminder.recurrence);
+
+      if (reminder.recurrenceEndDate)
+        setRecurrenceEndDate(reminder.recurrenceEndDate);
+
+      if (reminder.taskId)
+        setTaskId(reminder.taskId);
+    }
+  }, [reminder]);
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="create-form mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      className="create-form mt-1">
       <h3 className="m-0 text-xl font-bold text-slate-950">Criar lembrete</h3>
 
       <div className="mt-4 grid gap-4">
@@ -78,6 +126,14 @@ export function CreateReminderForm({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Ex: Tomar o remédio da pressão com água"
+          />
+        </FormField>
+        
+        <FormField label="Tarefa (opcional)">
+          <TaskSelect
+            value={taskId}
+            tasks={tasks}
+            onSelected={setTaskId}
           />
         </FormField>
 
@@ -131,7 +187,7 @@ export function CreateReminderForm({
         disabled={isCreating}
         size="lg"
         className="mt-4">
-        {isCreating ? "Criando lembrete..." : "Criar lembrete"}
+        {reminder ? "Atualizar lembrete" : "Criar lembrete"}
       </Button>
     </form>
   );

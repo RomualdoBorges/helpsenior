@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import { classNames } from "../ui";
 
 const links = [
-  { to: "/", label: "Tarefas", end: true },
+  { to: "/", label: "Atividades", end: true },
+  { to: "/tarefas", label: "Tarefas", end: true },
   { to: "/lembretes", label: "Lembretes", end: false },
   { to: "/perfil", label: "Perfil", end: false },
   { to: "/configuracoes", label: "Configurações", end: false },

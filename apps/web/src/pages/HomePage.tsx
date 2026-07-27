@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 
-import { CreateTaskForm } from "../features/tasks/components/CreateTaskForm";
-import { TaskList } from "../features/tasks/components/TaskList";
-import { useTasks } from "../features/tasks/hooks/useTasks";
+import { CreateActivityForm } from "../features/activities/components/CreateActivityForm";
+import { ActivityList } from "../features/activities/components/ActivityList";
+import { useActivities } from "../features/activities/hooks/useActivities";
 import {
-  filterTasks,
-  getTaskFilterOptions,
-  getTaskSummary,
-  type TaskFilter,
-} from "../features/tasks/utils/taskFilters";
-import { Alert, Button, Card } from "../shared/ui";
+  filterActivities,
+} from "../features/activities/utils/filterActivities";
+import { Alert, Button, Card, Input } from "../shared/ui";
+import { useNavigate } from "react-router-dom";
+
+interface Activity {
+  id: string;
+}
 
 interface HomePageUser {
   id: string;
@@ -20,77 +22,44 @@ interface HomePageProps {
 }
 
 export function HomePage({ user }: HomePageProps) {
+  const navigate = useNavigate();
   const {
-    tasks,
+    activities,
     isLoading,
-    isCreating,
-    isUpdating,
-    isDeleting,
+    // isCreating,
+    // isUpdating,
+    // isDeleting,
     error,
-    createTask,
-    updateTask,
-    completeTask,
-    deleteTask,
-  } = useTasks(user.id);
+    createActivity,
+    // updateActivity,
+    // getActivity,
+    // deleteActivity,
+  } = useActivities(user.id);
 
-  const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("all");
+  const [filter, setFilter] = useState("");
 
-  const taskSummary = useMemo(() => getTaskSummary(tasks), [tasks]);
-
-  const taskFilterOptions = useMemo(
-    () => getTaskFilterOptions(taskSummary),
-    [taskSummary],
+  const filteredActivities = useMemo(
+    () => filterActivities(activities, filter),
+    [filter, activities],
   );
-
-  const filteredTasks = useMemo(
-    () => filterTasks(tasks, selectedFilter),
-    [selectedFilter, tasks],
-  );
-
-  const selectedFilterOption = taskFilterOptions.find(
-    (option) => option.value === selectedFilter,
-  );
+  
+  function handleActivityDetails(activity: Activity) {
+    navigate(`/activities/${activity.id}`);
+  }
 
   return (
-    <Card as="section" className="mt-8" aria-labelledby="tasks-title">
+    <Card as="section" className="mt-8" aria-labelledby="activities-title">
       <div>
-        <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
-          Minhas tarefas
+        <h2 id="activities-title" className="m-0 text-[28px] font-bold">
+          Minhas atividades
         </h2>
 
         <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-          Crie tarefas simples para acompanhar atividades importantes do dia a
-          dia.
+          Crie guias simples para acompanhar atividades importantes do dia a dia.
         </p>
       </div>
 
-      <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
-
-          <strong className="mt-2 block text-3xl text-slate-950">
-            {taskSummary.pending}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-green-200 bg-green-50 p-4">
-          <p className="m-0 text-sm font-bold text-green-700">Concluídas</p>
-
-          <strong className="mt-2 block text-3xl text-green-950">
-            {taskSummary.completed}
-          </strong>
-        </article>
-
-        <article className="rounded-2xl border border-purple-200 bg-purple-50 p-4">
-          <p className="m-0 text-sm font-bold text-purple-700">Com data</p>
-
-          <strong className="mt-2 block text-3xl text-purple-950">
-            {taskSummary.withDate}
-          </strong>
-        </article>
-      </div>
-
-      <CreateTaskForm isCreating={isCreating} onCreateTask={createTask} />
+      {/* <CreateActivityForm isCreating={isCreating} onCreateActivity={createActivity} /> */}
 
       {error && (
         <Alert tone="error" className="mt-4">
@@ -102,47 +71,46 @@ export function HomePage({ user }: HomePageProps) {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="m-0 text-xl font-bold text-slate-950">
-              Lista de tarefas
+              Lista de atividades
             </h3>
 
             <p className="mt-1 text-sm font-bold text-slate-500">
-              {filteredTasks.length} de {tasks.length} tarefa
-              {tasks.length === 1 ? "" : "s"}
+              {filteredActivities.length} de {activities.length} atividades
+              {activities.length === 1 ? "" : "s"}
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {taskFilterOptions.map((filter) => {
-              const isSelected = selectedFilter === filter.value;
-
-              return (
-                <Button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setSelectedFilter(filter.value)}
-                  size="sm"
-                  variant={isSelected ? "primary" : "secondary"}
-                  className="rounded-full"
-                >
-                  {filter.label} ({filter.count})
-                </Button>
-              );
-            })}
+          <div className="flex flex-wrap gap-2 items-center">
+            <p className=" text-sm font-bold text-slate-500">
+              Procure por suas atividades
+            </p>
+            <Input
+              type="text"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder="Digite algo escrito na atividade desejada"
+              required
+            />
           </div>
         </div>
+        <div>
+          <Card as="section" className="mt-8" aria-labelledby="activities-title">
+            <ActivityList
+              activities={filteredActivities}
+              isLoading={isLoading}
+              gridCols={1}  
+              emptyMessage={"Nenhuma atividade encontrada."}
+              onActivityDetails={handleActivityDetails}
+            />
+          </Card>
 
-        <TaskList
-          tasks={filteredTasks}
-          isLoading={isLoading}
-          isUpdating={isUpdating}
-          isDeleting={isDeleting}
-          emptyMessage={
-            selectedFilterOption?.emptyMessage ?? "Nenhuma tarefa encontrada."
-          }
-          onUpdateTask={updateTask}
-          onCompleteTask={completeTask}
-          onDeleteTask={deleteTask}
-        />
+          <Card as="section" className="mt-8" aria-labelledby="activities-title">
+            <CreateActivityForm
+                isCreating={isLoading}
+                onCreateActivity={createActivity}
+            />
+          </Card>
+        </div>
       </div>
     </Card>
   );

@@ -7,7 +7,7 @@ export {
 } from "./config/firebase";
 
 export * from "./auth";
-export * from "./activity";
+export * from "./activities";
 export * from "./tasks";
 export * from "./preferences";
 export * from "./profile";

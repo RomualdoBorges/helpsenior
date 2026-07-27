@@ -6,6 +6,7 @@ export interface CreateTaskUseCaseInput {
   title: string;
   description?: string;
   date?: string;
+  activityId?: string;
 }
 
 export interface CreateTaskUseCaseOutput {
@@ -43,6 +44,10 @@ export class CreateTaskUseCase {
       createdAt: now,
       updatedAt: now,
     };
+
+    if (input.activityId) {
+      task.activityId = input.activityId;
+    }
 
     if (input.description) {
       task.description = input.description;

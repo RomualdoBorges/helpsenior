@@ -1,33 +1,19 @@
-import { useState, type FormEvent } from "react";
-
-import type { Task } from "@helpsenior/core";
+import type { Activity, Task } from "@helpsenior/core";
 
 import {
-  Alert,
   Badge,
   Button,
-  FormField,
-  Input,
-  Textarea,
   classNames,
 } from "../../../shared/ui";
 
-interface UpdateTaskInput {
-  taskId: string;
-  title: string;
-  description?: string;
-  date?: string;
-}
-
 interface TaskListProps {
   tasks: Task[];
+  activities: Activity[];
   isLoading: boolean;
-  isUpdating: boolean;
-  isDeleting: boolean;
   emptyMessage?: string;
-  onUpdateTask: (input: UpdateTaskInput) => Promise<void>;
   onCompleteTask: (taskId: string) => Promise<void>;
-  onDeleteTask: (taskId: string) => Promise<void>;
+  onSelectedTask: (task: Task) => void;
+  onActivityDetail: (activityId: string) => Promise<void>;
 }
 
 function formatTaskDate(date?: string) {
@@ -54,19 +40,15 @@ function getTaskStatusLabel(task: Task) {
 
 export function TaskList({
   tasks,
+  activities,
   isLoading,
-  isUpdating,
-  isDeleting,
   emptyMessage = "Nenhuma tarefa cadastrada ainda.",
-  onUpdateTask,
   onCompleteTask,
-  onDeleteTask,
+  onActivityDetail,
+  onSelectedTask,
 }: TaskListProps) {
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
-  const [editingDescription, setEditingDescription] = useState("");
-  const [editingDate, setEditingDate] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
+
+  const activityTitle = (activityId: string) => activities.find((activity) => activityId === activity.id)?.title || "";
 
   if (isLoading) {
     return (
@@ -84,67 +66,10 @@ export function TaskList({
     );
   }
 
-  function startEditingTask(task: Task) {
-    if (task.completed) {
-      return;
-    }
-
-    setEditingTaskId(task.id);
-    setEditingTitle(task.title);
-    setEditingDescription(task.description ?? "");
-    setEditingDate(task.date ?? "");
-    setLocalError(null);
-  }
-
-  function cancelEditingTask() {
-    setEditingTaskId(null);
-    setEditingTitle("");
-    setEditingDescription("");
-    setEditingDate("");
-    setLocalError(null);
-  }
-
-  async function handleUpdateTask(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    setLocalError(null);
-
-    if (!editingTaskId) {
-      return;
-    }
-
-    if (!editingTitle.trim()) {
-      setLocalError("Informe o título da tarefa.");
-      return;
-    }
-
-    await onUpdateTask({
-      taskId: editingTaskId,
-      title: editingTitle.trim(),
-      description: editingDescription.trim() || undefined,
-      date: editingDate || undefined,
-    });
-
-    cancelEditingTask();
-  }
-
-  function handleDeleteTask(task: Task) {
-    const shouldDelete = window.confirm(
-      `Deseja excluir a tarefa "${task.title}"?`,
-    );
-
-    if (!shouldDelete) {
-      return;
-    }
-
-    void onDeleteTask(task.id);
-  }
-
   return (
     <div className="mt-6 grid gap-4">
       {tasks.map((task) => {
         const taskDate = formatTaskDate(task.date);
-        const isEditing = editingTaskId === task.id;
 
         return (
           <article
@@ -156,56 +81,8 @@ export function TaskList({
                 : "border-slate-300 bg-white",
             )}
           >
-            {isEditing ? (
-              <form onSubmit={handleUpdateTask} className="grid gap-4">
-                <div className="grid gap-4">
-                  <FormField label="Título">
-                    <Input
-                      type="text"
-                      value={editingTitle}
-                      onChange={(event) => setEditingTitle(event.target.value)}
-                      required
-                    />
-                  </FormField>
-
-                  <FormField label="Descrição">
-                    <Textarea
-                      value={editingDescription}
-                      onChange={(event) =>
-                        setEditingDescription(event.target.value)
-                      }
-                    />
-                  </FormField>
-
-                  <FormField label="Data">
-                    <Input
-                      type="date"
-                      value={editingDate}
-                      onChange={(event) => setEditingDate(event.target.value)}
-                    />
-                  </FormField>
-
-                  {localError && <Alert tone="error">{localError}</Alert>}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button type="submit" disabled={isUpdating}>
-                    {isUpdating ? "Salvando..." : "Salvar"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    disabled={isUpdating}
-                    onClick={cancelEditingTask}
-                    variant="secondary"
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
+              <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
+                <div style={{width: "stretch"}} onClick={() => onSelectedTask(task)}>
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="m-0 text-xl font-bold text-slate-950">
                       {task.title}
@@ -230,41 +107,40 @@ export function TaskList({
                       <Badge tone="purple">{taskDate}</Badge>
                     </div>
                   )}
+
+                  {/* {task.activityId && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Badge tone="slate">{activityTitle(task.activityId)}</Badge>
+                    </div>
+                  )} */}
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {!task.completed && (
-                    <Button
-                      type="button"
-                      onClick={() => startEditingTask(task)}
-                      disabled={isUpdating || isDeleting}
-                      variant="secondary"
-                    >
-                      Editar
-                    </Button>
-                  )}
-
-                  {!task.completed && (
-                    <Button
-                      type="button"
-                      onClick={() => void onCompleteTask(task.id)}
-                      disabled={isUpdating || isDeleting}
-                    >
-                      Concluir
-                    </Button>
-                  )}
-
-                  <Button
-                    type="button"
-                    onClick={() => handleDeleteTask(task)}
-                    disabled={isUpdating || isDeleting}
-                    variant="danger"
-                  >
-                    Excluir
-                  </Button>
+                <div style={{height: "stretch"}} className="flex flex-col min-w-auto justify-between">
+                  <div className="flex flex-col">                    
+                    {task.activityId && (
+                      <>
+                        <p className="text-sm text-center font-bold leading-6 text-black-600">
+                          Atividade anexada
+                        </p>
+                          
+                        <div className="flex flex-wrap justify-center gap-2 cursor-pointer" onClick={() => onActivityDetail(task.activityId!)}>
+                          <Badge tone="slate" className="text-lg text-center">{activityTitle(task.activityId)}</Badge>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap justify-end mt-4">
+                    {!task.completed && (
+                      <Button
+                        type="button"
+                        onClick={() => void onCompleteTask(task.id)}
+                      >
+                        Concluir
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
           </article>
         );
       })}

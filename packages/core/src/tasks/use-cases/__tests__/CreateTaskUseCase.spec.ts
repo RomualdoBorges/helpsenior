@@ -50,6 +50,19 @@ describe("CreateTaskUseCase", () => {
     expect(result.task.date).toBe("2026-07-10");
   });
 
+  it("should create a task with activityId", async () => {
+    const repository = new InMemoryTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
+
+    const result = await useCase.execute({
+      userId: "user-1",
+      title: "Ir ao médico",
+      activityId: "1",
+    });
+
+    expect(result.task.activityId).toBe("1");
+  });
+
   it("should save the created task in repository", async () => {
     const repository = new InMemoryTaskRepository();
     const useCase = new CreateTaskUseCase(repository);

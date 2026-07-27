@@ -1,11 +1,11 @@
 import type { Activity } from "../entities/Activity";
 import type { ActivityRepository } from "../repositories/ActivityRepository";
 
-interface GetActivityUseCaseRequest {
+export interface GetActivityUseCaseInput {
   activityId: string;
 }
 
-interface GetActivityUseCaseResponse {
+export interface GetActivityUseCaseOutput {
   activity: Activity | null;
 }
 
@@ -16,7 +16,7 @@ export class GetActivityUseCase {
     this.activityRepository = activityRepository;
   }
 
-  async execute(request: GetActivityUseCaseRequest): Promise<GetActivityUseCaseResponse> {
+  async execute(request: GetActivityUseCaseInput): Promise<GetActivityUseCaseOutput> {
     if (!request.activityId.trim()) {
       throw new Error("Atividade é obrigatória.");
     }

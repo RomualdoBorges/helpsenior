@@ -10,7 +10,11 @@ export type {
   CreateActivityUseCaseOutput,
 } from "./use-cases/CreateActivityUseCase";
 
+export { GetActivityUseCase } from "./use-cases/GetActivityUseCase";
+export type { GetActivityUseCaseInput, GetActivityUseCaseOutput } from "./use-cases/GetActivityUseCase";
+
 export { ListActivitiesUseCase } from "./use-cases/ListActivitiesUseCase";
+export type { ListActivitiesUseCaseInput, ListActivitiesUseCaseOutput } from "./use-cases/ListActivitiesUseCase";
 
 export { DeleteActivityUseCase } from "./use-cases/DeleteActivityUseCase";
 export type { DeleteActivityUseCaseInput } from "./use-cases/DeleteActivityUseCase";
