@@ -1,6 +1,7 @@
 import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
 import { Badge, Button } from "../../../shared/ui";
+import { formatDisplayDate } from "../../../shared/utils/formatDisplayDate";
 
 interface DueReminderAlertProps {
   reminders: Reminder[];
@@ -20,10 +21,10 @@ function getRecurrenceLabel(recurrence: ReminderRecurrence) {
 
 function formatReminderDate(reminder: Reminder) {
   if (reminder.time) {
-    return `${reminder.date} às ${reminder.time}`;
+    return `${formatDisplayDate(reminder.date)} às ${reminder.time}`;
   }
 
-  return reminder.date;
+  return formatDisplayDate(reminder.date);
 }
 
 export function DueReminderAlert({
@@ -65,7 +66,7 @@ export function DueReminderAlert({
             {firstReminder.recurrence !== "none" &&
               firstReminder.recurrenceEndDate && (
                 <Badge className="bg-white text-amber-900">
-                  Até {firstReminder.recurrenceEndDate}
+                  Até {formatDisplayDate(firstReminder.recurrenceEndDate)}
                 </Badge>
               )}
           </div>

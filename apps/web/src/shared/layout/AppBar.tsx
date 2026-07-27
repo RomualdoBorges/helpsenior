@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
+import type { Reminder } from "@helpsenior/core";
+
 import { classNames } from "../ui";
+import { formatDisplayDate } from "../utils/formatDisplayDate";
 
 interface AppBarProps {
-  dueReminderCount: number;
+  dueReminders: Reminder[];
   email: string | null;
   userName?: string;
   onSignOut: () => void | Promise<void>;
@@ -127,19 +130,29 @@ function getFirstName(userName: string | undefined) {
 }
 
 export function AppBar({
-  dueReminderCount,
+  dueReminders,
   email,
   userName,
   onSignOut,
 }: AppBarProps) {
+  const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const alertsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const dueReminderCount = dueReminders.length;
   const displayName = getFirstName(userName);
   const displayEmail = email || "E-mail não informado";
   const initial = displayName.charAt(0).toUpperCase();
 
   useEffect(() => {
     function closeMenuOnOutsideClick(event: MouseEvent) {
+      if (
+        alertsRef.current &&
+        !alertsRef.current.contains(event.target as Node)
+      ) {
+        setIsAlertsOpen(false);
+      }
+
       if (
         userMenuRef.current &&
         !userMenuRef.current.contains(event.target as Node)
@@ -150,6 +163,7 @@ export function AppBar({
 
     function closeMenuOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        setIsAlertsOpen(false);
         setIsUserMenuOpen(false);
       }
     }
@@ -196,21 +210,73 @@ export function AppBar({
         </nav>
 
         <div className="flex shrink-0 items-stretch">
-          <Link
-            to="/lembretes"
-            aria-label={
-              dueReminderCount > 0
-                ? `${dueReminderCount} lembretes pendentes`
-                : "Ver lembretes"
-            }
-            className="relative flex h-full w-12 items-center justify-center text-slate-600 no-underline hover:bg-slate-100 hover:text-violet-700 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700">
-            <AppBarIcon name="bell" className="size-6" />
-            {dueReminderCount > 0 && (
-              <span className="absolute right-0.5 top-0.5 flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold leading-5 text-white">
-                {dueReminderCount > 9 ? "9+" : dueReminderCount}
+          <div ref={alertsRef} className="relative h-full">
+            <button
+              type="button"
+              aria-label={
+                dueReminderCount > 0
+                  ? `Mostrar ${dueReminderCount} alertas`
+                  : "Mostrar alertas"
+              }
+              aria-expanded={isAlertsOpen}
+              aria-haspopup="dialog"
+              className="relative flex h-full w-12 items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-violet-700 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700"
+              onClick={() => {
+                setIsAlertsOpen((currentValue) => !currentValue);
+                setIsUserMenuOpen(false);
+              }}>
+              <span className="relative flex items-center justify-center">
+                <AppBarIcon name="bell" className="size-6" />
+                {dueReminderCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold leading-5 text-white">
+                    {dueReminderCount > 9 ? "9+" : dueReminderCount}
+                  </span>
+                )}
               </span>
+            </button>
+
+            {isAlertsOpen && (
+              <div
+                role="dialog"
+                aria-label="Alertas de lembretes"
+                className="notification-popover absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                  <strong className="text-base text-slate-950">Alertas</strong>
+                  <span className="text-sm font-bold text-slate-500">
+                    {dueReminderCount}
+                  </span>
+                </div>
+
+                {dueReminderCount === 0 ? (
+                  <p className="px-4 py-6 text-center text-sm text-slate-500">
+                    Nenhum alerta no momento.
+                  </p>
+                ) : (
+                  <ul className="m-0 max-h-80 list-none overflow-y-auto p-2">
+                    {dueReminders.map((reminder) => (
+                      <li
+                        key={reminder.id}
+                        className="flex gap-3 rounded-xl px-3 py-3 hover:bg-slate-50">
+                        <span
+                          aria-hidden="true"
+                          className="mt-1.5 size-2 shrink-0 rounded-full bg-red-600"
+                        />
+                        <div className="min-w-0">
+                          <strong className="block truncate text-sm text-slate-950">
+                            {reminder.title}
+                          </strong>
+                          <span className="mt-1 block text-sm text-slate-500">
+                            {formatDisplayDate(reminder.date)}
+                            {reminder.time ? ` às ${reminder.time}` : ""}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
-          </Link>
+          </div>
 
           <div ref={userMenuRef} className="relative h-full">
             <button
@@ -218,9 +284,10 @@ export function AppBar({
               className="flex h-full items-center gap-2 px-2 text-slate-950 hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700 sm:px-3"
               aria-expanded={isUserMenuOpen}
               aria-haspopup="menu"
-              onClick={() =>
-                setIsUserMenuOpen((currentValue) => !currentValue)
-              }>
+              onClick={() => {
+                setIsUserMenuOpen((currentValue) => !currentValue);
+                setIsAlertsOpen(false);
+              }}>
               <span className="flex size-9 items-center justify-center rounded-full bg-slate-950 text-xs font-bold text-white">
                 {initial}
               </span>

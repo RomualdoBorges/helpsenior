@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Reminder } from "@helpsenior/core";
 
+import { formatDisplayDate } from "../../../shared/utils/formatDisplayDate";
+
 type NotificationPermissionState =
   | "default"
   | "granted"
@@ -50,7 +52,9 @@ export function useReminderNotifications(dueReminders: Reminder[]) {
 
       const notificationBody = [
         `Lembrete agora: ${reminder.title}`,
-        reminder.time ? `${reminder.date} às ${reminder.time}` : reminder.date,
+        reminder.time
+          ? `${formatDisplayDate(reminder.date)} às ${reminder.time}`
+          : formatDisplayDate(reminder.date),
       ].join("\n");
 
       new Notification("HelpSenior", {

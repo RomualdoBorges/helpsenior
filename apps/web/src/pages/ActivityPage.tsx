@@ -10,7 +10,7 @@ import {
   type UpdateActivityInput,
 } from "../features/activities/hooks/useActivities";
 import { filterActivities } from "../features/activities/utils/filterActivities";
-import { Alert, Button, Card, Input } from "../shared/ui";
+import { Alert, BigNumberCard, Button, Card, Input } from "../shared/ui";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface ActivityPageUser {
@@ -124,6 +124,47 @@ export function ActivityPage({ user }: ActivityPageProps) {
               </Button>
             </div>
 
+            <div className="accessibility-summary mt-6 w-full">
+              <BigNumberCard
+                label="Atividades cadastradas"
+                value={activities.length}
+                tone="violet"
+                icon={
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="size-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round">
+                    <circle
+                      cx="5"
+                      cy="6.5"
+                      r="1"
+                      fill="currentColor"
+                      stroke="none"
+                    />
+                    <circle
+                      cx="5"
+                      cy="12"
+                      r="1"
+                      fill="currentColor"
+                      stroke="none"
+                    />
+                    <circle
+                      cx="5"
+                      cy="17.5"
+                      r="1"
+                      fill="currentColor"
+                      stroke="none"
+                    />
+                    <path d="M9 6.5h11M9 12h11M9 17.5h11" />
+                  </svg>
+                }
+              />
+            </div>
+
             {error && (
               <Alert tone="error" className="mt-4">
                 {error}
@@ -144,27 +185,25 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex flex-wrap items-center gap-2">
                   <Input
                     type="text"
                     value={filter}
                     onChange={(event) => setFilter(event.target.value)}
                     placeholder="Procure por suas atividades"
-                    className="w-60"
-                    required
+                    className="min-h-10 w-64 text-sm"
+                    aria-label="Buscar atividades"
                   />
                 </div>
               </div>
-              <div>
-                <Card as="section" aria-labelledby="activities-title">
-                  <ActivityList
-                    activities={filteredActivities}
-                    isLoading={isLoading}
-                    gridCols={2}
-                    emptyMessage={"Nenhuma atividade encontrada."}
-                    onSelectedActivity={setSelectedActivity}
-                  />
-                </Card>
+
+              <div className="mt-5">
+                <ActivityList
+                  activities={filteredActivities}
+                  isLoading={isLoading}
+                  emptyMessage="Nenhuma atividade encontrada."
+                  onSelectedActivity={setSelectedActivity}
+                />
               </div>
             </div>
           </Card>

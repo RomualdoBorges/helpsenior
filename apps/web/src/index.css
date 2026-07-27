@@ -94,6 +94,7 @@ html.high-contrast body,
 .high-contrast .activity-item,
 .high-contrast .reminder-item,
 .high-contrast .due-reminder-alert,
+.high-contrast .notification-popover,
 .high-contrast .accessibility-panel,
 .high-contrast .create-form,
 .high-contrast .app-card article {

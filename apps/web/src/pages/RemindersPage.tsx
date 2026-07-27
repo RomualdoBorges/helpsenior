@@ -6,10 +6,9 @@ import { CreateReminderForm } from "../features/reminders/components/CreateRemin
 import { DueReminderAlert } from "../features/reminders/components/DueReminderAlert";
 import { ReminderList } from "../features/reminders/components/ReminderList";
 import { Alert, BigNumberCard, Button, Card, FilterTabs } from "../shared/ui";
-import {
-  useReminders,
-  type CreateReminderInput,
-  type UpdateReminderInput,
+import type {
+  CreateReminderInput,
+  UpdateReminderInput,
 } from "../features/reminders/hooks/useReminders";
 import { useTasks } from "../features/tasks/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +23,13 @@ interface RemindersPageProps {
   user: TaskPageUser;
   reminders: Reminder[];
   dueReminders: Reminder[];
+  isLoadingReminders: boolean;
+  isCreatingReminder: boolean;
+  remindersError: string | null;
+  createReminder: (input: CreateReminderInput) => Promise<void>;
+  updateReminder: (input: UpdateReminderInput) => Promise<void>;
+  completeReminder: (reminderId: string) => Promise<void>;
+  deleteReminder: (reminderId: string) => Promise<void>;
   notificationPermission: "default" | "granted" | "denied" | "unsupported";
   requestNotificationPermission: () => Promise<void>;
   isNotificationSupported: boolean;
@@ -98,7 +104,15 @@ function getReminderSummary(reminders: Reminder[], dueReminders: Reminder[]) {
 
 export function RemindersPage({
   user,
+  reminders,
   dueReminders,
+  isLoadingReminders,
+  isCreatingReminder,
+  remindersError,
+  createReminder,
+  updateReminder,
+  completeReminder,
+  deleteReminder,
   notificationPermission,
   requestNotificationPermission,
   isNotificationSupported,
@@ -107,16 +121,6 @@ export function RemindersPage({
 }: RemindersPageProps) {
   const navigate = useNavigate();
   const { tasks } = useTasks(user?.id ?? null);
-  const {
-    reminders,
-    isLoadingReminders,
-    isCreatingReminder,
-    remindersError,
-    createReminder,
-    updateReminder,
-    completeReminder,
-    deleteReminder,
-  } = useReminders(user?.id ?? null);
 
   const [selectedFilter, setSelectedFilter] = useState<ReminderFilter>("all");
   const [reminderStatus, setReminderStatus] = useState<"creating" | "">("");

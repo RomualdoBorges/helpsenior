@@ -52,7 +52,16 @@ function App() {
     email: user?.email ?? null,
   });
 
-  const { reminders } = useReminders(user?.id ?? null);
+  const {
+    reminders,
+    isLoadingReminders,
+    isCreatingReminder,
+    remindersError,
+    createReminder,
+    updateReminder,
+    completeReminder,
+    deleteReminder,
+  } = useReminders(user?.id ?? null);
 
   const currentTime = useCurrentTime();
 
@@ -109,7 +118,7 @@ function App() {
     <>
       {isAuthenticated && user && (
         <AppBar
-          dueReminderCount={dueReminders.length}
+          dueReminders={dueReminders}
           email={user.email}
           userName={profile?.name}
           onSignOut={signOut}
@@ -172,6 +181,13 @@ function App() {
                 user,
                 reminders,
                 dueReminders,
+                isLoadingReminders,
+                isCreatingReminder,
+                remindersError,
+                createReminder,
+                updateReminder,
+                completeReminder,
+                deleteReminder,
                 notificationPermission,
                 requestNotificationPermission,
                 isNotificationSupported,

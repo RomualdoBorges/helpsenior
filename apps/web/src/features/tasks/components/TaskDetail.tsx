@@ -1,5 +1,7 @@
 import type { Activity, Task } from "@helpsenior/core";
 
+import { formatDisplayDate } from "../../../shared/utils/formatDisplayDate";
+
 interface TaskDetailProps {
   task: Task,
   activities: Activity[],
@@ -36,7 +38,7 @@ export function TaskDetail({
 
       { task.date && (
         <p className="simple-mode-secondary mt-2 text-base font-bold leading-6 text-slate-500">
-          {task.date}
+          {formatDisplayDate(task.date)}
         </p>
       )}
 

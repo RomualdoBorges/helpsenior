@@ -7,7 +7,6 @@ import { classNames } from "../../../shared/ui";
 interface ActivityListProps {
   activities: Activity[];
   isLoading: boolean;
-  gridCols?: number;
   emptyMessage?: string;
   onSelectedActivity: (activity: Activity) => void;
 }
@@ -15,7 +14,6 @@ interface ActivityListProps {
 export function ActivityList({
   activities,
   isLoading,
-  gridCols = 2,
   emptyMessage = "Nenhuma atividade cadastrada ainda.",
   onSelectedActivity,
 }: ActivityListProps) {
@@ -36,10 +34,7 @@ export function ActivityList({
   }
 
   return (
-    <div
-      className={classNames(
-        `grid grid-cols-${gridCols} gap-6 overflow-y-auto`,
-      )}>
+    <div className="grid grid-cols-1 gap-6 overflow-y-auto">
       {activities.map((activity) => {
         return (
           <article

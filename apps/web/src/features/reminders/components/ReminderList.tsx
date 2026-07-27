@@ -5,6 +5,7 @@ import {
   Button,
   classNames,
 } from "../../../shared/ui";
+import { formatDisplayDate } from "../../../shared/utils/formatDisplayDate";
 
 interface ReminderListProps {
   reminders: Reminder[];
@@ -26,18 +27,8 @@ function getRecurrenceLabel(recurrence: ReminderRecurrence) {
   return labels[recurrence];
 }
 
-function formatDate(date: string) {
-  const [year, month, day] = date.split("-");
-
-  if (!year || !month || !day) {
-    return date;
-  }
-
-  return `${day}/${month}/${year}`;
-}
-
 function formatReminderDate(reminder: Reminder) {
-  const formattedDate = formatDate(reminder.date);
+  const formattedDate = formatDisplayDate(reminder.date);
 
   if (reminder.time) {
     return `${formattedDate} às ${reminder.time}`;
@@ -116,7 +107,21 @@ export function ReminderList({
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Badge>{formatReminderDate(reminder)}</Badge>
+                  <span className="flex items-center gap-1.5 text-sm font-bold text-violet-700">
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="size-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <rect x="3" y="5" width="18" height="16" rx="2" />
+                      <path d="M8 3v4M16 3v4M3 10h18" />
+                    </svg>
+                    {formatReminderDate(reminder)}
+                  </span>
 
                   <Badge tone="blue">
                     {getRecurrenceLabel(reminder.recurrence)}
@@ -125,7 +130,7 @@ export function ReminderList({
                   {reminder.recurrence !== "none" &&
                     reminder.recurrenceEndDate && (
                       <Badge tone="purple">
-                        Até {formatDate(reminder.recurrenceEndDate)}
+                        Até {formatDisplayDate(reminder.recurrenceEndDate)}
                       </Badge>
                     )}
                 </div>
