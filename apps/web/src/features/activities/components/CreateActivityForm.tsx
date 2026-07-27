@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import {
   Alert,
@@ -45,10 +45,16 @@ export function CreateActivityForm({
   activity,
   onUpdateActivity,
 }: CreateActivityFormProps) {
-  const [title, setTitle] = useState("");
-  const [steps, setSteps] = useState<Step[]>([{ order: 1, description: "" }]);
-  const [description, setDescription] = useState("");
-  const [resources, setResources] = useState<NecessaryResources[]>([]);
+  const [title, setTitle] = useState(activity?.title ?? "");
+  const [steps, setSteps] = useState<Step[]>(
+    activity?.steps ?? [{ order: 1, description: "" }],
+  );
+  const [description, setDescription] = useState(
+    activity?.description ?? "",
+  );
+  const [resources, setResources] = useState<NecessaryResources[]>(
+    activity?.resources ?? [],
+  );
   const [localError, setLocalError] = useState<string | null>(null);
 
   function resetForm() {
@@ -128,18 +134,6 @@ export function CreateActivityForm({
 
     resetForm();
   }
-
-  useEffect(() => {
-    if (activity) {
-      setTitle(activity.title);
-      setSteps(activity.steps);
-      setLocalError(null);
-
-      if (activity.description) setDescription(activity.description);
-
-      if (activity.resources) setResources([]);
-    }
-  }, [activity]);
 
   return (
     <form onSubmit={handleSubmit} className="create-form mt-2">

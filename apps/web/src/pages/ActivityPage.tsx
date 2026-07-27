@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Activity } from "@helpsenior/core";
 
 import { CreateActivityForm } from "../features/activities/components/CreateActivityForm";
@@ -51,6 +51,15 @@ export function ActivityPage({ user }: ActivityPageProps) {
     [filter, activities],
   );
 
+  const selectedActivityFromRoute = useMemo(
+    () =>
+      activityId
+        ? (activities.find((activity) => activity.id === activityId) ?? null)
+        : null,
+    [activityId, activities],
+  );
+  const activeActivity = selectedActivity ?? selectedActivityFromRoute;
+
   async function handleCreateActivity(activity: CreateActivityInput) {
     await createActivity(activity);
     setSelectedActivity(null);
@@ -84,18 +93,9 @@ export function ActivityPage({ user }: ActivityPageProps) {
     setSelectedActivity(null);
   }
 
-  useEffect(() => {
-    if (activityId) {
-      const activity = activities.find(
-        (activity) => activity.id === activityId,
-      );
-      setSelectedActivity(activity!);
-    }
-  }, [activityId, activities]);
-
   return (
     <>
-      {!selectedActivity && activityStatus === "" ? (
+      {!activeActivity && activityStatus === "" ? (
         <div className="activities-page">
           <Card
             as="section"
@@ -272,7 +272,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={() => handleDeleteActivity(selectedActivity!)}>
+                    onClick={() => handleDeleteActivity(activeActivity!)}>
                     Excluir Atividade
                   </Button>
                 </div>
@@ -292,7 +292,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   className="mt-8"
                   aria-labelledby="activities-title">
                   <ActivityDetail
-                    activity={selectedActivity!}
+                    activity={activeActivity!}
                     isLoading={isLoading}
                   />
                 </Card>
@@ -306,7 +306,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   <CreateActivityForm
                     isCreating={isCreating}
                     onCreateActivity={handleCreateActivity}
-                    activity={selectedActivity}
+                    activity={activeActivity}
                     isUpdating={isUpdating}
                     onUpdateActivity={
                       handleUpdateActivity

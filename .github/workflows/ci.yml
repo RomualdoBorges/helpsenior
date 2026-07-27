@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint workspace
+        run: pnpm lint
+
       - name: Typecheck workspace
         run: pnpm typecheck --force
 

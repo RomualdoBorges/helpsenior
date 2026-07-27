@@ -116,7 +116,7 @@ export function useActivities(userId: string | null) {
         setIsLoading(false);
       }
     },
-    [getActivityUseCase, loadActivities],
+    [getActivityUseCase],
   );
 
   const createActivity = useCallback(
