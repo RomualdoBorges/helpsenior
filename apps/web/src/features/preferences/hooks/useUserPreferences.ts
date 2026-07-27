@@ -67,14 +67,22 @@ export function useUserPreferences(userId: string | null) {
 
   const updatePreferences = useCallback(
     async (input: UpdateUserPreferencesInput) => {
-      if (!userId) {
+      if (!userId || !preferences || isUpdatingPreferences) {
         return;
       }
 
-      try {
-        setIsUpdatingPreferences(true);
-        setPreferencesError(null);
+      const previousPreferences = preferences;
+      const optimisticPreferences: UserPreferences = {
+        ...previousPreferences,
+        ...input,
+        updatedAt: new Date(),
+      };
 
+      setPreferences(optimisticPreferences);
+      setIsUpdatingPreferences(true);
+      setPreferencesError(null);
+
+      try {
         const result = await updateUserPreferencesUseCase.execute({
           userId,
           ...input,
@@ -82,6 +90,7 @@ export function useUserPreferences(userId: string | null) {
 
         setPreferences(result.preferences);
       } catch (error) {
+        setPreferences(previousPreferences);
         setPreferencesError(
           getFirebaseFirestoreErrorMessage(
             error,
@@ -92,7 +101,12 @@ export function useUserPreferences(userId: string | null) {
         setIsUpdatingPreferences(false);
       }
     },
-    [updateUserPreferencesUseCase, userId],
+    [
+      isUpdatingPreferences,
+      preferences,
+      updateUserPreferencesUseCase,
+      userId,
+    ],
   );
 
   useEffect(() => {
