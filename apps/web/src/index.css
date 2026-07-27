@@ -13,7 +13,7 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  background: #f8fafc;
+  background: #ffffff;
   color: #0f172a;
 }
 
@@ -87,6 +87,7 @@ html.high-contrast body,
 }
 
 .high-contrast .app-card,
+.high-contrast .app-bar,
 .high-contrast .user-bar,
 .high-contrast .preferences-toggle,
 .high-contrast .task-item,
@@ -124,6 +125,7 @@ html.high-contrast body,
 .high-contrast button[data-variant="primary"],
 .high-contrast button[data-variant="warning"],
 .high-contrast button[type="submit"],
+.high-contrast button[aria-pressed="true"],
 .high-contrast nav a[aria-current="page"] {
   background: #ffffff !important;
   border-color: #ffffff !important;
@@ -138,6 +140,19 @@ html.high-contrast body,
 .high-contrast nav a {
   background: #111111 !important;
   border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-bar > div > div > a > span:first-child,
+.high-contrast .app-bar [aria-label^="Usuário:"] {
+  background: #000000 !important;
+  border: 1px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .accessibility-summary article > span {
+  background: #000000 !important;
+  border: 1px solid #ffffff !important;
   color: #ffffff !important;
 }
 
@@ -170,6 +185,18 @@ html.high-contrast body,
 
 .app-shell.increased-spacing {
   padding: 56px 32px;
+}
+
+.app-shell.authenticated-shell.increased-spacing {
+  padding-top: 144px;
+}
+
+.app-shell.footer-shell.increased-spacing {
+  padding-bottom: 0;
+}
+
+.increased-spacing .app-footer {
+  margin-inline: -32px;
 }
 
 .increased-spacing .app-card,

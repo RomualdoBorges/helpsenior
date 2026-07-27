@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
+import type { Reminder } from "@helpsenior/core";
 
 import { CreateReminderForm } from "../features/reminders/components/CreateReminderForm";
 import { DueReminderAlert } from "../features/reminders/components/DueReminderAlert";
 import { ReminderList } from "../features/reminders/components/ReminderList";
-import { Alert, Button, Card } from "../shared/ui";
-import { useReminders, type CreateReminderInput, type UpdateReminderInput } from "../features/reminders/hooks/useReminders";
+import { Alert, BigNumberCard, Button, Card, FilterTabs } from "../shared/ui";
+import {
+  useReminders,
+  type CreateReminderInput,
+  type UpdateReminderInput,
+} from "../features/reminders/hooks/useReminders";
 import { useTasks } from "../features/tasks/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
 
@@ -102,12 +106,11 @@ export function RemindersPage({
   isNotificationDenied,
 }: RemindersPageProps) {
   const navigate = useNavigate();
-  const { tasks } = useTasks(user?.id ?? null)
+  const { tasks } = useTasks(user?.id ?? null);
   const {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
-    isDeletingReminder,
     remindersError,
     createReminder,
     updateReminder,
@@ -117,7 +120,9 @@ export function RemindersPage({
 
   const [selectedFilter, setSelectedFilter] = useState<ReminderFilter>("all");
   const [reminderStatus, setReminderStatus] = useState<"creating" | "">("");
-  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
+  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(
+    null,
+  );
 
   const filteredReminders = useMemo(
     () => filterReminders(reminders, selectedFilter),
@@ -139,21 +144,19 @@ export function RemindersPage({
       state: { taskId },
     });
   }
-      
+
   async function handleCreateReminder(reminder: CreateReminderInput) {
-
     await createReminder(reminder);
-    setReminderStatus("")
-    setSelectedReminder(null)
+    setReminderStatus("");
+    setSelectedReminder(null);
   }
-    
-  async function handleUpdateReminder(reminder: UpdateReminderInput) {
 
+  async function handleUpdateReminder(reminder: UpdateReminderInput) {
     await updateReminder(reminder);
-    setReminderStatus("")
-    setSelectedReminder(null)
+    setReminderStatus("");
+    setSelectedReminder(null);
   }
-      
+
   async function handleDeleteReminder(reminder: Reminder) {
     const shouldDelete = window.confirm(
       `Deseja excluir o lembrete "${reminder.title}"?`,
@@ -164,36 +167,48 @@ export function RemindersPage({
     }
 
     await deleteReminder(reminder.id);
-    setSelectedReminder(null)
+    setSelectedReminder(null);
   }
 
   return (
     <>
-      { !selectedReminder && reminderStatus === '' ? (
+      {!selectedReminder && reminderStatus === "" ? (
         <Card as="section" className="mt-8" aria-labelledby="reminders-title">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
                 Meus lembretes
               </h2>
 
-              <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
+              <p className="simple-mode-secondary mt-0 text-base leading-6 text-slate-500">
                 Crie lembretes com data, horário e recorrência para acompanhar
                 compromissos e atividades importantes.
               </p>
             </div>
 
-            {isNotificationSupported && notificationPermission !== "granted" && (
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              {isNotificationSupported &&
+                notificationPermission !== "granted" && (
+                  <Button
+                    type="button"
+                    onClick={() => void requestNotificationPermission()}
+                    size="sm"
+                    variant="secondary">
+                    Ativar notificações
+                  </Button>
+                )}
+
               <Button
-                type="button"
-                onClick={() => void requestNotificationPermission()}
                 size="sm"
-                variant="secondary"
-                className="shrink-0"
-              >
-                Ativar notificações
+                variant="primary"
+                className="flex items-center justify-center gap-2"
+                onClick={() => setReminderStatus("creating")}>
+                <span aria-hidden="true" className="text-xl leading-none">
+                  +
+                </span>
+                Novo lembrete
               </Button>
-            )}
+            </div>
           </div>
 
           {isNotificationAllowed && (
@@ -204,8 +219,8 @@ export function RemindersPage({
 
           {isNotificationDenied && (
             <Alert tone="error" className="mt-4 text-sm">
-              As notificações estão bloqueadas neste navegador. Para ativar, altere
-              a permissão nas configurações do site.
+              As notificações estão bloqueadas neste navegador. Para ativar,
+              altere a permissão nas configurações do site.
             </Alert>
           )}
 
@@ -216,33 +231,76 @@ export function RemindersPage({
           )}
 
           <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-4  ">
-            <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="m-0 text-sm font-bold text-amber-800">Vencidos</p>
-              <strong className="mt-2 block text-3xl text-amber-950">
-                {reminderSummary.due}
-              </strong>
-            </article>
-
-            <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
-              <strong className="mt-2 block text-3xl text-slate-950">
-                {reminderSummary.pending}
-              </strong>
-            </article>
-
-            <article className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-              <p className="m-0 text-sm font-bold text-blue-700">Recorrentes</p>
-              <strong className="mt-2 block text-3xl text-blue-950">
-                {reminderSummary.recurring}
-              </strong>
-            </article>
-
-            <article className="rounded-2xl border border-green-200 bg-green-50 p-4">
-              <p className="m-0 text-sm font-bold text-green-700">Concluídos</p>
-              <strong className="mt-2 block text-3xl text-green-950">
-                {reminderSummary.completed}
-              </strong>
-            </article>
+            <BigNumberCard
+              label="Vencidos"
+              value={reminderSummary.due}
+              tone="amber"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v6M12 17h.01" />
+                </svg>
+              }
+            />
+            <BigNumberCard
+              label="Pendentes"
+              value={reminderSummary.pending}
+              tone="slate"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+                </svg>
+              }
+            />
+            <BigNumberCard
+              label="Recorrentes"
+              value={reminderSummary.recurring}
+              tone="blue"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <path d="m17 2 3 3-3 3M20 5H9a5 5 0 0 0-5 5M7 22l-3-3 3-3M4 19h11a5 5 0 0 0 5-5" />
+                </svg>
+              }
+            />
+            <BigNumberCard
+              label="Concluídos"
+              value={reminderSummary.completed}
+              tone="green"
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="m8 12 2.5 2.5L16 9" />
+                </svg>
+              }
+            />
           </div>
 
           <DueReminderAlert
@@ -256,7 +314,7 @@ export function RemindersPage({
             </Alert>
           )}
 
-          <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="accessibility-panel mt-6 rounded-2xl">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between items-start">
               <div>
                 <h3 className="m-0 text-xl font-bold text-slate-950">
@@ -269,23 +327,16 @@ export function RemindersPage({
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2 min-w-fit">
-                {reminderFilters.map((filter) => {
-                  const isSelected = selectedFilter === filter.value;
-
-                  return (
-                    <Button
-                      key={filter.value}
-                      type="button"
-                      onClick={() => setSelectedFilter(filter.value)}
-                      size="sm"
-                      variant={isSelected ? "primary" : "secondary"}
-                      className="rounded-full"
-                    >
-                      {filter.label} ({filterCounts[filter.value]})
-                    </Button>
-                  );
-                })}
+              <div className="w-full md:w-auto">
+                <FilterTabs
+                  ariaLabel="Filtrar lembretes"
+                  options={reminderFilters.map((filter) => ({
+                    ...filter,
+                    count: filterCounts[filter.value],
+                  }))}
+                  value={selectedFilter}
+                  onChange={setSelectedFilter}
+                />
               </div>
             </div>
 
@@ -298,27 +349,27 @@ export function RemindersPage({
               onTaskDetail={handleTaskDetail}
             />
           </div>
-          <div className="mt-3 flex justify-end">
-            <Button size="sm" variant="primary" onClick={() => setReminderStatus('creating')}>
-              Criar novo Lembrete
-            </Button>
-          </div>
         </Card>
       ) : (
         <div>
           <Card as="section" className="mt-4" aria-labelledby="create-task">
             <div className="flex md:justify-between">
-              <Button size="sm" variant="secondary"
+              <Button
+                size="sm"
+                variant="secondary"
                 onClick={() => {
-                  setReminderStatus('');
-                  setSelectedReminder(null)
+                  setReminderStatus("");
+                  setSelectedReminder(null);
                 }}>
                 Voltar para a lista
               </Button>
-              
+
               {reminderStatus === "" && (
                 <div className="block md:flex md:gap-2">
-                  <Button size="sm" variant="danger" onClick={() => handleDeleteReminder(selectedReminder!)}>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDeleteReminder(selectedReminder!)}>
                     Excluir Lembrete
                   </Button>
                 </div>
@@ -330,7 +381,7 @@ export function RemindersPage({
                 {remindersError}
               </Alert>
             )}
-            
+
             <div>
               <Card as="section" className="mt-8" aria-labelledby="create-form">
                 <CreateReminderForm

@@ -1,117 +1,97 @@
-import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
-import { CreateActivityForm } from "../features/activities/components/CreateActivityForm";
-import { ActivityList } from "../features/activities/components/ActivityList";
-import { useActivities } from "../features/activities/hooks/useActivities";
-import {
-  filterActivities,
-} from "../features/activities/utils/filterActivities";
-import { Alert, Button, Card, Input } from "../shared/ui";
-import { useNavigate } from "react-router-dom";
-
-interface Activity {
-  id: string;
+interface HomeShortcutProps {
+  description: string;
+  label: string;
+  title: string;
+  to: string;
 }
 
-interface HomePageUser {
-  id: string;
-}
-
-interface HomePageProps {
-  user: HomePageUser;
-}
-
-export function HomePage({ user }: HomePageProps) {
-  const navigate = useNavigate();
-  const {
-    activities,
-    isLoading,
-    // isCreating,
-    // isUpdating,
-    // isDeleting,
-    error,
-    createActivity,
-    // updateActivity,
-    // getActivity,
-    // deleteActivity,
-  } = useActivities(user.id);
-
-  const [filter, setFilter] = useState("");
-
-  const filteredActivities = useMemo(
-    () => filterActivities(activities, filter),
-    [filter, activities],
-  );
-  
-  function handleActivityDetails(activity: Activity) {
-    navigate(`/activities/${activity.id}`);
-  }
-
+function HomeShortcut({ description, label, title, to }: HomeShortcutProps) {
   return (
-    <Card as="section" className="mt-8" aria-labelledby="activities-title">
+    <Link
+      to={to}
+      className="app-card group flex min-h-52 flex-col rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 no-underline transition-shadow hover:shadow-md focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-700">
       <div>
-        <h2 id="activities-title" className="m-0 text-[28px] font-bold">
-          Minhas atividades
-        </h2>
-
-        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-          Crie guias simples para acompanhar atividades importantes do dia a dia.
+        <h2 className="m-0 text-lg font-bold text-violet-700">{title}</h2>
+        <p className="simple-mode-secondary mt-2 text-sm leading-6 text-slate-600">
+          {description}
         </p>
       </div>
 
-      {/* <CreateActivityForm isCreating={isCreating} onCreateActivity={createActivity} /> */}
+      <span className="mt-auto flex items-center justify-between pt-5 text-sm font-bold text-violet-700">
+        {label}
+        <span
+          aria-hidden="true"
+          className="flex size-9 items-center justify-center rounded-full bg-violet-50 transition-transform group-hover:translate-x-1">
+          →
+        </span>
+      </span>
+    </Link>
+  );
+}
 
-      {error && (
-        <Alert tone="error" className="mt-4">
-          {error}
-        </Alert>
-      )}
+export function HomePage() {
+  return (
+    <div className="pb-4">
+      <section className="pt-8" aria-labelledby="home-title">
+        <p className="app-eyebrow m-0 text-sm font-extrabold uppercase tracking-[0.08em] text-violet-700">
+          HelpSenior
+        </p>
 
-      <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h3 className="m-0 text-xl font-bold text-slate-950">
-              Lista de atividades
-            </h3>
+        <h1
+          id="home-title"
+          className="mt-3 max-w-170 text-[40px] font-bold leading-[1.12] text-slate-950">
+          Organize atividades com mais clareza e segurança.
+        </h1>
 
-            <p className="mt-1 text-sm font-bold text-slate-500">
-              {filteredActivities.length} de {activities.length} atividades
-              {activities.length === 1 ? "" : "s"}
-            </p>
-          </div>
+        <p className="app-description mt-0 max-w-150 text-lg leading-8 text-slate-600">
+          Crie e consulte guias claros para realizar atividades importantes do
+          dia a dia com mais autonomia e tranquilidade.
+        </p>
+      </section>
 
-          <div className="flex flex-wrap gap-2 items-center">
-            <p className=" text-sm font-bold text-slate-500">
-              Procure por suas atividades
-            </p>
-            <Input
-              type="text"
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-              placeholder="Digite algo escrito na atividade desejada"
-              required
-            />
-          </div>
+      <section className="mt-10" aria-labelledby="home-shortcuts-title">
+        <h2
+          id="home-shortcuts-title"
+          className="m-0 text-2xl font-bold text-slate-950">
+          O que você deseja acessar?
+        </h2>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <HomeShortcut
+            to="/atividades"
+            title="Ir para atividades"
+            description="Acesse guias simples para acompanhar atividades importantes do dia a dia."
+            label="Acessar atividades"
+          />
+          <HomeShortcut
+            to="/tarefas"
+            title="Ir para tarefas"
+            description="Organize o que precisa ser feito e acompanhe o que já foi concluído."
+            label="Acessar tarefas"
+          />
+          <HomeShortcut
+            to="/lembretes"
+            title="Ir para lembretes"
+            description="Defina quando receber avisos e acompanhe lembretes recorrentes."
+            label="Acessar lembretes"
+          />
         </div>
-        <div>
-          <Card as="section" className="mt-8" aria-labelledby="activities-title">
-            <ActivityList
-              activities={filteredActivities}
-              isLoading={isLoading}
-              gridCols={1}  
-              emptyMessage={"Nenhuma atividade encontrada."}
-              onActivityDetails={handleActivityDetails}
-            />
-          </Card>
+      </section>
 
-          <Card as="section" className="mt-8" aria-labelledby="activities-title">
-            <CreateActivityForm
-                isCreating={isLoading}
-                onCreateActivity={createActivity}
-            />
-          </Card>
-        </div>
-      </div>
-    </Card>
+      <aside className="app-card mt-6 flex items-start gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 text-sm leading-6 text-slate-700">
+        <span
+          aria-hidden="true"
+          className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-700 font-bold text-white">
+          i
+        </span>
+        <p className="m-0">
+          <strong>Dica:</strong> use as atividades para registrar orientações
+          simples e facilitar cada momento da sua rotina.
+        </p>
+      </aside>
+
+    </div>
   );
 }

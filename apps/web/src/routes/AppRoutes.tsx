@@ -9,7 +9,6 @@ import { TaskPage } from "../pages/TaskPage";
 import { ActivityPage } from "../pages/ActivityPage";
 
 interface AppRoutesProps {
-  homePageProps: ComponentProps<typeof HomePage>;
   taskPageProps: ComponentProps<typeof TaskPage>;
   profilePageProps: ComponentProps<typeof ProfilePage>;
   remindersPageProps: ComponentProps<typeof RemindersPage>;
@@ -17,7 +16,6 @@ interface AppRoutesProps {
 }
 
 export function AppRoutes({
-  homePageProps,
   taskPageProps,
   profilePageProps,
   remindersPageProps,
@@ -25,12 +23,8 @@ export function AppRoutes({
 }: AppRoutesProps) {
   return (
     <Routes>
-      <Route path="/bla" element={<HomePage {...homePageProps} />} />
-      <Route
-        path="/"
-        // path="/atividades"
-        element={<ActivityPage {...taskPageProps} />}
-      />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/atividades" element={<ActivityPage {...taskPageProps} />} />
       <Route
         path="/tarefas"
         element={<TaskPage {...taskPageProps} />}
