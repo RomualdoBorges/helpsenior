@@ -360,7 +360,7 @@ export function RemindersPage({
       ) : (
         <div className="reminders-page">
           <Card as="section" aria-labelledby="create-reminder">
-            <div className="flex md:justify-between">
+            <div className="flex">
               <Button
                 size="sm"
                 variant="primary"
@@ -372,17 +372,6 @@ export function RemindersPage({
                 <span aria-hidden="true">←</span>
                 Voltar para a lista
               </Button>
-
-              {reminderStatus === "" && (
-                <div className="block md:flex md:gap-2">
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDeleteReminder(selectedReminder!)}>
-                    Excluir Lembrete
-                  </Button>
-                </div>
-              )}
             </div>
 
             {remindersError && (

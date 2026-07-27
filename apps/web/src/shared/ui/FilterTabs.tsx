@@ -23,8 +23,8 @@ export function FilterTabs<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="flex w-fit max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white p-0.5">
-      {options.map((option, index) => {
+      className="flex w-full flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1 md:w-fit md:flex-nowrap">
+      {options.map((option) => {
         const isSelected = value === option.value;
 
         return (
@@ -34,11 +34,9 @@ export function FilterTabs<T extends string>({
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}
             className={classNames(
-              "relative min-h-9 min-w-24 shrink-0 px-2 text-xs font-bold transition-colors focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-slate-950",
-              index > 0 &&
-                "before:absolute before:inset-y-3 before:left-0 before:w-px before:bg-slate-200",
+              "min-h-11 min-w-0 flex-1 basis-[calc(50%-0.25rem)] rounded-lg px-3 text-sm font-bold transition-colors focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-slate-950 md:min-h-9 md:min-w-24 md:flex-none md:basis-auto md:text-xs",
               isSelected
-                ? "rounded-lg bg-slate-950 text-white shadow-sm before:hidden"
+                ? "bg-slate-950 text-white shadow-sm"
                 : "bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950",
             )}>
             {option.label} ({option.count})

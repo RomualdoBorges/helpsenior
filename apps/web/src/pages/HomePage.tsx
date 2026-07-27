@@ -47,7 +47,7 @@ export function HomePage() {
           Organize atividades com mais clareza e segurança.
         </h1>
 
-        <p className="app-description mt-0 max-w-150 text-lg leading-8 text-slate-600">
+        <p className="app-description mt-3 max-w-150 text-lg leading-8 text-slate-600">
           Crie e consulte guias claros para realizar atividades importantes do
           dia a dia com mais autonomia e tranquilidade.
         </p>
@@ -93,7 +93,6 @@ export function HomePage() {
           simples e facilitar cada momento da sua rotina.
         </p>
       </aside>
-
     </div>
   );
 }
