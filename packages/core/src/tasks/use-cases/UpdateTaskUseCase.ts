@@ -6,6 +6,7 @@ export interface UpdateTaskUseCaseInput {
   title: string;
   description?: string;
   date?: string;
+  activityId?: string;
 }
 
 export interface UpdateTaskUseCaseOutput {
@@ -39,6 +40,12 @@ export class UpdateTaskUseCase {
       title: input.title.trim(),
       updatedAt: new Date(),
     };
+
+    if (input.activityId) {
+      updatedTask.activityId = input.activityId;
+    } else {
+      delete updatedTask.activityId;
+    }
 
     if (input.description?.trim()) {
       updatedTask.description = input.description.trim();

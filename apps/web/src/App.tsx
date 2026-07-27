@@ -11,8 +11,9 @@ import { useReminderNotifications } from "./features/reminders/hooks/useReminder
 import { useReminders } from "./features/reminders/hooks/useReminders";
 import { getDueReminders } from "./features/reminders/utils/getDueReminders";
 import { AppRoutes } from "./routes/AppRoutes";
-import { AppNavigation } from "./shared/layout/AppNavigation";
-import { Button, classNames } from "./shared/ui";
+import { AppBar } from "./shared/layout/AppBar";
+import { AppFooter } from "./shared/layout/AppFooter";
+import { classNames } from "./shared/ui";
 
 import "./index.css";
 
@@ -55,8 +56,6 @@ function App() {
     reminders,
     isLoadingReminders,
     isCreatingReminder,
-    isUpdatingReminder,
-    isDeletingReminder,
     remindersError,
     createReminder,
     updateReminder,
@@ -105,10 +104,9 @@ function App() {
     return (
       <main
         className={classNames(
-          "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
+          "app-shell min-h-screen bg-white px-6 py-10 text-slate-950",
           accessibilityClassName,
-        )}
-      >
+        )}>
         <section className="app-container mx-auto max-w-190">
           <p className="text-base text-slate-600">Carregando aplicação...</p>
         </section>
@@ -117,14 +115,27 @@ function App() {
   }
 
   return (
-    <main
-      className={classNames(
-        "app-shell min-h-screen bg-slate-50 px-6 py-10 text-slate-950",
-        accessibilityClassName,
+    <>
+      {isAuthenticated && user && (
+        <AppBar
+          dueReminders={dueReminders}
+          email={user.email}
+          userName={profile?.name}
+          onSignOut={signOut}
+        />
       )}
-    >
-      <section className="app-container mx-auto max-w-190">
-        <header>
+
+      <main
+        className={classNames(
+          "app-shell flex min-h-screen flex-col px-6 text-slate-950",
+          isAuthenticated && user
+            ? "authenticated-shell bg-white pt-24"
+            : "bg-violet-50/40",
+          "footer-shell",
+          accessibilityClassName,
+        )}>
+        <section className="app-container mx-auto flex w-full max-w-300 flex-1 flex-col">
+          {/* <header>
           <p className="app-eyebrow mb-2 text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
             HelpSenior
           </p>
@@ -137,49 +148,43 @@ function App() {
             Crie tarefas simples e lembretes recorrentes para ajudar pessoas
             idosas a acompanhar a rotina com mais autonomia.
           </p>
-        </header>
+        </header> */}
 
-        {!isAuthenticated || !user ? (
-          <AuthForm
-            isSubmitting={isSubmittingAuth}
-            error={authError}
-            successMessage={authSuccessMessage}
-            onSignIn={handleSignIn}
-            onSignUp={signUp}
-            onResetPassword={resetPassword}
-          />
-        ) : (
-          <>
-            <section className="user-bar mt-8 flex items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-white px-5 py-4">
-              <div>
-                <strong className="block text-slate-950">
-                  {profile?.name ? `Olá, ${profile.name}` : "Conta conectada"}
-                </strong>
+          {!isAuthenticated || !user ? (
+            <div className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-2 lg:gap-16">
+              <header className="lg:pr-8">
+                <p className="app-eyebrow mb-2 text-sm font-bold uppercase tracking-[0.08em] text-violet-700">
+                  HelpSenior
+                </p>
 
-                <p className="mt-1 text-slate-500">{user.email}</p>
-              </div>
+                <h1 className="m-0 max-w-150 text-[44px] font-bold leading-[1.1] text-violet-950">
+                  Organize atividades com mais clareza e segurança.
+                </h1>
 
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={signOut}
-              >
-                Sair
-              </Button>
-            </section>
+                <p className="app-description mt-4 max-w-150 text-xl leading-[1.6] text-slate-600">
+                  Crie tarefas simples e lembretes recorrentes para ajudar
+                  pessoas idosas a acompanhar a rotina com mais autonomia.
+                </p>
+              </header>
 
-            <AppNavigation />
-
+              <AuthForm
+                isSubmitting={isSubmittingAuth}
+                error={authError}
+                successMessage={authSuccessMessage}
+                onSignIn={handleSignIn}
+                onSignUp={signUp}
+                onResetPassword={resetPassword}
+              />
+            </div>
+          ) : (
             <AppRoutes
-              homePageProps={{ user }}
+              taskPageProps={{ user }}
               remindersPageProps={{
+                user,
                 reminders,
                 dueReminders,
                 isLoadingReminders,
                 isCreatingReminder,
-                isUpdatingReminder,
-                isDeletingReminder,
                 remindersError,
                 createReminder,
                 updateReminder,
@@ -206,10 +211,12 @@ function App() {
                 updatePreferences,
               }}
             />
-          </>
-        )}
-      </section>
-    </main>
+          )}
+        </section>
+
+        <AppFooter />
+      </main>
+    </>
   );
 }
 

@@ -4,6 +4,7 @@ import type { Task, TaskStatus } from "@helpsenior/core";
 
 interface FirestoreTask {
   userId: string;
+  activityId?: string;
   title: string;
   description?: string;
   status: TaskStatus;
@@ -24,6 +25,10 @@ export class TaskFirestoreMapper {
       createdAt: Timestamp.fromDate(task.createdAt),
       updatedAt: Timestamp.fromDate(task.updatedAt),
     };
+
+    if (task.activityId) {
+      firestoreTask.activityId = task.activityId;
+    }
 
     if (task.description) {
       firestoreTask.description = task.description;
@@ -50,6 +55,10 @@ export class TaskFirestoreMapper {
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
     };
+
+    if (data.activityId) {
+      task.activityId = data.activityId;
+    }
 
     if (data.description) {
       task.description = data.description;

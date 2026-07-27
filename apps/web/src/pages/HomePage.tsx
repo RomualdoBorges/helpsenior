@@ -1,149 +1,98 @@
-import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
-import { CreateTaskForm } from "../features/tasks/components/CreateTaskForm";
-import { TaskList } from "../features/tasks/components/TaskList";
-import { useTasks } from "../features/tasks/hooks/useTasks";
-import {
-  filterTasks,
-  getTaskFilterOptions,
-  getTaskSummary,
-  type TaskFilter,
-} from "../features/tasks/utils/taskFilters";
-import { Alert, Button, Card } from "../shared/ui";
-
-interface HomePageUser {
-  id: string;
+interface HomeShortcutProps {
+  description: string;
+  label: string;
+  title: string;
+  to: string;
 }
 
-interface HomePageProps {
-  user: HomePageUser;
-}
-
-export function HomePage({ user }: HomePageProps) {
-  const {
-    tasks,
-    isLoading,
-    isCreating,
-    isUpdating,
-    isDeleting,
-    error,
-    createTask,
-    updateTask,
-    completeTask,
-    deleteTask,
-  } = useTasks(user.id);
-
-  const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("all");
-
-  const taskSummary = useMemo(() => getTaskSummary(tasks), [tasks]);
-
-  const taskFilterOptions = useMemo(
-    () => getTaskFilterOptions(taskSummary),
-    [taskSummary],
-  );
-
-  const filteredTasks = useMemo(
-    () => filterTasks(tasks, selectedFilter),
-    [selectedFilter, tasks],
-  );
-
-  const selectedFilterOption = taskFilterOptions.find(
-    (option) => option.value === selectedFilter,
-  );
-
+function HomeShortcut({ description, label, title, to }: HomeShortcutProps) {
   return (
-    <Card as="section" className="mt-8" aria-labelledby="tasks-title">
+    <Link
+      to={to}
+      className="app-card group flex min-h-52 flex-col rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 no-underline transition-shadow hover:shadow-md focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-700">
       <div>
-        <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
-          Minhas tarefas
+        <h2 className="home-shortcut-title m-0 text-lg font-bold text-violet-700">
+          {title}
         </h2>
-
-        <p className="simple-mode-secondary mt-2 text-base leading-6 text-slate-500">
-          Crie tarefas simples para acompanhar atividades importantes do dia a
-          dia.
+        <p className="simple-mode-secondary mt-2 text-sm leading-6 text-slate-600">
+          {description}
         </p>
       </div>
 
-      <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="m-0 text-sm font-bold text-slate-600">Pendentes</p>
+      <span className="home-shortcut-link mt-auto flex items-center justify-between pt-5 text-sm font-bold text-violet-700">
+        {label}
+        <span
+          aria-hidden="true"
+          className="home-shortcut-arrow flex size-9 items-center justify-center rounded-full bg-violet-50 transition-transform group-hover:translate-x-1">
+          →
+        </span>
+      </span>
+    </Link>
+  );
+}
 
-          <strong className="mt-2 block text-3xl text-slate-950">
-            {taskSummary.pending}
-          </strong>
-        </article>
+export function HomePage() {
+  return (
+    <div className="pb-4">
+      <section className="pt-8" aria-labelledby="home-title">
+        <p className="app-eyebrow home-eyebrow m-0 text-sm font-extrabold uppercase tracking-[0.08em] text-violet-700">
+          HelpSenior
+        </p>
 
-        <article className="rounded-2xl border border-green-200 bg-green-50 p-4">
-          <p className="m-0 text-sm font-bold text-green-700">Concluídas</p>
+        <h1
+          id="home-title"
+          className="mt-3 max-w-170 text-[40px] font-bold leading-[1.12] text-slate-950">
+          Organize atividades com mais clareza e segurança.
+        </h1>
 
-          <strong className="mt-2 block text-3xl text-green-950">
-            {taskSummary.completed}
-          </strong>
-        </article>
+        <p className="app-description mt-3 max-w-150 text-lg leading-8 text-slate-600">
+          Crie e consulte guias claros para realizar atividades importantes do
+          dia a dia com mais autonomia e tranquilidade.
+        </p>
+      </section>
 
-        <article className="rounded-2xl border border-purple-200 bg-purple-50 p-4">
-          <p className="m-0 text-sm font-bold text-purple-700">Com data</p>
+      <section className="mt-10" aria-labelledby="home-shortcuts-title">
+        <h2
+          id="home-shortcuts-title"
+          className="m-0 text-2xl font-bold text-slate-950">
+          O que você deseja acessar?
+        </h2>
 
-          <strong className="mt-2 block text-3xl text-purple-950">
-            {taskSummary.withDate}
-          </strong>
-        </article>
-      </div>
-
-      <CreateTaskForm isCreating={isCreating} onCreateTask={createTask} />
-
-      {error && (
-        <Alert tone="error" className="mt-4">
-          {error}
-        </Alert>
-      )}
-
-      <div className="accessibility-panel mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h3 className="m-0 text-xl font-bold text-slate-950">
-              Lista de tarefas
-            </h3>
-
-            <p className="mt-1 text-sm font-bold text-slate-500">
-              {filteredTasks.length} de {tasks.length} tarefa
-              {tasks.length === 1 ? "" : "s"}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {taskFilterOptions.map((filter) => {
-              const isSelected = selectedFilter === filter.value;
-
-              return (
-                <Button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setSelectedFilter(filter.value)}
-                  size="sm"
-                  variant={isSelected ? "primary" : "secondary"}
-                  className="rounded-full"
-                >
-                  {filter.label} ({filter.count})
-                </Button>
-              );
-            })}
-          </div>
+        <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <HomeShortcut
+            to="/atividades"
+            title="Ir para atividades"
+            description="Acesse guias simples para acompanhar atividades importantes do dia a dia."
+            label="Acessar atividades"
+          />
+          <HomeShortcut
+            to="/tarefas"
+            title="Ir para tarefas"
+            description="Organize o que precisa ser feito e acompanhe o que já foi concluído."
+            label="Acessar tarefas"
+          />
+          <HomeShortcut
+            to="/lembretes"
+            title="Ir para lembretes"
+            description="Defina quando receber avisos e acompanhe lembretes recorrentes."
+            label="Acessar lembretes"
+          />
         </div>
+      </section>
 
-        <TaskList
-          tasks={filteredTasks}
-          isLoading={isLoading}
-          isUpdating={isUpdating}
-          isDeleting={isDeleting}
-          emptyMessage={
-            selectedFilterOption?.emptyMessage ?? "Nenhuma tarefa encontrada."
-          }
-          onUpdateTask={updateTask}
-          onCompleteTask={completeTask}
-          onDeleteTask={deleteTask}
-        />
-      </div>
-    </Card>
+      <aside className="app-card mt-6 flex items-start gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 text-sm leading-6 text-slate-700">
+        <span
+          aria-hidden="true"
+          className="home-tip-icon mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-700 font-bold text-white">
+          i
+        </span>
+        <p className="m-0">
+          <strong>Dica:</strong> use as atividades para registrar orientações
+          simples e facilitar cada momento da sua rotina.
+        </p>
+      </aside>
+    </div>
   );
 }

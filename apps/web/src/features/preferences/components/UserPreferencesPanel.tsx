@@ -84,6 +84,7 @@ export function UserPreferencesPanel({
       <div className="mt-6 grid gap-4">
         <FormField label="Tamanho da fonte">
           <Select
+            disabled={isUpdating}
             value={preferences.fontSize}
             onChange={(event) =>
               void onUpdatePreferences({
@@ -99,6 +100,7 @@ export function UserPreferencesPanel({
 
         <FormField label="Contraste">
           <Select
+            disabled={isUpdating}
             value={preferences.contrast}
             onChange={(event) =>
               void onUpdatePreferences({
@@ -112,6 +114,7 @@ export function UserPreferencesPanel({
 
         <ToggleField
           checked={preferences.simpleMode}
+          disabled={isUpdating}
           label="Modo simples"
           description="Reduz informações e prioriza ações principais."
           onChange={(event) =>
@@ -123,6 +126,7 @@ export function UserPreferencesPanel({
 
         <ToggleField
           checked={preferences.increasedSpacing}
+          disabled={isUpdating}
           label="Espaçamento maior"
           description="Aumenta os espaços entre elementos para facilitar a leitura."
           onChange={(event) =>

@@ -14,17 +14,19 @@ import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 import { sortTasks } from "../utils/sortTasks";
 
-interface CreateTaskInput {
+export interface CreateTaskInput {
   title: string;
   description?: string;
   date?: string;
+  activityId?: string;
 }
 
-interface UpdateTaskInput {
+export interface UpdateTaskInput {
   taskId: string;
   title: string;
   description?: string;
   date?: string;
+  activityId?: string;
 }
 
 export function useTasks(userId: string | null) {
@@ -104,6 +106,7 @@ export function useTasks(userId: string | null) {
           title: input.title,
           description: input.description,
           date: input.date,
+          activityId: input.activityId,
         });
 
         await loadTasks();
@@ -132,6 +135,7 @@ export function useTasks(userId: string | null) {
           title: input.title,
           description: input.description,
           date: input.date,
+          activityId: input.activityId,
         });
 
         await loadTasks();

@@ -15,16 +15,17 @@ import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 import { sortReminders } from "../utils/sortReminders";
 
-interface CreateReminderInput {
+export interface CreateReminderInput {
   title: string;
   description?: string;
   date: string;
   time?: string;
   recurrence?: ReminderRecurrence;
   recurrenceEndDate?: string;
+  taskId?: string;
 }
 
-interface UpdateReminderInput {
+export interface UpdateReminderInput {
   reminderId: string;
   title: string;
   description?: string;
@@ -32,6 +33,7 @@ interface UpdateReminderInput {
   time?: string;
   recurrence?: ReminderRecurrence;
   recurrenceEndDate?: string;
+  taskId?: string;
 }
 
 export function useReminders(userId: string | null) {
@@ -117,6 +119,7 @@ export function useReminders(userId: string | null) {
           time: input.time,
           recurrence: input.recurrence,
           recurrenceEndDate: input.recurrenceEndDate,
+          taskId: input.taskId
         });
 
         await loadReminders();
@@ -148,6 +151,7 @@ export function useReminders(userId: string | null) {
           time: input.time,
           recurrence: input.recurrence,
           recurrenceEndDate: input.recurrenceEndDate,
+          taskId: input.taskId
         });
 
         await loadReminders();

@@ -1,7 +1,9 @@
 export { Alert } from "./Alert";
 export { Badge } from "./Badge";
+export { BigNumberCard } from "./BigNumberCard";
 export { Button } from "./Button";
 export { Card } from "./Card";
+export { FilterTabs } from "./FilterTabs";
 export { FormField } from "./FormField";
 export { Input } from "./Input";
 export { Select } from "./Select";

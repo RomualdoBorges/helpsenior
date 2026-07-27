@@ -1,3 +1,4 @@
+export * from "./activity";
 export * from "./tasks";
 export * from "./preferences";
 export * from "./profile";

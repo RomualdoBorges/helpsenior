@@ -1,31 +1,36 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import type { Activity, Task } from "@helpsenior/core";
 
 import { Alert, Button, FormField, Input, Textarea } from "../../../shared/ui";
-
-interface CreateTaskInput {
-  title: string;
-  description?: string;
-  date?: string;
-}
+import { ActivitySelect } from "../../activities/components/ActivitySelect";
+import type { CreateTaskInput, UpdateTaskInput } from "../hooks/useTasks";
 
 interface CreateTaskFormProps {
   isCreating: boolean;
+  task?: Task | null;
+  activities: Activity[];
   onCreateTask: (input: CreateTaskInput) => Promise<void>;
+  onUpdateTask: (input: UpdateTaskInput) => Promise<void>;
 }
 
 export function CreateTaskForm({
   isCreating,
+  task,
+  activities,
   onCreateTask,
+  onUpdateTask,
 }: CreateTaskFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [activityId, setActivityId] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
   function resetForm() {
     setTitle("");
     setDescription("");
     setDate("");
+    setActivityId("");
     setLocalError(null);
   }
 
@@ -39,20 +44,50 @@ export function CreateTaskForm({
       return;
     }
 
-    await onCreateTask({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      date: date || undefined,
-    });
+    if(task) {
+      await onUpdateTask({
+        taskId: task.id,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        date: date || undefined,
+        activityId: activityId || undefined,
+      })
+
+    } else {
+      await onCreateTask({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        date: date || undefined,
+        activityId: activityId || undefined,
+      });
+    }
 
     resetForm();
   }
+    
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setLocalError(null);
+      
+      if (task.description)
+        setDescription(task.description);
+
+      if (task.date)
+        setDate(task.date);
+
+      if (task.activityId)
+        setActivityId(task.activityId);
+    }
+  }, [task]);
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="create-form mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <h3 className="m-0 text-xl font-bold text-slate-950">Criar tarefa</h3>
+      className="create-form mt-2">
+      <h3 className="task-form-title m-0 text-xl font-bold text-violet-700">
+        {task ? "Atualizar tarefa" : "Criar tarefa"}
+      </h3>
 
       <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
         Use tarefas para registrar o que precisa ser feito. Para avisos,
@@ -78,11 +113,19 @@ export function CreateTaskForm({
           />
         </FormField>
 
-        <FormField label="Data">
+        <FormField label="Data (opcional)">
           <Input
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
+          />
+        </FormField>
+
+        <FormField label="Atividade (opcional)">
+          <ActivitySelect
+            value={activityId}
+            activities={activities}
+            onSelected={setActivityId}
           />
         </FormField>
 
@@ -93,8 +136,8 @@ export function CreateTaskForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="mt-4">
-        {isCreating ? "Criando tarefa..." : "Criar tarefa"}
+        className="tasks-primary-action mb-4 mt-4 w-full">
+        {task ? "Atualizar tarefa" : "Criar tarefa"}
       </Button>
     </form>
   );
