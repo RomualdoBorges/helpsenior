@@ -44,7 +44,7 @@ export class UpdateTaskUseCase {
     if (input.activityId) {
       updatedTask.activityId = input.activityId;
     } else {
-      delete updatedTask.description;
+      delete updatedTask.activityId;
     }
 
     if (input.description?.trim()) {
