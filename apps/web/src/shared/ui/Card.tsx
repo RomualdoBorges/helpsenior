@@ -9,9 +9,9 @@ interface CardProps extends HTMLAttributes<HTMLElement> {
 }
 
 const variantClassNames = {
-  default: "app-card rounded-[20px] bg-white p-6",
-  muted: "rounded-2xl border border-slate-200 bg-slate-50 p-4",
-  item: "rounded-2xl border border-slate-300 bg-white p-5",
+  default: "app-card rounded-[20px] bg-white",
+  muted: "rounded-2xl border border-slate-200 bg-slate-50",
+  item: "rounded-2xl border border-slate-300 bg-white",
 };
 
 export function Card({

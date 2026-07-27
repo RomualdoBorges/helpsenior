@@ -13,17 +13,19 @@ function HomeShortcut({ description, label, title, to }: HomeShortcutProps) {
       to={to}
       className="app-card group flex min-h-52 flex-col rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 no-underline transition-shadow hover:shadow-md focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-violet-700">
       <div>
-        <h2 className="m-0 text-lg font-bold text-violet-700">{title}</h2>
+        <h2 className="home-shortcut-title m-0 text-lg font-bold text-violet-700">
+          {title}
+        </h2>
         <p className="simple-mode-secondary mt-2 text-sm leading-6 text-slate-600">
           {description}
         </p>
       </div>
 
-      <span className="mt-auto flex items-center justify-between pt-5 text-sm font-bold text-violet-700">
+      <span className="home-shortcut-link mt-auto flex items-center justify-between pt-5 text-sm font-bold text-violet-700">
         {label}
         <span
           aria-hidden="true"
-          className="flex size-9 items-center justify-center rounded-full bg-violet-50 transition-transform group-hover:translate-x-1">
+          className="home-shortcut-arrow flex size-9 items-center justify-center rounded-full bg-violet-50 transition-transform group-hover:translate-x-1">
           →
         </span>
       </span>
@@ -35,7 +37,7 @@ export function HomePage() {
   return (
     <div className="pb-4">
       <section className="pt-8" aria-labelledby="home-title">
-        <p className="app-eyebrow m-0 text-sm font-extrabold uppercase tracking-[0.08em] text-violet-700">
+        <p className="app-eyebrow home-eyebrow m-0 text-sm font-extrabold uppercase tracking-[0.08em] text-violet-700">
           HelpSenior
         </p>
 
@@ -83,7 +85,7 @@ export function HomePage() {
       <aside className="app-card mt-6 flex items-start gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 text-sm leading-6 text-slate-700">
         <span
           aria-hidden="true"
-          className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-700 font-bold text-white">
+          className="home-tip-icon mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-700 font-bold text-white">
           i
         </span>
         <p className="m-0">

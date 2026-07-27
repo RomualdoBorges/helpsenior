@@ -32,7 +32,9 @@ export function ActivityDetail({
   return (
     <>
     <div>
-      <h2 id="activities-title" className="m-0 text-[28px] font-bold">
+      <h2
+        id="activities-title"
+        className="activities-page-title m-0 text-[28px] font-bold text-violet-700">
         {activity.title}
       </h2>
 

@@ -1,6 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Alert, Badge, Button, FormField, Input, Textarea } from "../../../shared/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  FormField,
+  Input,
+  Textarea,
+} from "../../../shared/ui";
 import type { Activity } from "@helpsenior/core";
 
 interface Step {
@@ -19,7 +26,7 @@ interface CreateActivityInput {
   resources?: NecessaryResources[];
 }
 
-interface UpdateActivityInput extends  CreateActivityInput {
+interface UpdateActivityInput extends CreateActivityInput {
   activityId: string;
 }
 
@@ -36,7 +43,7 @@ export function CreateActivityForm({
   isCreating,
   onCreateActivity,
   activity,
-  onUpdateActivity
+  onUpdateActivity,
 }: CreateActivityFormProps) {
   const [title, setTitle] = useState("");
   const [steps, setSteps] = useState<Step[]>([{ order: 1, description: "" }]);
@@ -73,20 +80,20 @@ export function CreateActivityForm({
   }
 
   function handleRemoveStep(stepOrder: number) {
-    steps.splice(stepOrder-1, 1);
+    steps.splice(stepOrder - 1, 1);
     const filteredSteps: Step[] = steps.map((step) => {
       if (step.order > stepOrder) {
-        step.order = step.order-1
+        step.order = step.order - 1;
       }
 
-      return step
-    })
+      return step;
+    });
 
     setSteps(filteredSteps);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    const filteredSteps = steps.filter((step) => step.description)
+    const filteredSteps = steps.filter((step) => step.description);
 
     event.preventDefault();
 
@@ -110,7 +117,6 @@ export function CreateActivityForm({
         description: description.trim() || undefined,
         resources: resources,
       });
-
     } else {
       await onCreateActivity({
         title: title.trim(),
@@ -122,38 +128,38 @@ export function CreateActivityForm({
 
     resetForm();
   }
-  
+
   useEffect(() => {
     if (activity) {
       setTitle(activity.title);
       setSteps(activity.steps);
       setLocalError(null);
-      
-      if (activity.description)
-        setDescription(activity.description);
 
-      if (activity.resources)
-        setResources([]);
+      if (activity.description) setDescription(activity.description);
+
+      if (activity.resources) setResources([]);
     }
   }, [activity]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="create-form mt-2">
-
-      { !activity ? (
+    <form onSubmit={handleSubmit} className="create-form mt-2">
+      {!activity ? (
         <>
-          <h3 className="m-0 text-xl font-bold text-slate-950">Criar Guia</h3>
+          <h3 className="activity-form-title m-0 text-xl font-bold text-violet-700">
+            Criar Guia
+          </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-            Use Atividades para registrar etapas guiadas para suas difculdades do dia a dia. Como usar aquele aplicativo? 
-            Como era mesmo aquela receita? Faça seu manual pessoal para cosultar quando quiser.
+            Use Atividades para registrar etapas guiadas para suas difculdades
+            do dia a dia. Como usar aquele aplicativo? Como era mesmo aquela
+            receita? Faça seu manual pessoal para cosultar quando quiser.
           </p>
         </>
       ) : (
         <>
-          <h3 className="m-0 text-xl font-bold text-slate-950">Atualizar Guia</h3>
+          <h3 className="activity-form-title m-0 text-xl font-bold text-violet-700">
+            Atualizar atividade
+          </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
             Atualize os campos que achar necessáriro e avance
@@ -181,8 +187,7 @@ export function CreateActivityForm({
         </FormField>
 
         <div>
-          { steps.map((step) => {
-
+          {steps.map((step) => {
             return (
               <div key={step.order}>
                 <FormField label={`Passo ${step.order}`}>
@@ -192,28 +197,28 @@ export function CreateActivityForm({
                     onChange={(event) => handleStep(step, event.target.value)}
                   />
                 </FormField>
-                { steps.length > 1 && (
-                  <div className="mt-2 text-center cursor-pointer" onClick={() => handleRemoveStep(step.order)}>
+                {steps.length > 1 && (
+                  <div
+                    className="mt-2 text-center cursor-pointer"
+                    onClick={() => handleRemoveStep(step.order)}>
                     <Badge tone="red" className="mt-2">
                       remover
                     </Badge>
                   </div>
                 )}
               </div>
-            )
+            );
           })}
         </div>
 
         <Button
           type="button"
           onClick={() => handleAddStep(steps)}
-          disabled={!steps[steps.length-1].description}
+          disabled={!steps[steps.length - 1].description}
           variant="secondary"
-          className="mt-2"
-        >
+          className="mt-2">
           Adicionar mais uma etapa
         </Button>
-
 
         {localError && <Alert tone="error">{localError}</Alert>}
       </div>
@@ -222,7 +227,7 @@ export function CreateActivityForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="mt-4">
+        className="activities-primary-action mt-4 mb-4 w-full">
         {activity ? "Atualizar atividade" : "Criar atividade"}
       </Button>
     </form>

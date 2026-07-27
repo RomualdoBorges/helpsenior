@@ -88,6 +88,7 @@ export function DueReminderAlert({
 
         <Button
           type="button"
+          className="reminders-primary-action"
           onClick={() => void onCompleteReminder(firstReminder.id)}
           variant="warning">
           Concluir

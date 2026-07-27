@@ -56,7 +56,7 @@ export function ReminderList({
 
   if (reminders.length === 0) {
     return (
-      <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-base font-bold text-slate-500">
+      <p className="reminder-empty-state mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-base font-bold text-slate-500">
         {emptyMessage}
       </p>
     );
@@ -70,10 +70,10 @@ export function ReminderList({
           <article
             key={reminder.id}
             className={classNames(
-              "reminder-item rounded-2xl border p-5",
+              "reminder-item rounded-2xl border p-5 transition-colors",
               reminder.completed
                 ? "reminder-item-completed border-slate-200 bg-slate-100 opacity-70"
-                : "border-slate-300 bg-white",
+                : "border-slate-300 bg-white hover:border-violet-500",
             )}
           >
             <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
@@ -85,7 +85,7 @@ export function ReminderList({
                 }}
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="m-0 text-xl font-bold text-slate-950">
+                  <h3 className="reminder-item-title m-0 text-xl font-bold text-violet-700">
                     {reminder.title}
                   </h3>
 
@@ -107,7 +107,7 @@ export function ReminderList({
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1.5 text-sm font-bold text-violet-700">
+                  <span className="reminder-date flex items-center gap-1.5 text-sm font-bold text-violet-700">
                     <svg
                       aria-hidden="true"
                       viewBox="0 0 24 24"
@@ -140,6 +140,7 @@ export function ReminderList({
                 { !reminder.completed && (
                   <Button
                     type="button"
+                    className="reminders-primary-action"
                     onClick={() => void onCompleteReminder(reminder.id)}
                   >
                     Concluir

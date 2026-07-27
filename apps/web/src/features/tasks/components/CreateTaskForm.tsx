@@ -85,7 +85,9 @@ export function CreateTaskForm({
     <form
       onSubmit={handleSubmit}
       className="create-form mt-4">
-      <h3 className="m-0 text-xl font-bold text-slate-950">Criar tarefa</h3>
+      <h3 className="task-form-title m-0 text-xl font-bold text-violet-700">
+        {task ? "Atualizar tarefa" : "Criar tarefa"}
+      </h3>
 
       <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
         Use tarefas para registrar o que precisa ser feito. Para avisos,
@@ -134,7 +136,7 @@ export function CreateTaskForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="mt-4">
+        className="tasks-primary-action mt-4">
         {task ? "Atualizar tarefa" : "Criar tarefa"}
       </Button>
     </form>

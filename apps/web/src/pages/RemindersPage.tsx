@@ -177,10 +177,15 @@ export function RemindersPage({
   return (
     <>
       {!selectedReminder && reminderStatus === "" ? (
-        <Card as="section" className="mt-8" aria-labelledby="reminders-title">
+        <Card
+          as="section"
+          className="reminders-page mt-8"
+          aria-labelledby="reminders-title">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 id="reminders-title" className="m-0 text-[28px] font-bold">
+              <h2
+                id="reminders-title"
+                className="reminders-page-title m-0 text-[28px] font-bold text-violet-700">
                 Meus lembretes
               </h2>
 
@@ -205,7 +210,7 @@ export function RemindersPage({
               <Button
                 size="sm"
                 variant="primary"
-                className="flex items-center justify-center gap-2"
+                className="reminders-primary-action flex items-center justify-center gap-2"
                 onClick={() => setReminderStatus("creating")}>
                 <span aria-hidden="true" className="text-xl leading-none">
                   +
@@ -234,7 +239,7 @@ export function RemindersPage({
             </Alert>
           )}
 
-          <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-4  ">
+          <div className="reminders-summary accessibility-summary mt-6 grid gap-4 md:grid-cols-4">
             <BigNumberCard
               label="Vencidos"
               value={reminderSummary.due}
@@ -331,7 +336,7 @@ export function RemindersPage({
                 </p>
               </div>
 
-              <div className="w-full md:w-auto">
+              <div className="reminders-filters w-full md:w-auto">
                 <FilterTabs
                   ariaLabel="Filtrar lembretes"
                   options={reminderFilters.map((filter) => ({
@@ -355,7 +360,7 @@ export function RemindersPage({
           </div>
         </Card>
       ) : (
-        <div>
+        <div className="reminders-page">
           <Card as="section" className="mt-4" aria-labelledby="create-task">
             <div className="flex md:justify-between">
               <Button

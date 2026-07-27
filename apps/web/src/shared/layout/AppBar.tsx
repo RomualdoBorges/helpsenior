@@ -17,7 +17,9 @@ type IconName =
   | "activity"
   | "bell"
   | "chevron"
+  | "close"
   | "logout"
+  | "menu"
   | "profile"
   | "settings"
   | "task"
@@ -97,9 +99,12 @@ function AppBarIcon({
 
   if (name === "settings") {
     return (
-      <svg {...commonProps}>
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19 13.5v-3l-2-.7-.7-1.7.9-1.9-2.1-2.1-1.9.9-1.7-.7-.7-2h-3l-.7 2-1.7.7-1.9-.9-2.1 2.1.9 1.9-.7 1.7-2 .7v3l2 .7.7 1.7-.9 1.9 2.1 2.1 1.9-.9 1.7.7.7 2h3l.7-2 1.7-.7 1.9.9 2.1-2.1-.9-1.9.7-1.7 2-.7Z" />
+      <svg
+        {...commonProps}
+        fill="currentColor"
+        stroke="none"
+        viewBox="0 -960 960 960">
+        <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
       </svg>
     );
   }
@@ -108,6 +113,22 @@ function AppBarIcon({
     return (
       <svg {...commonProps}>
         <path d="M10 17 15 12 10 7M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      </svg>
+    );
+  }
+
+  if (name === "menu") {
+    return (
+      <svg {...commonProps}>
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    );
+  }
+
+  if (name === "close") {
+    return (
+      <svg {...commonProps}>
+        <path d="m5 5 14 14M19 5 5 19" />
       </svg>
     );
   }
@@ -135,8 +156,11 @@ export function AppBar({
   userName,
   onSignOut,
 }: AppBarProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLElement>(null);
   const alertsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const dueReminderCount = dueReminders.length;
@@ -146,6 +170,14 @@ export function AppBar({
 
   useEffect(() => {
     function closeMenuOnOutsideClick(event: MouseEvent) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !mobileMenuButtonRef.current?.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+
       if (
         alertsRef.current &&
         !alertsRef.current.contains(event.target as Node)
@@ -163,6 +195,7 @@ export function AppBar({
 
     function closeMenuOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
         setIsAlertsOpen(false);
         setIsUserMenuOpen(false);
       }
@@ -179,17 +212,39 @@ export function AppBar({
 
   return (
     <header className="app-bar fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200 bg-white ">
-      <div className="flex h-16 items-stretch justify-between gap-4">
-        <Link
-          to="/"
-          aria-label="HelpSenior — página inicial"
-          className="flex shrink-0 items-center rounded-lg font-bold text-slate-950 no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
-          <span className="px-5 text-2xl">HelpSenior</span>
-        </Link>
+      <div className="flex h-16 items-stretch md:grid md:grid-cols-[1fr_auto_1fr]">
+        <div className="flex shrink-0 items-stretch justify-self-start">
+          <button
+            ref={mobileMenuButtonRef}
+            type="button"
+            aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-controls="mobile-navigation"
+            aria-expanded={isMobileMenuOpen}
+            className="flex w-12 items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-violet-700 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700 md:hidden"
+            onClick={() => {
+              setIsMobileMenuOpen((currentValue) => !currentValue);
+              setIsAlertsOpen(false);
+              setIsUserMenuOpen(false);
+            }}>
+            <AppBarIcon
+              name={isMobileMenuOpen ? "close" : "menu"}
+              className="size-7"
+            />
+          </button>
+
+          <Link
+            to="/"
+            aria-label="HelpSenior — página inicial"
+            className="app-bar-logo flex shrink-0 items-center rounded-lg font-bold text-slate-950 no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+            <span className="pr-2 text-xl sm:pr-5 sm:text-2xl md:px-5">
+              HelpSenior
+            </span>
+          </Link>
+        </div>
 
         <nav
           aria-label="Navegação principal"
-          className="flex min-w-0 items-stretch overflow-x-auto">
+          className="hidden min-w-0 items-stretch overflow-x-auto md:flex">
           {links.map((link) => (
             <NavLink
               key={link.to}
@@ -209,7 +264,7 @@ export function AppBar({
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-stretch">
+        <div className="ml-auto flex shrink-0 items-stretch justify-self-end md:ml-0">
           <div ref={alertsRef} className="relative h-full">
             <button
               type="button"
@@ -224,6 +279,7 @@ export function AppBar({
               onClick={() => {
                 setIsAlertsOpen((currentValue) => !currentValue);
                 setIsUserMenuOpen(false);
+                setIsMobileMenuOpen(false);
               }}>
               <span className="relative flex items-center justify-center">
                 <AppBarIcon name="bell" className="size-6" />
@@ -239,7 +295,7 @@ export function AppBar({
               <div
                 role="dialog"
                 aria-label="Alertas de lembretes"
-                className="notification-popover absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                className="app-bar-panel notification-popover fixed inset-x-0 top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white shadow-xl md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80 md:rounded-2xl md:border">
                 <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
                   <strong className="text-base text-slate-950">Alertas</strong>
                   <span className="text-sm font-bold text-slate-500">
@@ -287,8 +343,9 @@ export function AppBar({
               onClick={() => {
                 setIsUserMenuOpen((currentValue) => !currentValue);
                 setIsAlertsOpen(false);
+                setIsMobileMenuOpen(false);
               }}>
-              <span className="flex size-9 items-center justify-center rounded-full bg-slate-950 text-xs font-bold text-white">
+              <span className="app-bar-avatar flex size-9 items-center justify-center rounded-full bg-violet-700 text-xs font-bold text-white">
                 {initial}
               </span>
               <span className="hidden max-w-28 truncate text-base font-bold lg:block">
@@ -307,7 +364,7 @@ export function AppBar({
             {isUserMenuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                className="app-bar-panel fixed inset-x-0 top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white p-2 shadow-xl md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-64 md:rounded-2xl md:border">
                 <div className="border-b border-slate-200 px-3 py-3">
                   <strong className="block truncate text-sm text-slate-950">
                     {displayName}
@@ -346,6 +403,33 @@ export function AppBar({
           </div>
         </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <nav
+          ref={mobileMenuRef}
+          id="mobile-navigation"
+          aria-label="Navegação principal"
+          className="app-bar-panel absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white p-2 shadow-xl md:hidden">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                classNames(
+                  "flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold no-underline focus-visible:outline-3 focus-visible:outline-violet-700",
+                  isActive
+                    ? "bg-violet-50 text-violet-700"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-violet-700",
+                )
+              }>
+              <AppBarIcon name={link.icon} className="size-6" />
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }

@@ -26,7 +26,9 @@ export function TaskDetail({
   return (
     <>
     <div>
-      <h2 id="activities-title" className="m-0 text-[28px] font-bold">
+      <h2
+        id="activities-title"
+        className="tasks-page-title m-0 text-[28px] font-bold text-violet-700">
         {task.title}
       </h2>
 

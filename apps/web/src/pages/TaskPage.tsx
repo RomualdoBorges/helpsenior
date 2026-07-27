@@ -107,10 +107,15 @@ export function TaskPage({ user }: TaskPageProps) {
   return (
     <>
       {!selectedTask && taskStatus === "" ? (
-        <Card as="section" className="mt-8" aria-labelledby="tasks-title">
+        <Card
+          as="section"
+          className="tasks-page mt-8"
+          aria-labelledby="tasks-title">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 id="tasks-title" className="m-0 text-[28px] font-bold">
+              <h2
+                id="tasks-title"
+                className="tasks-page-title m-0 text-[28px] font-bold text-violet-700">
                 Minhas tarefas
               </h2>
 
@@ -123,7 +128,7 @@ export function TaskPage({ user }: TaskPageProps) {
             <Button
               size="sm"
               variant="primary"
-              className="flex shrink-0 items-center justify-center gap-2"
+              className="tasks-primary-action flex shrink-0 items-center justify-center gap-2"
               onClick={() => setTaskStatus("creating")}>
               <span aria-hidden="true" className="text-xl leading-none">
                 +
@@ -132,7 +137,7 @@ export function TaskPage({ user }: TaskPageProps) {
             </Button>
           </div>
 
-          <div className="accessibility-summary mt-6 grid gap-4 md:grid-cols-3">
+          <div className="tasks-summary accessibility-summary mt-6 grid gap-4 md:grid-cols-3">
             <BigNumberCard
               label="Pendentes"
               value={taskSummary.pending}
@@ -208,7 +213,7 @@ export function TaskPage({ user }: TaskPageProps) {
                 </p>
               </div>
 
-              <div className="w-full md:w-auto">
+              <div className="tasks-filters w-full md:w-auto">
                 <FilterTabs
                   ariaLabel="Filtrar tarefas"
                   options={taskFilterOptions}
@@ -233,7 +238,7 @@ export function TaskPage({ user }: TaskPageProps) {
           </div>
         </Card>
       ) : (
-        <div>
+        <div className="tasks-page">
           <Card as="section" className="mt-4" aria-labelledby="create-task">
             <div className="flex md:justify-between">
               {!taskId ? (

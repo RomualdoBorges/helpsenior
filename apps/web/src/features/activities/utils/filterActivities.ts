@@ -32,11 +32,13 @@ function findBySteps(activity: Activity, term: string[]): Activity | null {
 }
 
 export function filterActivities(activities: Activity[], filter: string): Activity[] {
-  if (filter === "all") {
+  const normalizedFilter = filter.trim().toLocaleLowerCase();
+
+  if (!normalizedFilter || normalizedFilter === "all") {
     return activities;
   }
 
-  const searchTerms = filter.toLowerCase().split(" ");
+  const searchTerms = normalizedFilter.split(/\s+/);
 
   const titleMatches = activities.filter((activity) => findByTitle(activity, searchTerms));
   const descriptionMatches = activities.filter((activity) => findByDescription(activity, searchTerms));
@@ -44,5 +46,5 @@ export function filterActivities(activities: Activity[], filter: string): Activi
 
   const filteredActivities = [...new Set([...titleMatches, ...descriptionMatches, ...stepsMatches])];
 
-  return filteredActivities.length > 0 ? filteredActivities : activities;
+  return filteredActivities;
 }

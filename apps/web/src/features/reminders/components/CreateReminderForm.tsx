@@ -108,7 +108,9 @@ export function CreateReminderForm({
     <form
       onSubmit={handleSubmit}
       className="create-form mt-1">
-      <h3 className="m-0 text-xl font-bold text-slate-950">Criar lembrete</h3>
+      <h3 className="reminder-form-title m-0 text-xl font-bold text-violet-700">
+        {reminder ? "Atualizar lembrete" : "Criar lembrete"}
+      </h3>
 
       <div className="mt-4 grid gap-4">
         <FormField label="Título">
@@ -186,7 +188,7 @@ export function CreateReminderForm({
         type="submit"
         disabled={isCreating}
         size="lg"
-        className="mt-4">
+        className="reminders-primary-action mt-4">
         {reminder ? "Atualizar lembrete" : "Criar lembrete"}
       </Button>
     </form>

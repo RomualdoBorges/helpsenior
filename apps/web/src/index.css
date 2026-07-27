@@ -65,6 +65,39 @@ html.font-size-extra_large {
   font-size: 1.75rem;
 }
 
+.activities-primary-action {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+.activities-primary-action:hover {
+  background: #5b21b6 !important;
+  border-color: #5b21b6 !important;
+}
+
+.tasks-primary-action {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+.tasks-primary-action:hover {
+  background: #5b21b6 !important;
+  border-color: #5b21b6 !important;
+}
+
+.reminders-primary-action {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+.reminders-primary-action:hover {
+  background: #5b21b6 !important;
+  border-color: #5b21b6 !important;
+}
+
 /* Alto contraste */
 
 html.high-contrast,
@@ -86,6 +119,27 @@ html.high-contrast body,
   color: #ffffff !important;
 }
 
+.high-contrast .home-eyebrow {
+  color: #facc15 !important;
+}
+
+.high-contrast .home-shortcut-title,
+.high-contrast .home-shortcut-link,
+.high-contrast .home-shortcut-arrow {
+  color: #facc15 !important;
+}
+
+.high-contrast .home-shortcut-arrow {
+  background: #000000 !important;
+  border: 1px solid #facc15;
+}
+
+.high-contrast .home-tip-icon,
+.high-contrast .activity-tip-icon {
+  background: #facc15 !important;
+  color: #000000 !important;
+}
+
 .high-contrast .app-card,
 .high-contrast .app-bar,
 .high-contrast .user-bar,
@@ -95,6 +149,7 @@ html.high-contrast body,
 .high-contrast .reminder-item,
 .high-contrast .due-reminder-alert,
 .high-contrast .notification-popover,
+.high-contrast .app-bar-panel,
 .high-contrast .accessibility-panel,
 .high-contrast .create-form,
 .high-contrast .app-card article {
@@ -144,11 +199,66 @@ html.high-contrast body,
   color: #ffffff !important;
 }
 
-.high-contrast .app-bar > div > div > a > span:first-child,
-.high-contrast .app-bar [aria-label^="Usuário:"] {
+.high-contrast .app-bar nav a[aria-current="page"] span,
+.high-contrast .app-bar nav a[aria-current="page"] svg {
+  color: #facc15 !important;
+}
+
+.high-contrast .app-bar nav a[aria-current="page"]::after {
+  background: #facc15 !important;
+}
+
+.high-contrast .app-bar nav a[aria-current="page"] {
   background: #000000 !important;
-  border: 1px solid #ffffff !important;
+  color: #facc15 !important;
+}
+
+.high-contrast .app-bar-panel > div {
+  border-color: #ffffff !important;
+}
+
+.high-contrast .app-bar-panel a {
+  background: #111111 !important;
   color: #ffffff !important;
+}
+
+.high-contrast .app-bar-panel a:hover,
+.high-contrast .app-bar-panel button:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .notification-popover li:hover,
+.high-contrast .notification-popover li:hover strong,
+.high-contrast .notification-popover li:hover span {
+  color: #000000 !important;
+}
+
+.high-contrast .app-bar :focus-visible {
+  outline-color: #facc15 !important;
+}
+
+.high-contrast .app-bar-logo {
+  background: transparent !important;
+  border: 0 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-bar-avatar {
+  background: #facc15 !important;
+  border: 1px solid #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .app-footer {
+  background: #111111 !important;
+  border-color: #facc15 !important;
+  border-top-width: 2px;
+  color: #ffffff !important;
+}
+
+.high-contrast .app-footer-brand {
+  color: #facc15 !important;
 }
 
 .high-contrast .accessibility-summary article > span {
@@ -169,6 +279,183 @@ html.high-contrast body,
   background: #052e16 !important;
   border-color: #86efac !important;
   opacity: 1 !important;
+}
+
+.high-contrast .activities-page-title,
+.high-contrast .activity-form-title,
+.high-contrast .activity-item-title {
+  color: #facc15 !important;
+}
+
+.high-contrast button.activities-primary-action,
+.high-contrast button.activities-primary-action:hover {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast button.activities-primary-action span {
+  color: #000000 !important;
+}
+
+.high-contrast .activities-summary article {
+  border-left-color: #facc15 !important;
+}
+
+.high-contrast .activities-summary article > span {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .activities-summary article strong {
+  color: #facc15 !important;
+}
+
+.high-contrast .activity-item:hover {
+  border-color: #facc15 !important;
+}
+
+.high-contrast .activity-steps-title {
+  color: #facc15 !important;
+}
+
+.high-contrast .activity-step-number {
+  background: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .tasks-page-title,
+.high-contrast .task-form-title,
+.high-contrast .task-item-title,
+.high-contrast .task-date {
+  color: #facc15 !important;
+}
+
+.high-contrast button.tasks-primary-action,
+.high-contrast button.tasks-primary-action:hover {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast button.tasks-primary-action span {
+  color: #000000 !important;
+}
+
+.high-contrast .tasks-summary article {
+  border-left-color: #facc15 !important;
+}
+
+.high-contrast .tasks-summary article > span {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .tasks-summary article strong {
+  color: #facc15 !important;
+}
+
+.high-contrast .tasks-summary article:nth-child(2) {
+  border-left-color: #86efac !important;
+}
+
+.high-contrast .tasks-summary article:nth-child(2) > span {
+  background: #86efac !important;
+  border-color: #86efac !important;
+  color: #000000 !important;
+}
+
+.high-contrast .tasks-summary article:nth-child(2) strong {
+  color: #86efac !important;
+}
+
+.high-contrast .task-item:not(.task-item-completed):hover {
+  border-color: #facc15 !important;
+}
+
+.high-contrast .task-item-completed .task-item-title {
+  color: #86efac !important;
+}
+
+.high-contrast .tasks-filters button[aria-pressed="true"] {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .task-empty-state {
+  background: #111111 !important;
+  border-color: #facc15 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .reminders-page-title,
+.high-contrast .reminder-form-title,
+.high-contrast .reminder-item-title,
+.high-contrast .reminder-date,
+.high-contrast .due-reminder-alert h3 {
+  color: #facc15 !important;
+}
+
+.high-contrast button.reminders-primary-action,
+.high-contrast button.reminders-primary-action:hover {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast button.reminders-primary-action span {
+  color: #000000 !important;
+}
+
+.high-contrast .reminders-summary article {
+  border-left-color: #facc15 !important;
+}
+
+.high-contrast .reminders-summary article > span {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .reminders-summary article strong {
+  color: #facc15 !important;
+}
+
+.high-contrast .reminders-summary article:nth-child(4) {
+  border-left-color: #86efac !important;
+}
+
+.high-contrast .reminders-summary article:nth-child(4) > span {
+  background: #86efac !important;
+  border-color: #86efac !important;
+  color: #000000 !important;
+}
+
+.high-contrast .reminders-summary article:nth-child(4) strong {
+  color: #86efac !important;
+}
+
+.high-contrast .reminder-item:not(.reminder-item-completed):hover {
+  border-color: #facc15 !important;
+}
+
+.high-contrast .reminder-item-completed .reminder-item-title {
+  color: #86efac !important;
+}
+
+.high-contrast .reminders-filters button[aria-pressed="true"] {
+  background: #facc15 !important;
+  border-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .reminder-empty-state {
+  background: #111111 !important;
+  border-color: #facc15 !important;
+  color: #ffffff !important;
 }
 
 /* Modo simples */

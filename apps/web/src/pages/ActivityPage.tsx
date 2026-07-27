@@ -31,6 +31,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
     isLoading,
     isCreating,
     isUpdating,
+    isDeleting,
     error,
     createActivity,
     updateActivity,
@@ -95,18 +96,20 @@ export function ActivityPage({ user }: ActivityPageProps) {
   return (
     <>
       {!selectedActivity && activityStatus === "" ? (
-        <div>
+        <div className="activities-page">
           <Card
             as="section"
             className="mt-8"
             aria-labelledby="activities-title">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 id="activities-title" className="m-0 text-[28px] font-bold">
+                <h2
+                  id="activities-title"
+                  className="activities-page-title m-0 text-[28px]! font-bold text-violet-700">
                   Minhas atividades
                 </h2>
 
-                <p className="simple-mode-secondary mt-0 text-base leading-6 text-slate-500">
+                <p className="simple-mode-secondary mt-0 text-[16px]! leading-6 text-slate-500">
                   Crie guias simples para acompanhar atividades importantes do
                   dia a dia.
                 </p>
@@ -115,7 +118,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
               <Button
                 size="sm"
                 variant="primary"
-                className="flex shrink-0 items-center justify-center gap-2"
+                className="activities-primary-action flex shrink-0 items-center justify-center gap-2"
                 onClick={() => setActivityStatus("creating")}>
                 <span aria-hidden="true" className="text-xl leading-none">
                   +
@@ -124,7 +127,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
               </Button>
             </div>
 
-            <div className="accessibility-summary mt-6 w-full">
+            <div className="activities-summary accessibility-summary mt-6 w-full">
               <BigNumberCard
                 label="Atividades cadastradas"
                 value={activities.length}
@@ -165,6 +168,18 @@ export function ActivityPage({ user }: ActivityPageProps) {
               />
             </div>
 
+            <aside className="app-card mt-6 flex items-start gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 text-sm leading-6 text-slate-700">
+              <span
+                aria-hidden="true"
+                className="activity-tip-icon mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-700 font-bold text-white">
+                i
+              </span>
+              <p className="m-0">
+                <strong>Dica:</strong> cadastre suas atividades e utilize-as nas
+                tarefas e nos lembretes para organizar melhor sua rotina.
+              </p>
+            </aside>
+
             {error && (
               <Alert tone="error" className="mt-4">
                 {error}
@@ -201,39 +216,45 @@ export function ActivityPage({ user }: ActivityPageProps) {
                 <ActivityList
                   activities={filteredActivities}
                   isLoading={isLoading}
+                  isDeleting={isDeleting}
                   emptyMessage="Nenhuma atividade encontrada."
-                  onSelectedActivity={setSelectedActivity}
+                  onEditActivity={(activity) => {
+                    setSelectedActivity(activity);
+                    setActivityStatus("updating");
+                  }}
+                  onDeleteActivity={handleDeleteActivity}
                 />
               </div>
             </div>
           </Card>
         </div>
       ) : (
-        <div>
-          <Card
-            as="section"
-            className="mt-8"
-            aria-labelledby="activities-title">
+        <div className="activities-page">
+          <Card as="section" aria-labelledby="activities-title">
             <div className="flex md:justify-between">
               {!activityId ? (
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="primary"
+                  className="activities-primary-action flex items-center gap-2"
                   onClick={() => {
                     setSelectedActivity(null);
                     setActivityStatus("");
                   }}>
+                  <span aria-hidden="true">←</span>
                   Voltar para a lista
                 </Button>
               ) : (
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="primary"
+                  className="activities-primary-action flex items-center gap-2"
                   onClick={() => {
                     setSelectedActivity(null);
                     setActivityStatus("");
                     navigate("/tarefas");
                   }}>
+                  <span aria-hidden="true">←</span>
                   Voltar para Tarefa
                 </Button>
               )}
@@ -253,18 +274,6 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     variant="danger"
                     onClick={() => handleDeleteActivity(selectedActivity!)}>
                     Excluir Atividade
-                  </Button>
-                </div>
-              )}
-              {activityStatus === "updating" && (
-                <div className="block md:flex md:gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      setActivityStatus("");
-                    }}>
-                    Sair da edição de atividade
                   </Button>
                 </div>
               )}
