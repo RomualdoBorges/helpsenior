@@ -6,8 +6,8 @@ interface FirestoreUserPreferences {
   fontSize: UserPreferences["fontSize"];
   contrast: UserPreferences["contrast"];
   simpleMode: boolean;
-  reduceMotion: boolean;
-  increasedSpacing: boolean;
+  reduceMotion?: boolean;
+  increasedSpacing?: boolean;
   updatedAt: Timestamp;
 }
 
@@ -30,8 +30,8 @@ export class UserPreferencesFirestoreMapper {
       fontSize: data.fontSize,
       contrast: data.contrast,
       simpleMode: data.simpleMode,
-      reduceMotion: data.reduceMotion,
-      increasedSpacing: data.increasedSpacing,
+      reduceMotion: data.reduceMotion ?? false,
+      increasedSpacing: data.increasedSpacing ?? false,
       updatedAt: data.updatedAt.toDate(),
     };
   }

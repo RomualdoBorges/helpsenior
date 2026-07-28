@@ -77,7 +77,7 @@ function SelectField<T extends string>({
       </Pressable>
 
       <Modal
-        animationType="fade"
+        animationType={preferences?.reduceMotion ? "none" : "fade"}
         onRequestClose={() => setIsOpen(false)}
         transparent
         visible={isOpen}>
@@ -328,6 +328,18 @@ export default function SettingsScreen() {
                 label="Modo simples"
                 onChange={(simpleMode) =>
                   void updatePreferences({ simpleMode })
+                }
+              />
+              <ToggleField
+                checked={preferences.reduceMotion}
+                description={
+                  preferences.simpleMode
+                    ? ""
+                    : "Remove transições e efeitos de movimento da navegação."
+                }
+                label="Reduzir animações"
+                onChange={(reduceMotion) =>
+                  void updatePreferences({ reduceMotion })
                 }
               />
               <ToggleField

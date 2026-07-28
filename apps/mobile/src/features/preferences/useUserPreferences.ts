@@ -13,7 +13,11 @@ import { getFirebaseFirestoreErrorMessage } from "@/src/shared/errors/getFirebas
 type UpdatePreferencesInput = Partial<
   Pick<
     UserPreferences,
-    "fontSize" | "contrast" | "simpleMode" | "increasedSpacing"
+    | "fontSize"
+    | "contrast"
+    | "simpleMode"
+    | "reduceMotion"
+    | "increasedSpacing"
   >
 >;
 
