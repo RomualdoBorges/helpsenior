@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -27,6 +28,7 @@ import {
   useReminders,
   type ReminderInput,
 } from "@/src/features/reminders/useReminders";
+import { useReminderNotifications } from "@/src/features/reminders/useReminderNotifications";
 import { AppBar, type AppBarRoute } from "@/src/shared/layout/AppBar";
 
 type ScreenMode = "list" | "create" | "edit";
@@ -586,6 +588,12 @@ export default function RemindersScreen() {
     completeReminder,
     deleteReminder,
   } = useReminders(user?.id ?? null);
+  const {
+    permission: notificationPermission,
+    isRequesting: isRequestingNotifications,
+    error: notificationError,
+    requestPermission: requestNotificationPermission,
+  } = useReminderNotifications(reminders);
   const [mode, setMode] = useState<ScreenMode>("list");
   const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(
     null,
@@ -718,6 +726,84 @@ export default function RemindersScreen() {
                   value={counts.completed}
                 />
               </View>
+              {notificationPermission !== "granted" && (
+                <View
+                  accessibilityRole="alert"
+                  style={[
+                    styles.notificationAlert,
+                    isHighContrast && {
+                      borderColor: "#FACC15",
+                      backgroundColor: "#111111",
+                    },
+                  ]}>
+                  <MaterialCommunityIcons
+                    color={isHighContrast ? "#FACC15" : "#6D28D9"}
+                    name="bell-ring-outline"
+                    size={26}
+                  />
+                  <View style={styles.notificationAlertContent}>
+                    <Text
+                      style={[
+                        styles.notificationAlertTitle,
+                        isHighContrast && { color: "#FACC15" },
+                      ]}>
+                      Ative os avisos de lembretes
+                    </Text>
+                    <Text
+                      style={[
+                        styles.notificationAlertText,
+                        isHighContrast && { color: "#FFFFFF" },
+                      ]}>
+                      {notificationPermission === "denied"
+                        ? "A permissão está desativada. Abra as configurações do aparelho para permitir notificações."
+                        : notificationPermission === "unsupported"
+                          ? "No Android, os avisos não são carregados no Expo Go. Use um development build para testar esta funcionalidade."
+                        : "Permita notificações para receber os lembretes mesmo quando o aplicativo estiver fechado."}
+                    </Text>
+                    {notificationPermission !== "unsupported" && (
+                      <Pressable
+                        accessibilityRole="button"
+                        disabled={isRequestingNotifications}
+                        onPress={() => {
+                          if (notificationPermission === "denied") {
+                            void Linking.openSettings();
+                            return;
+                          }
+
+                          void requestNotificationPermission();
+                        }}
+                        style={({ pressed }) => [
+                          styles.notificationButton,
+                          isHighContrast && {
+                            borderColor: "#FACC15",
+                            backgroundColor: "#FACC15",
+                          },
+                          isRequestingNotifications && styles.disabled,
+                          pressed && styles.pressed,
+                        ]}>
+                        {isRequestingNotifications ? (
+                          <ActivityIndicator color="#FFFFFF" size="small" />
+                        ) : (
+                          <Text
+                            style={[
+                              styles.notificationButtonText,
+                              isHighContrast && { color: "#000000" },
+                            ]}>
+                            {notificationPermission === "denied"
+                              ? "Abrir configurações"
+                              : "Ativar notificações"}
+                          </Text>
+                        )}
+                      </Pressable>
+                    )}
+                  </View>
+                </View>
+              )}
+              {notificationError && (
+                <Text accessibilityRole="alert" style={styles.error}>
+                  {notificationError}
+                </Text>
+              )}
               {dueReminders.length > 0 && (
                 <View
                   accessibilityRole="alert"
@@ -1007,6 +1093,45 @@ const styles = createAccessibleStyleSheet({
   },
   dueTitle: { color: "#92400E", fontSize: 16, fontWeight: "800" },
   dueText: { marginTop: 4, color: "#A16207", fontSize: 14, lineHeight: 21 },
+  notificationAlert: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    marginTop: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#DDD6FE",
+    borderRadius: 14,
+    backgroundColor: "#F5F3FF",
+  },
+  notificationAlertContent: { flex: 1 },
+  notificationAlertTitle: {
+    color: "#5B21B6",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  notificationAlertText: {
+    marginTop: 4,
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  notificationButton: {
+    minHeight: 44,
+    alignSelf: "flex-start",
+    justifyContent: "center",
+    marginTop: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#6D28D9",
+    borderRadius: 10,
+    backgroundColor: "#6D28D9",
+  },
+  notificationButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
   error: {
     marginTop: 16,
     padding: 14,

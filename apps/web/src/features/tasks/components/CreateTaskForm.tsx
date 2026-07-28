@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { Activity, Task } from "@helpsenior/core";
 
 import { Alert, Button, FormField, Input, Textarea } from "../../../shared/ui";
@@ -20,10 +20,10 @@ export function CreateTaskForm({
   onCreateTask,
   onUpdateTask,
 }: CreateTaskFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [activityId, setActivityId] = useState("");
+  const [title, setTitle] = useState(task?.title ?? "");
+  const [description, setDescription] = useState(task?.description ?? "");
+  const [date, setDate] = useState(task?.date ?? "");
+  const [activityId, setActivityId] = useState(task?.activityId ?? "");
   const [localError, setLocalError] = useState<string | null>(null);
 
   function resetForm() {
@@ -65,22 +65,6 @@ export function CreateTaskForm({
     resetForm();
   }
     
-  useEffect(() => {
-    if (task) {
-      setTitle(task.title);
-      setLocalError(null);
-      
-      if (task.description)
-        setDescription(task.description);
-
-      if (task.date)
-        setDate(task.date);
-
-      if (task.activityId)
-        setActivityId(task.activityId);
-    }
-  }, [task]);
-
   return (
     <form
       onSubmit={handleSubmit}

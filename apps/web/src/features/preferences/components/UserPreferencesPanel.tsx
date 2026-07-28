@@ -21,6 +21,7 @@ interface UserPreferencesPanelProps {
     fontSize?: FontSizePreference;
     contrast?: ContrastPreference;
     simpleMode?: boolean;
+    reduceMotion?: boolean;
     increasedSpacing?: boolean;
   }) => Promise<void>;
 }
@@ -120,6 +121,18 @@ export function UserPreferencesPanel({
           onChange={(event) =>
             void onUpdatePreferences({
               simpleMode: event.target.checked,
+            })
+          }
+        />
+
+        <ToggleField
+          checked={preferences.reduceMotion}
+          disabled={isUpdating}
+          label="Reduzir animações"
+          description="Remove animações e transições para deixar a navegação mais confortável."
+          onChange={(event) =>
+            void onUpdatePreferences({
+              reduceMotion: event.target.checked,
             })
           }
         />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Badge, classNames } from "../../../shared/ui";
 import type { Activity } from "@helpsenior/core";
@@ -13,18 +13,13 @@ export function ActivityDetail({
   isLoading,
 }: ActivityDetailProps) {
   const [step, setStep] = useState(activity.steps[0]);
-  const [first, setFirst] = useState(false);
-  const [last, setLast] = useState(false);
-  
-  useMemo(() => {
-    setFirst(step.order === 1);
-    setLast(step.order === activity.steps.length);
-  }, [step]);
+  const first = step.order === 1;
+  const last = step.order === activity.steps.length;
 
   if (isLoading) {
     return (
       <p className="mt-6 text-base font-bold text-slate-600">
-        Carregando Atividade...
+        Carregando atividade...
       </p>
     );
   }
@@ -55,7 +50,7 @@ export function ActivityDetail({
       </div>
 
       <div className="flex flex-col">
-        <h2 className="m-0 text-lg font-bold text-slate-950 text-center">Etapa Atual</h2>
+        <h2 className="m-0 text-lg font-bold text-slate-950 text-center">Etapa atual</h2>
 
         { !(first && last) && (
           <div className={classNames(`mt-5 text-center ${first ? "invisible" : ""}`)}>

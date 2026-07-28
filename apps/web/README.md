@@ -48,6 +48,14 @@ Firebase Auth / Cloud Firestore
 - exibição do nome do usuário na barra superior;
 - mensagens amigáveis de erro e sucesso.
 
+### Atividades
+
+- criar atividades como guias para situações do dia a dia;
+- informar título, descrição e etapas;
+- listar, buscar, editar e excluir atividades;
+- vincular atividades às tarefas;
+- persistir atividades no Cloud Firestore.
+
 ### Tarefas
 
 - criar tarefas com título;
@@ -94,13 +102,15 @@ Não há Service Worker nem Firebase Cloud Messaging nesta versão.
 ## Rotas
 
 ```txt
-/               → tarefas
+/               → início
+/atividades     → atividades
+/tarefas        → tarefas
 /lembretes      → lembretes
 /perfil         → perfil do usuário
 /configuracoes  → preferências de acessibilidade
 ```
 
-As rotas são configuradas em `src/App.tsx`. O provider principal do React Router fica em `src/main.tsx`.
+As rotas são configuradas em `src/routes/AppRoutes.tsx`. O provider principal do React Router fica em `src/main.tsx`.
 
 ## Estrutura
 
@@ -109,19 +119,25 @@ apps/web/
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
+├── e2e/
+│   ├── auth.e2e.ts
+│   └── authenticated-journey.e2e.ts
 ├── src/
 │   ├── config/
 │   │   └── firebase.ts
 │   ├── features/
+│   │   ├── activities/
 │   │   ├── auth/
 │   │   ├── preferences/
 │   │   ├── profile/
 │   │   ├── reminders/
 │   │   └── tasks/
 │   ├── pages/
+│   │   ├── ActivityPage.tsx
 │   │   ├── HomePage.tsx
 │   │   ├── ProfilePage.tsx
 │   │   ├── RemindersPage.tsx
+│   │   ├── TaskPage.tsx
 │   │   └── SettingsPage.tsx
 │   ├── shared/
 │   │   └── errors/
@@ -130,6 +146,7 @@ apps/web/
 │   └── main.tsx
 ├── index.html
 ├── package.json
+├── playwright.config.ts
 └── vite.config.ts
 ```
 
@@ -174,9 +191,67 @@ VITE_FIREBASE_APP_ID=
 pnpm --filter @helpsenior/web dev
 pnpm --filter @helpsenior/web build
 pnpm --filter @helpsenior/web lint
+pnpm --filter @helpsenior/web test
+pnpm --filter @helpsenior/web test:watch
+pnpm --filter @helpsenior/web test:integration
+pnpm --filter @helpsenior/web test:e2e
+pnpm --filter @helpsenior/web test:e2e:ui
 pnpm --filter @helpsenior/web typecheck
 pnpm --filter @helpsenior/web preview
 ```
+
+## Testes
+
+O app Web possui três níveis de testes automatizados:
+
+- testes unitários para utilitários, componentes e hooks;
+- testes de integração para os fluxos das páginas de atividades, tarefas e
+  lembretes;
+- testes E2E com Playwright, incluindo uma jornada autenticada com Firebase
+  Emulator.
+
+Os testes unitários e de integração usam Vitest, React Testing Library e `jsdom`. Os testes E2E executam a aplicação em um navegador Chromium real.
+
+Antes da primeira execução local dos testes E2E, instale o navegador:
+
+```bash
+pnpm --filter @helpsenior/web exec playwright install chromium
+```
+
+Para executar cada nível:
+
+```bash
+pnpm --filter @helpsenior/web test
+pnpm --filter @helpsenior/web test:integration
+pnpm test:e2e:emulator
+```
+
+O comando E2E inicia os emuladores do Firebase Authentication e Cloud
+Firestore, executa os testes e encerra os serviços ao final. É necessário ter
+Java 21 ou superior instalado.
+
+Os relatórios do Playwright são gerados em `apps/web/playwright-report`.
+
+## Integração contínua
+
+O workflow `.github/workflows/ci.yml` executa automaticamente:
+
+- lint do workspace;
+- typecheck do workspace;
+- testes unitários e de integração do Web;
+- build do Web;
+- instalação do Chromium;
+- testes E2E;
+- publicação do relatório do Playwright.
+
+O workflow roda em pull requests, pushes para `main` e acionamentos manuais pelo GitHub Actions.
+
+## Entrega contínua
+
+Em pushes para `main`, o app é publicado no canal `live` do Firebase Hosting
+somente depois que os jobs de qualidade e E2E são concluídos com sucesso. O
+build usa as configurações Firebase cadastradas no environment `production` do
+GitHub.
 
 ## Estilização
 
@@ -186,8 +261,12 @@ O arquivo `src/index.css` importa o Tailwind e concentra regras globais de acess
 
 ## Limitações atuais
 
-- não há testes automatizados específicos no app Web;
 - notificações dependem do app aberto;
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
 - não há login social.
+
+## Status
+
+A aplicação Web está concluída para o escopo acadêmico atual. As limitações
+listadas acima foram mantidas como decisões de escopo da versão final.

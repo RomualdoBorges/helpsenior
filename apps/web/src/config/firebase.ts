@@ -1,5 +1,6 @@
 import {
   FirebaseAuthService,
+  connectFirebaseEmulators,
   createFirebaseServices,
 } from "@helpsenior/firebase";
 
@@ -16,5 +17,9 @@ const firebaseServices = createFirebaseServices(firebaseConfig);
 
 export const db = firebaseServices.db;
 export const auth = firebaseServices.auth;
+
+if (import.meta.env.VITE_USE_FIREBASE_EMULATORS === "true") {
+  connectFirebaseEmulators(auth, db);
+}
 
 export const authService = new FirebaseAuthService(auth);

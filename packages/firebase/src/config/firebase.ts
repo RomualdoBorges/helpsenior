@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { connectAuthEmulator, getAuth, type Auth } from "firebase/auth";
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+  type Firestore,
+} from "firebase/firestore";
 
 export interface FirebaseConfig {
   apiKey: string;
@@ -23,6 +27,13 @@ export function createFirebaseServices(config: FirebaseConfig) {
     auth: getAuth(app),
     db: getFirestore(app),
   };
+}
+
+export function connectFirebaseEmulators(auth: Auth, db: Firestore) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", {
+    disableWarnings: true,
+  });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
 }
 
 export function createFirestoreDatabase(config: FirebaseConfig) {

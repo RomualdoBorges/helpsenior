@@ -3,6 +3,7 @@ export {
   createFirebaseAuth,
   createFirebaseServices,
   createFirestoreDatabase,
+  connectFirebaseEmulators,
   type FirebaseConfig,
 } from "./config/firebase";
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
@@ -21,12 +21,18 @@ export function CreateReminderForm({
   onCreateReminder,
   onUpdateReminder,
 }: CreateReminderFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
+  const [title, setTitle] = useState(reminder?.title ?? "");
+  const [description, setDescription] = useState(
+    reminder?.description ?? "",
+  );
+  const [date, setDate] = useState(reminder?.date ?? "");
+  const [time, setTime] = useState(reminder?.time ?? "");
+  const [recurrence, setRecurrence] = useState<ReminderRecurrence>(
+    reminder?.recurrence ?? "none",
+  );
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(
+    reminder?.recurrenceEndDate ?? "",
+  );
 
   function resetForm() {
     setTitle("");
@@ -70,22 +76,6 @@ export function CreateReminderForm({
 
     resetForm();
   }
-
-  useEffect(() => {
-    if (reminder) {
-      setTitle(reminder.title);
-      setDate(reminder.date);
-
-      if (reminder.description) setDescription(reminder.description);
-
-      if (reminder.time) setTime(reminder.time);
-
-      if (reminder.recurrence) setRecurrence(reminder.recurrence);
-
-      if (reminder.recurrenceEndDate)
-        setRecurrenceEndDate(reminder.recurrenceEndDate);
-    }
-  }, [reminder]);
 
   return (
     <form onSubmit={handleSubmit} className="create-form mt-2">

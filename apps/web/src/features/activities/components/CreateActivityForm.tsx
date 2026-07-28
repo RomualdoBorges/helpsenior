@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import {
   Alert,
@@ -45,10 +45,16 @@ export function CreateActivityForm({
   activity,
   onUpdateActivity,
 }: CreateActivityFormProps) {
-  const [title, setTitle] = useState("");
-  const [steps, setSteps] = useState<Step[]>([{ order: 1, description: "" }]);
-  const [description, setDescription] = useState("");
-  const [resources, setResources] = useState<NecessaryResources[]>([]);
+  const [title, setTitle] = useState(activity?.title ?? "");
+  const [steps, setSteps] = useState<Step[]>(
+    activity?.steps ?? [{ order: 1, description: "" }],
+  );
+  const [description, setDescription] = useState(
+    activity?.description ?? "",
+  );
+  const [resources, setResources] = useState<NecessaryResources[]>(
+    activity?.resources ?? [],
+  );
   const [localError, setLocalError] = useState<string | null>(null);
 
   function resetForm() {
@@ -129,30 +135,17 @@ export function CreateActivityForm({
     resetForm();
   }
 
-  useEffect(() => {
-    if (activity) {
-      setTitle(activity.title);
-      setSteps(activity.steps);
-      setLocalError(null);
-
-      if (activity.description) setDescription(activity.description);
-
-      if (activity.resources) setResources([]);
-    }
-  }, [activity]);
-
   return (
     <form onSubmit={handleSubmit} className="create-form mt-2">
       {!activity ? (
         <>
           <h3 className="activity-form-title m-0 text-xl font-bold text-violet-700">
-            Criar Guia
+            Criar atividade
           </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-            Use Atividades para registrar etapas guiadas para suas difculdades
-            do dia a dia. Como usar aquele aplicativo? Como era mesmo aquela
-            receita? Faça seu manual pessoal para cosultar quando quiser.
+            Use atividades para registrar orientações sobre situações do dia a
+            dia. Crie seu guia pessoal para consultar quando precisar.
           </p>
         </>
       ) : (
@@ -162,7 +155,7 @@ export function CreateActivityForm({
           </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-            Atualize os campos que achar necessáriro e avance
+            Atualize os campos necessários e salve as alterações.
           </p>
         </>
       )}
@@ -202,7 +195,7 @@ export function CreateActivityForm({
                     className="mt-2 text-center cursor-pointer"
                     onClick={() => handleRemoveStep(step.order)}>
                     <Badge tone="red" className="mt-2">
-                      remover
+                      Remover
                     </Badge>
                   </div>
                 )}

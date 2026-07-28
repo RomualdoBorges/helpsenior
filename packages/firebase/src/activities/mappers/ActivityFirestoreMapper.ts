@@ -18,7 +18,6 @@ export class ActivityFirestoreMapper {
       userId: activity.userId,
       title: activity.title,
       steps: activity.steps,
-      description: activity.description,
       createdAt: Timestamp.fromDate(activity.createdAt),
       updatedAt: Timestamp.fromDate(activity.updatedAt),
     };

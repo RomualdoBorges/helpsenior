@@ -16,6 +16,7 @@ Este pacote concentra entidades, contratos de repositório, casos de uso, regras
 ## Módulos
 
 ```txt
+activity
 tasks
 reminders
 preferences
@@ -36,6 +37,12 @@ Por isso, tarefas não possuem recorrência. Recorrência pertence somente aos l
 ```txt
 packages/core/src/
 ├── index.ts
+├── activity/
+│   ├── entities/
+│   ├── in-memory/
+│   ├── repositories/
+│   ├── use-cases/
+│   └── index.ts
 ├── tasks/
 │   ├── entities/
 │   ├── in-memory/
@@ -62,6 +69,52 @@ packages/core/src/
     ├── use-cases/
     └── index.ts
 ```
+
+## Activities
+
+Uma atividade representa um guia com passos para auxiliar o usuário em uma
+situação do dia a dia.
+
+Entidade principal:
+
+```ts
+export type NecessaryResources = {
+  description: string;
+};
+
+export type Step = {
+  order: number;
+  description: string;
+};
+
+export interface Activity {
+  id: string;
+  userId: string;
+  title: string;
+  steps: Step[];
+  resources?: NecessaryResources[];
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+Casos de uso:
+
+```txt
+CreateActivityUseCase
+GetActivityUseCase
+ListActivitiesUseCase
+UpdateActivityUseCase
+DeleteActivityUseCase
+```
+
+Regras principais:
+
+- usuário, título e pelo menos um passo são obrigatórios;
+- descrição e recursos necessários são opcionais;
+- atividades podem ser consultadas, listadas por usuário, atualizadas e
+  excluídas.
 
 ## Tasks
 
@@ -263,3 +316,7 @@ Para checar tipos:
 ```bash
 pnpm --filter @helpsenior/core typecheck
 ```
+
+## Status
+
+O pacote está concluído para o escopo acadêmico atual do HelpSenior.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Activity } from "@helpsenior/core";
 
 import { CreateActivityForm } from "../features/activities/components/CreateActivityForm";
@@ -51,6 +51,15 @@ export function ActivityPage({ user }: ActivityPageProps) {
     [filter, activities],
   );
 
+  const selectedActivityFromRoute = useMemo(
+    () =>
+      activityId
+        ? (activities.find((activity) => activity.id === activityId) ?? null)
+        : null,
+    [activityId, activities],
+  );
+  const activeActivity = selectedActivity ?? selectedActivityFromRoute;
+
   async function handleCreateActivity(activity: CreateActivityInput) {
     await createActivity(activity);
     setSelectedActivity(null);
@@ -84,18 +93,9 @@ export function ActivityPage({ user }: ActivityPageProps) {
     setSelectedActivity(null);
   }
 
-  useEffect(() => {
-    if (activityId) {
-      const activity = activities.find(
-        (activity) => activity.id === activityId,
-      );
-      setSelectedActivity(activity!);
-    }
-  }, [activityId, activities]);
-
   return (
     <>
-      {!selectedActivity && activityStatus === "" ? (
+      {!activeActivity && activityStatus === "" ? (
         <div className="activities-page">
           <Card
             as="section"
@@ -195,8 +195,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
 
                   <p className="mt-1 text-sm font-bold text-slate-500">
                     {filteredActivities.length} de {activities.length}{" "}
-                    atividades
-                    {activities.length === 1 ? "" : "s"}
+                    {activities.length === 1 ? "atividade" : "atividades"}
                   </p>
                 </div>
 
@@ -205,7 +204,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     type="text"
                     value={filter}
                     onChange={(event) => setFilter(event.target.value)}
-                    placeholder="Procure por suas atividades"
+                    placeholder="Busque por suas atividades"
                     className="min-h-10 w-64 text-sm"
                     aria-label="Buscar atividades"
                   />
@@ -255,7 +254,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     navigate("/tarefas");
                   }}>
                   <span aria-hidden="true">←</span>
-                  Voltar para Tarefa
+                  Voltar para a tarefa
                 </Button>
               )}
 
@@ -267,13 +266,13 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     onClick={() => {
                       setActivityStatus("updating");
                     }}>
-                    Editar Atividade
+                    Editar atividade
                   </Button>
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={() => handleDeleteActivity(selectedActivity!)}>
-                    Excluir Atividade
+                    onClick={() => handleDeleteActivity(activeActivity!)}>
+                    Excluir atividade
                   </Button>
                 </div>
               )}
@@ -292,7 +291,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   className="mt-8"
                   aria-labelledby="activities-title">
                   <ActivityDetail
-                    activity={selectedActivity!}
+                    activity={activeActivity!}
                     isLoading={isLoading}
                   />
                 </Card>
@@ -306,7 +305,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                   <CreateActivityForm
                     isCreating={isCreating}
                     onCreateActivity={handleCreateActivity}
-                    activity={selectedActivity}
+                    activity={activeActivity}
                     isUpdating={isUpdating}
                     onUpdateActivity={
                       handleUpdateActivity

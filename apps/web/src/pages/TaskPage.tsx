@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { CreateTaskForm } from "../features/tasks/components/CreateTaskForm";
@@ -62,6 +62,13 @@ export function TaskPage({ user }: TaskPageProps) {
     [selectedFilter, tasks],
   );
 
+  const selectedTaskFromRoute = useMemo(
+    () =>
+      taskId ? (tasks.find((task) => task.id === taskId) ?? null) : null,
+    [taskId, tasks],
+  );
+  const activeTask = selectedTask ?? selectedTaskFromRoute;
+
   const selectedFilterOption = taskFilterOptions.find(
     (option) => option.value === selectedFilter,
   );
@@ -91,16 +98,9 @@ export function TaskPage({ user }: TaskPageProps) {
     setSelectedTask(null);
   }
 
-  useEffect(() => {
-    if (taskId) {
-      const task = tasks.find((task) => task.id === taskId);
-      setSelectedTask(task!);
-    }
-  }, [taskId, tasks]);
-
   return (
     <>
-      {!selectedTask && taskStatus === "" ? (
+      {!activeTask && taskStatus === "" ? (
         <Card
           as="section"
           className="tasks-page mt-8"
@@ -278,7 +278,7 @@ export function TaskPage({ user }: TaskPageProps) {
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={() => handleDeleteTask(selectedTask!)}>
+                    onClick={() => handleDeleteTask(activeTask!)}>
                     Excluir Tarefa
                   </Button>
                 </div>
@@ -299,7 +299,7 @@ export function TaskPage({ user }: TaskPageProps) {
                   aria-labelledby="activities-title">
                   <TaskDetail
                     activities={activities}
-                    task={selectedTask!}
+                    task={activeTask!}
                     isLoading={isLoading}
                   />
                 </Card>
@@ -311,7 +311,7 @@ export function TaskPage({ user }: TaskPageProps) {
                   className="mt-8"
                   aria-labelledby="create-form">
                   <CreateTaskForm
-                    task={selectedTask}
+                    task={activeTask}
                     activities={activities}
                     isCreating={isCreating}
                     onCreateTask={handleCreateTask}

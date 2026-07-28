@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function ownsExistingDocument() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function ownsNewDocument() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /userProfiles/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /userPreferences/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /activities/{activityId} {
+      allow create: if ownsNewDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsNewDocument();
+    }
+
+    match /tasks/{taskId} {
+      allow create: if ownsNewDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsNewDocument();
+    }
+
+    match /reminders/{reminderId} {
+      allow create: if ownsNewDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsNewDocument();
+    }
+  }
+}

@@ -9,6 +9,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
+    "test:e2e:emulator": "firebase emulators:exec --project helpsenior-e2e --only auth,firestore \"pnpm --filter @helpsenior/web test:e2e\"",
     "typecheck": "turbo typecheck"
   },
   "keywords": [
@@ -29,6 +30,7 @@
     }
   },
   "devDependencies": {
+    "firebase-tools": "^15.24.0",
     "turbo": "^2.10.3",
     "typescript": "^6.0.3"
   }
