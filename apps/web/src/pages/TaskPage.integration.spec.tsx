@@ -1,4 +1,4 @@
-import type { Task } from "@helpsenior/core";
+import type { Activity, Task } from "@helpsenior/core";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -31,6 +31,15 @@ const completedTask: Task = {
   completed: true,
 };
 
+const linkedActivity: Activity = {
+  id: "activity-1",
+  userId: "user-1",
+  title: "Preparar documentos",
+  steps: [{ order: 1, description: "Separar documento com foto" }],
+  createdAt: new Date("2026-07-01T10:00:00"),
+  updatedAt: new Date("2026-07-01T10:00:00"),
+};
+
 vi.mock("../features/tasks/hooks/useTasks", () => ({
   useTasks: () => ({
     tasks: [pendingTask, completedTask],
@@ -46,7 +55,7 @@ vi.mock("../features/tasks/hooks/useTasks", () => ({
 
 vi.mock("../features/activities/hooks/useActivities", () => ({
   useActivities: () => ({
-    activities: [],
+    activities: [linkedActivity],
   }),
 }));
 
@@ -84,6 +93,26 @@ describe("TaskPage integration", () => {
     expect(
       screen.getByRole("heading", { name: "Minhas tarefas" }),
     ).toBeInTheDocument();
+  });
+
+  it("cria uma tarefa vinculada a uma atividade", async () => {
+    const user = userEvent.setup();
+    renderTaskPage();
+
+    await user.click(screen.getByRole("button", { name: "Nova tarefa" }));
+    await user.type(screen.getByLabelText("Título"), "Ir ao banco");
+    await user.selectOptions(
+      screen.getByLabelText("Atividade (opcional)"),
+      linkedActivity.id,
+    );
+    await user.click(screen.getByRole("button", { name: "Criar tarefa" }));
+
+    expect(taskPageMocks.createTask).toHaveBeenCalledWith({
+      title: "Ir ao banco",
+      description: undefined,
+      date: undefined,
+      activityId: "activity-1",
+    });
   });
 
   it("filtra tarefas concluídas e preserva as ações permitidas", async () => {

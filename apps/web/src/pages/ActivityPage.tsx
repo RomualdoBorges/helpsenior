@@ -195,8 +195,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
 
                   <p className="mt-1 text-sm font-bold text-slate-500">
                     {filteredActivities.length} de {activities.length}{" "}
-                    atividades
-                    {activities.length === 1 ? "" : "s"}
+                    {activities.length === 1 ? "atividade" : "atividades"}
                   </p>
                 </div>
 

@@ -250,11 +250,11 @@ O pacote `@helpsenior/core` possui testes unitários com Vitest para:
 
 O app `@helpsenior/web` possui:
 
-- 72 testes unitários para utilitários, componentes e hooks;
-- 6 testes de integração para páginas de tarefas e lembretes;
+- 76 testes unitários para utilitários, componentes e hooks;
+- 11 testes de integração para páginas de atividades, tarefas e lembretes;
 - 3 testes E2E de autenticação com Playwright e Chromium.
 
-Ao todo, são 78 testes executados pelo Vitest no app Web, além dos 3 testes E2E.
+Ao todo, são 87 testes executados pelo Vitest no app Web, além dos 3 testes E2E.
 
 Para preparar e executar os testes E2E:
 

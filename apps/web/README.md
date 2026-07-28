@@ -203,11 +203,11 @@ pnpm --filter @helpsenior/web preview
 
 O app Web possui três níveis de testes automatizados:
 
-- 72 testes unitários para utilitários, componentes e hooks;
-- 6 testes de integração para os fluxos das páginas de tarefas e lembretes;
+- 76 testes unitários para utilitários, componentes e hooks;
+- 11 testes de integração para os fluxos das páginas de atividades, tarefas e lembretes;
 - 3 testes E2E com Playwright para a jornada pública de autenticação.
 
-Ao todo, são 78 testes executados pelo Vitest, além dos 3 testes E2E.
+Ao todo, são 87 testes executados pelo Vitest, além dos 3 testes E2E.
 
 Os testes unitários e de integração usam Vitest, React Testing Library e `jsdom`. Os testes E2E executam a aplicação em um navegador Chromium real.
 
