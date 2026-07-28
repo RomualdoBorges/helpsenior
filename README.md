@@ -1,8 +1,8 @@
 # HelpSenior
 
-HelpSenior é uma aplicação Web focada em acessibilidade para pessoas idosas. A proposta é ajudar o usuário a organizar tarefas, lembretes, perfil e preferências visuais de forma simples, clara e previsível.
+HelpSenior é uma aplicação Web e Mobile focada em acessibilidade para pessoas idosas. A proposta é ajudar o usuário a organizar atividades, tarefas, lembretes, perfil e preferências visuais de forma simples, clara e previsível.
 
-O projeto está organizado como um monorepo com separação entre domínio, infraestrutura Firebase e aplicação Web.
+O projeto está organizado como um monorepo com separação entre domínio, infraestrutura Firebase e aplicações Web e Mobile.
 
 ## Stack
 
@@ -14,6 +14,8 @@ React
 Vite
 Tailwind CSS
 React Router
+React Native
+Expo
 Firebase Authentication
 Cloud Firestore
 Vitest
@@ -26,12 +28,13 @@ Vitest
         ↓
 @helpsenior/firebase
         ↓
-@helpsenior/web
+@helpsenior/web e @helpsenior/mobile
 ```
 
 - `@helpsenior/core`: entidades, contratos de repositório, casos de uso, regras de negócio e testes unitários.
 - `@helpsenior/firebase`: serviços Firebase, repositórios Firestore e mappers entre Firestore e domínio.
 - `@helpsenior/web`: interface React, rotas, hooks, componentes, autenticação e aplicação das preferências de acessibilidade.
+- `@helpsenior/mobile`: aplicativo React Native com Expo para acesso às principais funcionalidades em dispositivos móveis.
 
 ## Decisão de produto
 
@@ -54,6 +57,15 @@ Por isso, tarefas não possuem recorrência. Recorrência existe apenas em lembr
 - criação/atualização automática do perfil após cadastro;
 - exibição do nome do usuário na barra superior;
 - mensagens amigáveis para erros de autenticação.
+
+### Atividades
+
+- criar atividades como guias para situações do dia a dia;
+- informar título e descrição;
+- organizar cada atividade em etapas;
+- listar, buscar, editar e excluir atividades;
+- vincular atividades às tarefas;
+- persistir atividades no Cloud Firestore.
 
 ### Tarefas
 
@@ -139,6 +151,7 @@ Espaçamento maior
 
 ```txt
 apps/
+├── mobile/
 └── web/
 
 packages/
@@ -164,6 +177,7 @@ E-mail/senha
 Coleções usadas:
 
 ```txt
+activities
 tasks
 reminders
 userPreferences
@@ -236,9 +250,11 @@ O pacote `@helpsenior/core` possui testes unitários com Vitest para:
 
 O app `@helpsenior/web` possui:
 
-- 71 testes unitários para utilitários, componentes e hooks;
+- 72 testes unitários para utilitários, componentes e hooks;
 - 6 testes de integração para páginas de tarefas e lembretes;
 - 3 testes E2E de autenticação com Playwright e Chromium.
+
+Ao todo, são 78 testes executados pelo Vitest no app Web, além dos 3 testes E2E.
 
 Para preparar e executar os testes E2E:
 
@@ -253,7 +269,7 @@ O workflow `.github/workflows/ci.yml` executa lint, typecheck, testes, build e E
 
 ## Status atual
 
-O projeto possui app Web funcional com autenticação, tarefas, lembretes, perfil, configurações de acessibilidade e persistência no Firebase.
+O projeto possui apps Web e Mobile. O app Web oferece autenticação, atividades, tarefas, lembretes, perfil, configurações de acessibilidade e persistência no Firebase.
 
 ## Limitações atuais
 
@@ -262,7 +278,6 @@ O projeto possui app Web funcional com autenticação, tarefas, lembretes, perfi
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
 - não há login social;
-- não há app Mobile.
 
 ## Licença
 

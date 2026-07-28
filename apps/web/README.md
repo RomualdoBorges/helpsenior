@@ -48,6 +48,14 @@ Firebase Auth / Cloud Firestore
 - exibição do nome do usuário na barra superior;
 - mensagens amigáveis de erro e sucesso.
 
+### Atividades
+
+- criar atividades como guias para situações do dia a dia;
+- informar título, descrição e etapas;
+- listar, buscar, editar e excluir atividades;
+- vincular atividades às tarefas;
+- persistir atividades no Cloud Firestore.
+
 ### Tarefas
 
 - criar tarefas com título;
@@ -195,9 +203,11 @@ pnpm --filter @helpsenior/web preview
 
 O app Web possui três níveis de testes automatizados:
 
-- 71 testes unitários para utilitários, componentes e hooks;
+- 72 testes unitários para utilitários, componentes e hooks;
 - 6 testes de integração para os fluxos das páginas de tarefas e lembretes;
 - 3 testes E2E com Playwright para a jornada pública de autenticação.
+
+Ao todo, são 78 testes executados pelo Vitest, além dos 3 testes E2E.
 
 Os testes unitários e de integração usam Vitest, React Testing Library e `jsdom`. Os testes E2E executam a aplicação em um navegador Chromium real.
 
