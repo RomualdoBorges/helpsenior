@@ -306,11 +306,14 @@ Variables:
 
 ```txt
 VITE_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID
 VITE_FIREBASE_STORAGE_BUCKET
 VITE_FIREBASE_MESSAGING_SENDER_ID
 VITE_FIREBASE_APP_ID
 ```
+
+O projeto de produção está definido como `helpsenior-b91a8` no workflow e no
+arquivo `.firebaserc`. O campo `project_id` de `FIREBASE_SERVICE_ACCOUNT` deve
+ter esse mesmo valor.
 
 O valor de `FIREBASE_SERVICE_ACCOUNT` deve ser o JSON completo da conta de
 serviço usada pelo GitHub Actions para publicar no Firebase Hosting. O Firebase
