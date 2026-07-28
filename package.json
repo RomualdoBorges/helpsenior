@@ -4,6 +4,7 @@
   "private": true,
   "description": "Plataforma Web e Mobile para ajudar pessoas idosas a organizar atividades e personalizar a experiência digital com acessibilidade.",
   "type": "module",
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -22,13 +23,6 @@
   ],
   "author": "Romualdo Borges",
   "license": "MIT",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.7.0",
-      "onFail": "download"
-    }
-  },
   "devDependencies": {
     "firebase-tools": "^15.24.0",
     "turbo": "^2.10.3",
