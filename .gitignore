@@ -6,6 +6,10 @@ node_modules
 dist
 build
 coverage
+playwright-report
+test-results
+firebase-debug.log
+firestore-debug.log
 
 .env
 .env.local

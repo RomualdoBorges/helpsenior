@@ -1,80 +1,47 @@
-import { lazy, Suspense, type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-const TasksPage = lazy(() =>
-  import("../pages/TasksPage").then((module) => ({
-    default: module.TasksPage,
-  })),
-);
-
-const ProfilePage = lazy(() =>
-  import("../pages/ProfilePage").then((module) => ({
-    default: module.ProfilePage,
-  })),
-);
-
-const RemindersPage = lazy(() =>
-  import("../pages/RemindersPage").then((module) => ({
-    default: module.RemindersPage,
-  })),
-);
-
-const SettingsPage = lazy(() =>
-  import("../pages/SettingsPage").then((module) => ({
-    default: module.SettingsPage,
-  })),
-);
-
-const HomePage = lazy(() =>
-  import("../pages/HomePage").then((module) => ({
-    default: module.HomePage,
-  })),
-);
+import { HomePage } from "../pages/HomePage";
+import { ProfilePage } from "../pages/ProfilePage";
+import { RemindersPage } from "../pages/RemindersPage";
+import { SettingsPage } from "../pages/SettingsPage";
+import { TaskPage } from "../pages/TaskPage";
+import { ActivityPage } from "../pages/ActivityPage";
 
 interface AppRoutesProps {
-  tasksPageProps: ComponentProps<typeof TasksPage>;
+  taskPageProps: ComponentProps<typeof TaskPage>;
   profilePageProps: ComponentProps<typeof ProfilePage>;
   remindersPageProps: ComponentProps<typeof RemindersPage>;
   settingsPageProps: ComponentProps<typeof SettingsPage>;
 }
 
 export function AppRoutes({
-  tasksPageProps,
+  taskPageProps,
   profilePageProps,
   remindersPageProps,
   settingsPageProps,
 }: AppRoutesProps) {
   return (
-    <Suspense fallback={<RouteLoadingFallback />}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/tarefas" element={<TasksPage {...tasksPageProps} />} />
-        <Route
-          path="/lembretes"
-          element={<RemindersPage {...remindersPageProps} />}
-        />
-        <Route
-          path="/perfil"
-          element={<ProfilePage {...profilePageProps} />}
-        />
-        <Route
-          path="/configuracoes"
-          element={<SettingsPage {...settingsPageProps} />}
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
-  );
-}
-
-function RouteLoadingFallback() {
-  return (
-    <section
-      className="mx-auto mt-8 w-full max-w-7xl"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <p className="text-base text-slate-600">Carregando página...</p>
-    </section>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/atividades" element={<ActivityPage {...taskPageProps} />} />
+      <Route
+        path="/tarefas"
+        element={<TaskPage {...taskPageProps} />}
+      />
+      <Route
+        path="/lembretes"
+        element={<RemindersPage {...remindersPageProps} />}
+      />
+      <Route
+        path="/perfil"
+        element={<ProfilePage {...profilePageProps} />}
+      />
+      <Route
+        path="/configuracoes"
+        element={<SettingsPage {...settingsPageProps} />}
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

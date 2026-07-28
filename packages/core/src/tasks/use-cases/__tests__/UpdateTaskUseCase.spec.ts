@@ -12,6 +12,7 @@ function createTask(overrides?: Partial<Task>): Task {
     id: "task-1",
     userId: "user-1",
     title: "Pagar conta",
+    activityId: "1",
     description: "Pagar conta de luz",
     status: "pending",
     completed: false,
@@ -36,11 +37,13 @@ describe("UpdateTaskUseCase", () => {
       title: "Comprar remédio",
       description: "Comprar remédio na farmácia",
       date: "2026-07-11",
+      activityId: "2"
     });
 
     expect(result.task.title).toBe("Comprar remédio");
     expect(result.task.description).toBe("Comprar remédio na farmácia");
     expect(result.task.date).toBe("2026-07-11");
+    expect(result.task.activityId).toBe("2");
     expect(result.task.updatedAt.getTime()).toBeGreaterThan(
       task.updatedAt.getTime(),
     );
@@ -59,6 +62,7 @@ describe("UpdateTaskUseCase", () => {
       title: "Comprar remédio",
       description: "Comprar remédio na farmácia",
       date: "2026-07-11",
+      activityId: "2"
     });
 
     const updatedTask = await repository.findById(task.id);
@@ -66,6 +70,7 @@ describe("UpdateTaskUseCase", () => {
     expect(updatedTask?.title).toBe("Comprar remédio");
     expect(updatedTask?.description).toBe("Comprar remédio na farmácia");
     expect(updatedTask?.date).toBe("2026-07-11");
+    expect(updatedTask?.activityId).toBe("2");
   });
 
   it("should trim title and description", async () => {
@@ -105,7 +110,7 @@ describe("UpdateTaskUseCase", () => {
     expect(result.task.description).toBeUndefined();
   });
 
-  it("should throw an error when date is empty", async () => {
+  it("should remove date when it is empty", async () => {
     const repository = new InMemoryTaskRepository();
     const task = createTask();
 
@@ -113,14 +118,32 @@ describe("UpdateTaskUseCase", () => {
 
     const useCase = new UpdateTaskUseCase(repository);
 
-    await expect(
-      useCase.execute({
-        taskId: task.id,
-        title: "Comprar remédio",
-        description: "Comprar remédio na farmácia",
-        date: "",
-      }),
-    ).rejects.toThrow("Data da tarefa é obrigatória.");
+    const result = await useCase.execute({
+      taskId: task.id,
+      title: "Comprar remédio",
+      description: "Comprar remédio na farmácia",
+      date: "",
+    });
+
+    expect(result.task.date).toBeUndefined();
+  });
+
+  it("should remove activityId when it is empty", async () => {
+    const repository = new InMemoryTaskRepository();
+    const task = createTask();
+
+    await repository.create(task);
+
+    const useCase = new UpdateTaskUseCase(repository);
+
+    const result = await useCase.execute({
+      taskId: task.id,
+      title: "Comprar remédio",
+      description: "Comprar remédio na farmácia",
+      activityId: "",
+    });
+
+    expect(result.task.activityId).toBeUndefined();
   });
 
   it("should preserve completed status", async () => {
@@ -157,7 +180,6 @@ describe("UpdateTaskUseCase", () => {
       useCase.execute({
         taskId: "",
         title: "Comprar remédio",
-        date: "2026-07-11",
       }),
     ).rejects.toThrow("Tarefa é obrigatória.");
   });
@@ -174,7 +196,6 @@ describe("UpdateTaskUseCase", () => {
       useCase.execute({
         taskId: task.id,
         title: "",
-        date: "2026-07-11",
       }),
     ).rejects.toThrow("Título da tarefa é obrigatório.");
   });
@@ -187,7 +208,6 @@ describe("UpdateTaskUseCase", () => {
       useCase.execute({
         taskId: "not-found",
         title: "Comprar remédio",
-        date: "2026-07-11",
       }),
     ).rejects.toThrow("Tarefa não encontrada.");
   });

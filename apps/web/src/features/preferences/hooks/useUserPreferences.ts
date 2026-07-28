@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   GetUserPreferencesUseCase,
   UpdateUserPreferencesUseCase,
   type UserPreferences,
 } from "@helpsenior/core";
-import { FirebaseUserPreferencesRepository } from "@helpsenior/firebase/preferences";
+import { FirebaseUserPreferencesRepository } from "@helpsenior/firebase";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
@@ -13,7 +13,11 @@ import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFire
 type UpdateUserPreferencesInput = Partial<
   Pick<
     UserPreferences,
-    "fontSize" | "contrast" | "simpleMode" | "increasedSpacing"
+    | "fontSize"
+    | "contrast"
+    | "simpleMode"
+    | "reduceMotion"
+    | "increasedSpacing"
   >
 >;
 
@@ -22,12 +26,6 @@ export function useUserPreferences(userId: string | null) {
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(false);
   const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false);
   const [preferencesError, setPreferencesError] = useState<string | null>(null);
-  const loadRequestIdRef = useRef(0);
-  const activeUserIdRef = useRef(userId);
-
-  useEffect(() => {
-    activeUserIdRef.current = userId;
-  }, [userId]);
 
   const userPreferencesRepository = useMemo(
     () => new FirebaseUserPreferencesRepository(db),
@@ -45,16 +43,8 @@ export function useUserPreferences(userId: string | null) {
   );
 
   const loadPreferences = useCallback(async () => {
-    if (userId !== activeUserIdRef.current) {
-      return;
-    }
-
-    const requestId = ++loadRequestIdRef.current;
-
     if (!userId) {
       setPreferences(null);
-      setIsLoadingPreferences(false);
-      setPreferencesError(null);
       return;
     }
 
@@ -66,44 +56,37 @@ export function useUserPreferences(userId: string | null) {
         userId,
       });
 
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setPreferences(result.preferences);
-      }
+      setPreferences(result.preferences);
     } catch (error) {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setPreferencesError(
-          getFirebaseFirestoreErrorMessage(
-            error,
-            "Não foi possível carregar as preferências.",
-          ),
-        );
-      }
+      setPreferencesError(
+        getFirebaseFirestoreErrorMessage(
+          error,
+          "Não foi possível carregar as preferências.",
+        ),
+      );
     } finally {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setIsLoadingPreferences(false);
-      }
+      setIsLoadingPreferences(false);
     }
   }, [getUserPreferencesUseCase, userId]);
 
   const updatePreferences = useCallback(
     async (input: UpdateUserPreferencesInput) => {
-      if (!userId) {
+      if (!userId || !preferences || isUpdatingPreferences) {
         return;
       }
 
-      try {
-        setIsUpdatingPreferences(true);
-        setPreferencesError(null);
+      const previousPreferences = preferences;
+      const optimisticPreferences: UserPreferences = {
+        ...previousPreferences,
+        ...input,
+        updatedAt: new Date(),
+      };
 
+      setPreferences(optimisticPreferences);
+      setIsUpdatingPreferences(true);
+      setPreferencesError(null);
+
+      try {
         const result = await updateUserPreferencesUseCase.execute({
           userId,
           ...input,
@@ -111,6 +94,7 @@ export function useUserPreferences(userId: string | null) {
 
         setPreferences(result.preferences);
       } catch (error) {
+        setPreferences(previousPreferences);
         setPreferencesError(
           getFirebaseFirestoreErrorMessage(
             error,
@@ -121,7 +105,12 @@ export function useUserPreferences(userId: string | null) {
         setIsUpdatingPreferences(false);
       }
     },
-    [updateUserPreferencesUseCase, userId],
+    [
+      isUpdatingPreferences,
+      preferences,
+      updateUserPreferencesUseCase,
+      userId,
+    ],
   );
 
   useEffect(() => {
@@ -129,10 +118,7 @@ export function useUserPreferences(userId: string | null) {
       void loadPreferences();
     }, 0);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-      loadRequestIdRef.current += 1;
-    };
+    return () => window.clearTimeout(timeoutId);
   }, [loadPreferences]);
 
   return {

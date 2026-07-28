@@ -6,8 +6,8 @@ import type {
 
 import {
   Alert,
+  Card,
   FormField,
-  PageHeader,
   Select,
   ToggleField,
 } from "../../../shared/ui";
@@ -21,6 +21,7 @@ interface UserPreferencesPanelProps {
     fontSize?: FontSizePreference;
     contrast?: ContrastPreference;
     simpleMode?: boolean;
+    reduceMotion?: boolean;
     increasedSpacing?: boolean;
   }) => Promise<void>;
 }
@@ -34,51 +35,46 @@ export function UserPreferencesPanel({
 }: UserPreferencesPanelProps) {
   if (isLoading) {
     return (
-      <section
-        className="mx-auto mt-8 w-full max-w-7xl"
-        aria-labelledby="preferences-title"
-      >
-        <PageHeader
-          titleId="preferences-title"
-          title="Preferências de acessibilidade"
-        />
+      <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+        <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
+          Preferências de acessibilidade
+        </h2>
 
         <p className="mt-4 text-slate-600">Carregando preferências...</p>
-      </section>
+      </Card>
     );
   }
 
   if (!preferences) {
     return (
-      <section
-        className="mx-auto mt-8 w-full max-w-7xl"
-        aria-labelledby="preferences-title"
-      >
-        <PageHeader
-          titleId="preferences-title"
-          title="Preferências de acessibilidade"
-        />
+      <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+        <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
+          Preferências de acessibilidade
+        </h2>
 
         <p className="mt-4 text-slate-600">Preferências não encontradas.</p>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <section
-      className="mx-auto mt-8 w-full max-w-7xl"
-      aria-labelledby="preferences-title"
-    >
-      <PageHeader
-        titleId="preferences-title"
-        title="Preferências de acessibilidade"
-        description="Ajuste a experiência visual para deixar o HelpSenior mais confortável e fácil de usar."
-        action={
-          isUpdating ? (
-            <span className="text-sm font-bold text-slate-500">Salvando...</span>
-          ) : null
-        }
-      />
+    <Card as="section" className="mt-8" aria-labelledby="preferences-title">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 id="preferences-title" className="m-0 text-[28px] font-bold">
+            Preferências de acessibilidade
+          </h2>
+
+          <p className="preferences-description mt-2 text-base leading-6 text-slate-500">
+            Ajuste a experiência visual para deixar o HelpSenior mais
+            confortável e fácil de usar.
+          </p>
+        </div>
+
+        {isUpdating && (
+          <span className="text-sm font-bold text-slate-500">Salvando...</span>
+        )}
+      </div>
 
       {error && (
         <Alert tone="error" className="app-error mt-4">
@@ -89,6 +85,7 @@ export function UserPreferencesPanel({
       <div className="mt-6 grid gap-4">
         <FormField label="Tamanho da fonte">
           <Select
+            disabled={isUpdating}
             value={preferences.fontSize}
             onChange={(event) =>
               void onUpdatePreferences({
@@ -104,6 +101,7 @@ export function UserPreferencesPanel({
 
         <FormField label="Contraste">
           <Select
+            disabled={isUpdating}
             value={preferences.contrast}
             onChange={(event) =>
               void onUpdatePreferences({
@@ -117,6 +115,7 @@ export function UserPreferencesPanel({
 
         <ToggleField
           checked={preferences.simpleMode}
+          disabled={isUpdating}
           label="Modo simples"
           description="Reduz informações e prioriza ações principais."
           onChange={(event) =>
@@ -127,7 +126,20 @@ export function UserPreferencesPanel({
         />
 
         <ToggleField
+          checked={preferences.reduceMotion}
+          disabled={isUpdating}
+          label="Reduzir animações"
+          description="Remove animações e transições para deixar a navegação mais confortável."
+          onChange={(event) =>
+            void onUpdatePreferences({
+              reduceMotion: event.target.checked,
+            })
+          }
+        />
+
+        <ToggleField
           checked={preferences.increasedSpacing}
+          disabled={isUpdating}
           label="Espaçamento maior"
           description="Aumenta os espaços entre elementos para facilitar a leitura."
           onChange={(event) =>
@@ -137,6 +149,6 @@ export function UserPreferencesPanel({
           }
         />
       </div>
-    </section>
+    </Card>
   );
 }

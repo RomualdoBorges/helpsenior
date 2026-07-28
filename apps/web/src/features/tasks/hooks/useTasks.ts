@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   CompleteTaskUseCase,
@@ -8,23 +8,25 @@ import {
   UpdateTaskUseCase,
   type Task,
 } from "@helpsenior/core";
-import { FirebaseTaskRepository } from "@helpsenior/firebase/tasks";
+import { FirebaseTaskRepository } from "@helpsenior/firebase";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 import { sortTasks } from "../utils/sortTasks";
 
-interface CreateTaskInput {
+export interface CreateTaskInput {
   title: string;
   description?: string;
-  date: string;
+  date?: string;
+  activityId?: string;
 }
 
-interface UpdateTaskInput {
+export interface UpdateTaskInput {
   taskId: string;
   title: string;
   description?: string;
-  date: string;
+  date?: string;
+  activityId?: string;
 }
 
 export function useTasks(userId: string | null) {
@@ -34,12 +36,6 @@ export function useTasks(userId: string | null) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const loadRequestIdRef = useRef(0);
-  const activeUserIdRef = useRef(userId);
-
-  useEffect(() => {
-    activeUserIdRef.current = userId;
-  }, [userId]);
 
   const taskRepository = useMemo(() => new FirebaseTaskRepository(db), []);
 
@@ -69,16 +65,8 @@ export function useTasks(userId: string | null) {
   );
 
   const loadTasks = useCallback(async () => {
-    if (userId !== activeUserIdRef.current) {
-      return;
-    }
-
-    const requestId = ++loadRequestIdRef.current;
-
     if (!userId) {
       setTasks([]);
-      setIsLoading(false);
-      setError(null);
       return;
     }
 
@@ -90,38 +78,23 @@ export function useTasks(userId: string | null) {
         userId,
       });
 
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setTasks(sortTasks(result.tasks));
-      }
+      setTasks(sortTasks(result.tasks));
     } catch (caughtError) {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setError(
-          getFirebaseFirestoreErrorMessage(
-            caughtError,
-            "Não foi possível carregar as tarefas.",
-          ),
-        );
-      }
+      setError(
+        getFirebaseFirestoreErrorMessage(
+          caughtError,
+          "Não foi possível carregar as tarefas.",
+        ),
+      );
     } finally {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
   }, [listTasksUseCase, userId]);
 
   const createTask = useCallback(
     async (input: CreateTaskInput) => {
       if (!userId) {
-        return false;
+        return;
       }
 
       try {
@@ -133,11 +106,10 @@ export function useTasks(userId: string | null) {
           title: input.title,
           description: input.description,
           date: input.date,
+          activityId: input.activityId,
         });
 
         await loadTasks();
-
-        return true;
       } catch (caughtError) {
         setError(
           getFirebaseFirestoreErrorMessage(
@@ -145,8 +117,6 @@ export function useTasks(userId: string | null) {
             "Não foi possível criar a tarefa.",
           ),
         );
-
-        return false;
       } finally {
         setIsCreating(false);
       }
@@ -165,6 +135,7 @@ export function useTasks(userId: string | null) {
           title: input.title,
           description: input.description,
           date: input.date,
+          activityId: input.activityId,
         });
 
         await loadTasks();
@@ -234,10 +205,7 @@ export function useTasks(userId: string | null) {
       void loadTasks();
     }, 0);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-      loadRequestIdRef.current += 1;
-    };
+    return () => window.clearTimeout(timeoutId);
   }, [loadTasks]);
 
   return {

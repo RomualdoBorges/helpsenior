@@ -1,9 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { AuthUser } from "@helpsenior/firebase/auth";
+import {
+  GetUserProfileUseCase,
+  UpdateUserProfileUseCase,
+} from "@helpsenior/core";
+import {
+  FirebaseUserProfileRepository,
+  type AuthUser,
+} from "@helpsenior/firebase";
 
-import { authService } from "../../../config/firebaseAuth";
+import { authService, db } from "../../../config/firebase";
 import { getFirebaseAuthErrorMessage } from "../utils/getFirebaseAuthErrorMessage";
+
+export const USER_PROFILE_UPDATED_EVENT = "helpsenior:user-profile-updated";
+
+export interface UserProfileUpdatedEventDetail {
+  userId: string;
+  email: string | null;
+  name: string;
+}
+
+export function getPendingUserProfileNameStorageKey(userId: string) {
+  return `helpsenior:pending-user-profile-name:${userId}`;
+}
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -13,14 +32,24 @@ export function useAuth() {
   const [authSuccessMessage, setAuthSuccessMessage] = useState<string | null>(
     null,
   );
-  const isSigningUpRef = useRef(false);
+
+  const userProfileRepository = useMemo(
+    () => new FirebaseUserProfileRepository(db),
+    [],
+  );
+
+  const getUserProfileUseCase = useMemo(
+    () => new GetUserProfileUseCase(userProfileRepository),
+    [userProfileRepository],
+  );
+
+  const updateUserProfileUseCase = useMemo(
+    () => new UpdateUserProfileUseCase(userProfileRepository),
+    [userProfileRepository],
+  );
 
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged((currentUser) => {
-      if (isSigningUpRef.current) {
-        return;
-      }
-
       setUser(currentUser);
       setIsLoadingAuth(false);
     });
@@ -30,36 +59,22 @@ export function useAuth() {
 
   const signUp = useCallback(
     async (input: { name: string; email: string; password: string }) => {
-      let createdUser: AuthUser | null = null;
-
       try {
-        isSigningUpRef.current = true;
         setIsSubmittingAuth(true);
         setAuthError(null);
         setAuthSuccessMessage(null);
 
         const normalizedName = input.name.trim();
 
-        createdUser = await authService.signUp(
+        const createdUser = await authService.signUp(
           input.email,
           input.password,
         );
 
-        const [coreModule, firebaseModule, firebaseConfigModule] =
-          await Promise.all([
-            import("@helpsenior/core"),
-            import("@helpsenior/firebase/profile"),
-            import("../../../config/firebase"),
-          ]);
-
-        const userProfileRepository =
-          new firebaseModule.FirebaseUserProfileRepository(
-            firebaseConfigModule.db,
-          );
-
-        const updateUserProfileUseCase = new coreModule.UpdateUserProfileUseCase(
-          userProfileRepository,
-        );
+        await getUserProfileUseCase.execute({
+          userId: createdUser.id,
+          email: createdUser.email,
+        });
 
         await updateUserProfileUseCase.execute({
           userId: createdUser.id,
@@ -67,22 +82,32 @@ export function useAuth() {
           name: normalizedName,
         });
 
-        isSigningUpRef.current = false;
+        sessionStorage.setItem(
+          getPendingUserProfileNameStorageKey(createdUser.id),
+          normalizedName,
+        );
+
         setUser(createdUser);
+
+        window.dispatchEvent(
+          new CustomEvent<UserProfileUpdatedEventDetail>(
+            USER_PROFILE_UPDATED_EVENT,
+            {
+              detail: {
+                userId: createdUser.id,
+                email: createdUser.email,
+                name: normalizedName,
+              },
+            },
+          ),
+        );
       } catch (error) {
-        isSigningUpRef.current = false;
-
-        if (createdUser) {
-          setUser(createdUser);
-        }
-
         setAuthError(getFirebaseAuthErrorMessage(error));
       } finally {
-        isSigningUpRef.current = false;
         setIsSubmittingAuth(false);
       }
     },
-    [],
+    [getUserProfileUseCase, updateUserProfileUseCase],
   );
 
   const signIn = useCallback(async (email: string, password: string) => {

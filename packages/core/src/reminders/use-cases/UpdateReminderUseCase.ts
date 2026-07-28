@@ -6,6 +6,7 @@ import type { ReminderRepository } from "../repositories/ReminderRepository";
 
 export interface UpdateReminderUseCaseInput {
   reminderId: string;
+  taskId?: string;
   title: string;
   description?: string;
   date: string;
@@ -55,6 +56,12 @@ export class UpdateReminderUseCase {
       recurrence,
       updatedAt: new Date(),
     };
+
+    if (input.taskId) {
+      updatedReminder.taskId = input.taskId;
+    } else {
+      delete updatedReminder.taskId;
+    }
 
     if (input.description?.trim()) {
       updatedReminder.description = input.description.trim();

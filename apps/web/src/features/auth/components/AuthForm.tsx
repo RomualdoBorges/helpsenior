@@ -93,13 +93,13 @@ export function AuthForm({
   }
 
   return (
-    <section className="mx-auto w-full max-w-130">
+    <section className="w-full max-w-150 justify-self-center rounded-3xl bg-white p-6 shadow-[0_16px_40px_rgb(109_40_217/0.12)] lg:p-8">
       <div>
-        <p className="m-0 text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
+        <p className="m-0 text-sm font-bold uppercase tracking-[0.12em] text-violet-700">
           HelpSenior
         </p>
 
-        <h1 className="mt-2 text-[32px] font-bold leading-tight text-slate-950">
+        <h1 className="mt-2 text-[32px] font-bold leading-tight text-violet-950">
           {isSignUpMode && "Criar conta"}
           {isSignInMode && "Entrar na conta"}
           {isResetPasswordMode && "Recuperar senha"}
@@ -118,15 +118,15 @@ export function AuthForm({
       </div>
 
       {!isResetPasswordMode && (
-        <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+        <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-violet-50 p-1">
           <Button
             type="button"
             onClick={() => handleModeChange("sign-in")}
             variant="ghost"
             className={`min-h-11 rounded-xl font-bold ${
               isSignInMode
-                ? "bg-white text-slate-950 shadow-sm"
-                : "text-slate-500"
+                ? "bg-white text-violet-700 shadow-sm"
+                : "text-slate-600 hover:text-violet-700"
             }`}>
             Entrar
           </Button>
@@ -137,8 +137,8 @@ export function AuthForm({
             variant="ghost"
             className={`min-h-11 rounded-xl font-bold ${
               isSignUpMode
-                ? "bg-white text-slate-950 shadow-sm"
-                : "text-slate-500"
+                ? "bg-white text-violet-700 shadow-sm"
+                : "text-slate-600 hover:text-violet-700"
             }`}>
             Criar conta
           </Button>
@@ -149,6 +149,7 @@ export function AuthForm({
         {isSignUpMode && (
           <FormField label="Nome completo">
             <Input
+              className="focus:border-violet-700 focus:ring-3 focus:ring-violet-100"
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -161,6 +162,7 @@ export function AuthForm({
 
         <FormField label="E-mail">
           <Input
+            className="focus:border-violet-700 focus:ring-3 focus:ring-violet-100"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -173,6 +175,7 @@ export function AuthForm({
         {!isResetPasswordMode && (
           <FormField label="Senha">
             <Input
+              className="focus:border-violet-700 focus:ring-3 focus:ring-violet-100"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -186,6 +189,7 @@ export function AuthForm({
         {isSignUpMode && (
           <FormField label="Confirmar senha">
             <Input
+              className="focus:border-violet-700 focus:ring-3 focus:ring-violet-100"
               type="password"
               value={passwordConfirmation}
               onChange={(event) => setPasswordConfirmation(event.target.value)}
@@ -200,14 +204,13 @@ export function AuthForm({
           <Alert tone="error">{localError || error}</Alert>
         )}
 
-        {successMessage && (
-          <Alert tone="success">{successMessage}</Alert>
-        )}
+        {successMessage && <Alert tone="success">{successMessage}</Alert>}
 
         <Button
           type="submit"
           disabled={isSubmitting}
-          size="lg">
+          size="lg"
+          className="border-violet-700 bg-violet-700 hover:bg-violet-800">
           {isSubmitting && "Aguarde..."}
           {!isSubmitting && isSignInMode && "Entrar"}
           {!isSubmitting && isSignUpMode && "Criar conta"}
@@ -221,7 +224,7 @@ export function AuthForm({
           onClick={() => handleModeChange("reset-password")}
           fullWidth
           variant="ghost"
-          className="mt-4">
+          className="mt-4 text-violet-700 hover:bg-violet-50 hover:text-violet-800">
           Esqueci minha senha
         </Button>
       )}
@@ -232,7 +235,7 @@ export function AuthForm({
           onClick={() => handleModeChange("sign-in")}
           fullWidth
           variant="ghost"
-          className="mt-4">
+          className="mt-4 text-violet-700 hover:bg-violet-50 hover:text-violet-800">
           Voltar para o login
         </Button>
       )}

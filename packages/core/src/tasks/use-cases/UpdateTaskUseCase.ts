@@ -5,7 +5,8 @@ export interface UpdateTaskUseCaseInput {
   taskId: string;
   title: string;
   description?: string;
-  date: string;
+  date?: string;
+  activityId?: string;
 }
 
 export interface UpdateTaskUseCaseOutput {
@@ -28,10 +29,6 @@ export class UpdateTaskUseCase {
       throw new Error("Título da tarefa é obrigatório.");
     }
 
-    if (!input.date.trim()) {
-      throw new Error("Data da tarefa é obrigatória.");
-    }
-
     const task = await this.taskRepository.findById(input.taskId);
 
     if (!task) {
@@ -41,14 +38,25 @@ export class UpdateTaskUseCase {
     const updatedTask: Task = {
       ...task,
       title: input.title.trim(),
-      date: input.date.trim(),
       updatedAt: new Date(),
     };
+
+    if (input.activityId) {
+      updatedTask.activityId = input.activityId;
+    } else {
+      delete updatedTask.activityId;
+    }
 
     if (input.description?.trim()) {
       updatedTask.description = input.description.trim();
     } else {
       delete updatedTask.description;
+    }
+
+    if (input.date) {
+      updatedTask.date = input.date;
+    } else {
+      delete updatedTask.date;
     }
 
     await this.taskRepository.update(updatedTask);

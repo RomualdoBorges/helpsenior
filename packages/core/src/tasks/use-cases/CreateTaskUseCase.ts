@@ -5,7 +5,8 @@ export interface CreateTaskUseCaseInput {
   userId: string;
   title: string;
   description?: string;
-  date: string;
+  date?: string;
+  activityId?: string;
 }
 
 export interface CreateTaskUseCaseOutput {
@@ -32,10 +33,6 @@ export class CreateTaskUseCase {
       throw new Error("Título da tarefa é obrigatório.");
     }
 
-    if (!input.date.trim()) {
-      throw new Error("Data da tarefa é obrigatória.");
-    }
-
     const now = new Date();
 
     const task: Task = {
@@ -44,13 +41,20 @@ export class CreateTaskUseCase {
       title: input.title,
       status: "pending",
       completed: false,
-      date: input.date.trim(),
       createdAt: now,
       updatedAt: now,
     };
 
+    if (input.activityId) {
+      task.activityId = input.activityId;
+    }
+
     if (input.description) {
       task.description = input.description;
+    }
+
+    if (input.date) {
+      task.date = input.date;
     }
 
     await this.taskRepository.create(task);

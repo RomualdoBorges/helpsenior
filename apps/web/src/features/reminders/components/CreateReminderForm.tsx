@@ -1,45 +1,38 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 
-import type { ReminderRecurrence } from "@helpsenior/core";
+import type { Reminder, ReminderRecurrence } from "@helpsenior/core";
 
-import {
-  Alert,
-  FormField,
-  Input,
-  ModalForm,
-  Select,
-  Textarea,
-} from "../../../shared/ui";
-
-interface CreateReminderInput {
-  title: string;
-  description?: string;
-  date: string;
-  time?: string;
-  recurrence?: ReminderRecurrence;
-  recurrenceEndDate?: string;
-}
+import { Button, FormField, Input, Select, Textarea } from "../../../shared/ui";
+import type {
+  CreateReminderInput,
+  UpdateReminderInput,
+} from "../hooks/useReminders";
 
 interface CreateReminderFormProps {
-  isOpen: boolean;
+  reminder?: Reminder | null;
   isCreating: boolean;
-  onClose: () => void;
-  onCreateReminder: (input: CreateReminderInput) => Promise<boolean>;
+  onCreateReminder: (input: CreateReminderInput) => Promise<void>;
+  onUpdateReminder: (input: UpdateReminderInput) => Promise<void>;
 }
 
 export function CreateReminderForm({
-  isOpen,
+  reminder,
   isCreating,
-  onClose,
   onCreateReminder,
+  onUpdateReminder,
 }: CreateReminderFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
+  const [title, setTitle] = useState(reminder?.title ?? "");
+  const [description, setDescription] = useState(
+    reminder?.description ?? "",
+  );
+  const [date, setDate] = useState(reminder?.date ?? "");
+  const [time, setTime] = useState(reminder?.time ?? "");
+  const [recurrence, setRecurrence] = useState<ReminderRecurrence>(
+    reminder?.recurrence ?? "none",
+  );
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(
+    reminder?.recurrenceEndDate ?? "",
+  );
 
   function resetForm() {
     setTitle("");
@@ -48,115 +41,129 @@ export function CreateReminderForm({
     setTime("");
     setRecurrence("none");
     setRecurrenceEndDate("");
-    setLocalError(null);
   }
 
-  function closeForm() {
-    resetForm();
-    onClose();
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLocalError(null);
 
-    const wasCreated = await onCreateReminder({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      date,
-      time: time || undefined,
-      recurrence,
-      recurrenceEndDate:
-        recurrence !== "none" && recurrenceEndDate
-          ? recurrenceEndDate
-          : undefined,
-    });
-
-    if (wasCreated) {
-      closeForm();
+    if (reminder) {
+      await onUpdateReminder({
+        reminderId: reminder.id,
+        title,
+        description: description.trim() ? description : undefined,
+        date,
+        time: time.trim() ? time : undefined,
+        recurrence,
+        taskId: reminder.taskId,
+        recurrenceEndDate:
+          recurrence !== "none" && recurrenceEndDate.trim()
+            ? recurrenceEndDate
+            : undefined,
+      });
     } else {
-      setLocalError("Não foi possível criar o lembrete. Tente novamente.");
+      await onCreateReminder({
+        title,
+        description: description.trim() ? description : undefined,
+        date,
+        time: time.trim() ? time : undefined,
+        recurrence,
+        recurrenceEndDate:
+          recurrence !== "none" && recurrenceEndDate.trim()
+            ? recurrenceEndDate
+            : undefined,
+      });
     }
+
+    resetForm();
   }
 
   return (
-    <ModalForm
-      isOpen={isOpen}
-      isSubmitting={isCreating}
-      onClose={closeForm}
-      onSubmit={handleSubmit}
-      titleId="create-reminder-title"
-      title="Criar lembrete"
-      descriptionId="create-reminder-description"
-      description="Escolha quando deseja receber o aviso e se ele deve se repetir."
-      submitLabel="Criar lembrete"
-      busyLabel="Criando lembrete..."
-      maxWidth="2xl"
-      className="create-reminder-dialog">
-      <FormField label="Título">
-        <Input
-          autoFocus
-          type="text"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Ex: Tomar remédio"
-          required
-        />
-      </FormField>
+    <form onSubmit={handleSubmit} className="create-form mt-2">
+      <h3
+        id="create-reminder"
+        className="reminder-form-title m-0 text-xl font-bold text-violet-700"
+      >
+        {reminder ? "Atualizar lembrete" : "Criar lembrete"}
+      </h3>
 
-      <FormField label="Descrição">
-        <Textarea
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          placeholder="Ex: Tomar o remédio da pressão com água"
-        />
-      </FormField>
+      <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
+        {reminder
+          ? "Atualize os dados do lembrete conforme necessário."
+          : "Defina quando deseja receber o aviso e, se precisar, escolha uma recorrência."}
+      </p>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Data">
+      <div className="mt-4 grid gap-4">
+        <FormField label="Título">
           <Input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
+            type="text"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Ex: Tomar remédio"
             required
           />
         </FormField>
 
-        <FormField label="Horário">
-          <Input
-            type="time"
-            value={time}
-            onChange={(event) => setTime(event.target.value)}
+        <FormField label="Descrição">
+          <Textarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="Ex: Tomar o remédio da pressão com água"
           />
         </FormField>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Recorrência">
-          <Select
-            value={recurrence}
-            onChange={(event) =>
-              setRecurrence(event.target.value as ReminderRecurrence)
-            }>
-            <option value="none">Nenhuma recorrência</option>
-            <option value="daily">Todos os dias</option>
-            <option value="weekly">Toda semana</option>
-            <option value="monthly">Todo mês</option>
-          </Select>
-        </FormField>
-
-        {recurrence !== "none" && (
-          <FormField label="Data final da recorrência">
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormField label="Data">
             <Input
               type="date"
-              value={recurrenceEndDate}
-              onChange={(event) => setRecurrenceEndDate(event.target.value)}
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              required
             />
           </FormField>
-        )}
+
+          <FormField label="Horário">
+            <Input
+              type="time"
+              value={time}
+              onChange={(event) => setTime(event.target.value)}
+            />
+          </FormField>
+        </div>
+
+        <div className="grid gap-4">
+          <FormField label="Recorrência">
+            <Select
+              className="w-full"
+              value={recurrence}
+              onChange={(event) =>
+                setRecurrence(event.target.value as ReminderRecurrence)
+              }>
+              <option value="none">Nenhuma recorrência</option>
+              <option value="daily">Todos os dias</option>
+              <option value="weekly">Toda semana</option>
+              <option value="monthly">Todo mês</option>
+            </Select>
+          </FormField>
+
+          {recurrence !== "none" && (
+            <FormField label="Data final da recorrência">
+              <Input
+                type="date"
+                value={recurrenceEndDate}
+                onChange={(event) => setRecurrenceEndDate(event.target.value)}
+              />
+            </FormField>
+          )}
+        </div>
       </div>
 
-      {localError && <Alert tone="error">{localError}</Alert>}
-    </ModalForm>
+      <Button
+        type="submit"
+        disabled={isCreating}
+        size="lg"
+        className="reminders-primary-action mb-4 mt-4 w-full">
+        {reminder ? "Atualizar lembrete" : "Criar lembrete"}
+      </Button>
+    </form>
   );
 }

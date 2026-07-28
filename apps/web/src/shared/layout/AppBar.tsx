@@ -4,275 +4,432 @@ import { Link, NavLink } from "react-router-dom";
 import type { Reminder } from "@helpsenior/core";
 
 import { classNames } from "../ui";
-
-const navigationLinks = [
-  { to: "/", label: "Home", end: true },
-  { to: "/tarefas", label: "Tarefas", end: false },
-  { to: "/lembretes", label: "Lembretes", end: false },
-];
+import { formatDisplayDate } from "../utils/formatDisplayDate";
 
 interface AppBarProps {
-  alerts: Reminder[];
+  dueReminders: Reminder[];
+  email: string | null;
   userName?: string;
-  userEmail: string | null;
-  onSignOut: () => Promise<void>;
+  onSignOut: () => void | Promise<void>;
 }
 
-export function AppBar({ alerts, userName, userEmail, onSignOut }: AppBarProps) {
-  const [isAlertsMenuOpen, setIsAlertsMenuOpen] = useState(false);
-  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const alertsMenuRef = useRef<HTMLDivElement>(null);
-  const accountMenuRef = useRef<HTMLDivElement>(null);
+type IconName =
+  | "activity"
+  | "bell"
+  | "chevron"
+  | "close"
+  | "logout"
+  | "menu"
+  | "profile"
+  | "settings"
+  | "task"
+  | "home";
 
-  const avatarLabel = getAvatarLabel(userName, userEmail);
+const links: { to: string; label: string; end: boolean; icon: IconName }[] = [
+  { to: "/", label: "Home", end: true, icon: "home" },
+  { to: "/atividades", label: "Atividades", end: true, icon: "activity" },
+  { to: "/tarefas", label: "Tarefas", end: true, icon: "task" },
+  { to: "/lembretes", label: "Lembretes", end: false, icon: "bell" },
+];
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsAlertsMenuOpen(false);
-        setIsAccountMenuOpen(false);
-      }
-    }
+function AppBarIcon({
+  name,
+  className = "size-5",
+}: {
+  name: IconName;
+  className?: string;
+}) {
+  const commonProps = {
+    "aria-hidden": true,
+    className,
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1.8,
+    viewBox: "0 0 24 24",
+  };
 
-    function handlePointerDown(event: PointerEvent) {
-      if (
-        accountMenuRef.current &&
-        !accountMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsAccountMenuOpen(false);
-      }
+  if (name === "home") {
+    return (
+      <svg {...commonProps}>
+        <path d="M3 11.5 12 4l9 7.5" />
+        <path d="M5.5 10v10h13V10M9.5 20v-6h5v6" />
+      </svg>
+    );
+  }
 
-      if (
-        alertsMenuRef.current &&
-        !alertsMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsAlertsMenuOpen(false);
-      }
-    }
+  if (name === "activity") {
+    return (
+      <svg {...commonProps}>
+        <circle cx="5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+        <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
+        <circle cx="5" cy="17.5" r="1" fill="currentColor" stroke="none" />
+        <path d="M9 6.5h11M9 12h11M9 17.5h11" />
+      </svg>
+    );
+  }
 
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("pointerdown", handlePointerDown);
+  if (name === "task") {
+    return (
+      <svg {...commonProps}>
+        <rect x="6" y="4" width="12" height="17" rx="2" />
+        <path d="M9 4.5V3h6v1.5M9 9h6M9 13h6M9 17h4" />
+      </svg>
+    );
+  }
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, []);
+  if (name === "bell") {
+    return (
+      <svg {...commonProps}>
+        <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </svg>
+    );
+  }
 
-  async function handleSignOut() {
-    setIsAccountMenuOpen(false);
-    await onSignOut();
+  if (name === "profile") {
+    return (
+      <svg {...commonProps}>
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M5 20c.7-4 3.1-6 7-6s6.3 2 7 6" />
+      </svg>
+    );
+  }
+
+  if (name === "settings") {
+    return (
+      <svg
+        {...commonProps}
+        fill="currentColor"
+        stroke="none"
+        viewBox="0 -960 960 960">
+        <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
+      </svg>
+    );
+  }
+
+  if (name === "logout") {
+    return (
+      <svg {...commonProps}>
+        <path d="M10 17 15 12 10 7M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      </svg>
+    );
+  }
+
+  if (name === "menu") {
+    return (
+      <svg {...commonProps}>
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    );
+  }
+
+  if (name === "close") {
+    return (
+      <svg {...commonProps}>
+        <path d="m5 5 14 14M19 5 5 19" />
+      </svg>
+    );
   }
 
   return (
-    <>
-      <header className="app-bar fixed inset-x-0 top-0 z-30 grid min-h-18 grid-cols-[1fr_auto] items-center border-b border-slate-300 bg-white px-4 sm:h-18 sm:grid-cols-[auto_1fr_auto] sm:px-0">
-        <Link
-          to="/"
-          className="flex h-full items-center justify-self-start text-xl font-bold text-slate-950 no-underline sm:px-6"
-        >
-          HelpSenior
-        </Link>
+    <svg {...commonProps}>
+      <path d="m8 10 4 4 4-4" />
+    </svg>
+  );
+}
+
+function getFirstName(userName: string | undefined) {
+  const firstName = userName?.trim().split(/\s+/)[0];
+
+  if (!firstName) {
+    return "Usuário";
+  }
+
+  return `${firstName.charAt(0).toUpperCase()}${firstName.slice(1)}`;
+}
+
+export function AppBar({
+  dueReminders,
+  email,
+  userName,
+  onSignOut,
+}: AppBarProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAlertsOpen, setIsAlertsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLElement>(null);
+  const alertsRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const dueReminderCount = dueReminders.length;
+  const displayName = getFirstName(userName);
+  const displayEmail = email || "E-mail não informado";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    function closeMenuOnOutsideClick(event: MouseEvent) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !mobileMenuButtonRef.current?.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+
+      if (
+        alertsRef.current &&
+        !alertsRef.current.contains(event.target as Node)
+      ) {
+        setIsAlertsOpen(false);
+      }
+
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    function closeMenuOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        setIsAlertsOpen(false);
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", closeMenuOnOutsideClick);
+    document.addEventListener("keydown", closeMenuOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeMenuOnOutsideClick);
+      document.removeEventListener("keydown", closeMenuOnEscape);
+    };
+  }, []);
+
+  return (
+    <header className="app-bar fixed inset-x-0 top-0 z-50 w-full border-b border-slate-200 bg-white ">
+      <div className="flex h-16 items-stretch md:grid md:grid-cols-[1fr_auto_1fr]">
+        <div className="flex shrink-0 items-stretch justify-self-start">
+          <button
+            ref={mobileMenuButtonRef}
+            type="button"
+            aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-controls="mobile-navigation"
+            aria-expanded={isMobileMenuOpen}
+            className="flex w-12 items-center justify-center text-slate-700 hover:bg-slate-100 hover:text-violet-700 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700 md:hidden"
+            onClick={() => {
+              setIsMobileMenuOpen((currentValue) => !currentValue);
+              setIsAlertsOpen(false);
+              setIsUserMenuOpen(false);
+            }}>
+            <AppBarIcon
+              name={isMobileMenuOpen ? "close" : "menu"}
+              className="size-7"
+            />
+          </button>
+
+          <Link
+            to="/"
+            aria-label="HelpSenior — página inicial"
+            className="app-bar-logo flex shrink-0 items-center rounded-lg font-bold text-slate-950 no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+            <span className="pr-2 text-xl sm:pr-5 sm:text-2xl md:px-5">
+              HelpSenior
+            </span>
+          </Link>
+        </div>
 
         <nav
-          id="app-navigation"
-          aria-label="Menu principal"
-          className="order-3 col-span-2 -mx-4 flex h-full items-stretch justify-center border-t border-slate-200 sm:order-0 sm:col-span-1 sm:mx-0 sm:border-t-0"
-        >
-          {navigationLinks.map((link) => (
+          aria-label="Navegação principal"
+          className="hidden min-w-0 items-stretch overflow-x-auto md:flex">
+          {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.end}
               className={({ isActive }) =>
                 classNames(
-                  "flex items-center border-b-4 px-4 py-3 font-bold text-slate-600 no-underline focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-slate-950 sm:h-full sm:px-6 sm:py-0",
+                  "relative flex shrink-0 items-center gap-2 px-3 text-base font-bold no-underline transition-colors focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700 sm:px-4",
                   isActive
-                    ? "border-slate-950 text-slate-950"
-                    : "border-transparent",
+                    ? "text-violet-700 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-violet-700"
+                    : "text-slate-600 hover:text-violet-700",
                 )
-              }
-            >
-              {link.label}
+              }>
+              <AppBarIcon name={link.icon} />
+              <span className="hidden md:inline">{link.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="flex h-full items-center">
-          <div
-            ref={alertsMenuRef}
-            className="relative flex h-full items-center px-2 sm:px-4"
-          >
+        <div className="ml-auto flex shrink-0 items-stretch justify-self-end md:ml-0">
+          <div ref={alertsRef} className="relative h-full">
             <button
               type="button"
-              className="relative flex size-12 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-950 hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
-              aria-label={`Abrir alertas. ${alerts.length} alerta${alerts.length === 1 ? "" : "s"}`}
-              aria-haspopup="menu"
-              aria-expanded={isAlertsMenuOpen}
+              aria-label={
+                dueReminderCount > 0
+                  ? `Mostrar ${dueReminderCount} alertas`
+                  : "Mostrar alertas"
+              }
+              aria-expanded={isAlertsOpen}
+              aria-haspopup="dialog"
+              className="relative flex h-full w-12 items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-violet-700 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700"
               onClick={() => {
-                setIsAlertsMenuOpen((isOpen) => !isOpen);
-                setIsAccountMenuOpen(false);
-              }}
-            >
-              <BellIcon />
-              {alerts.length > 0 ? (
-                <span className="absolute -right-1 -top-1 flex min-h-6 min-w-6 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold text-white">
-                  {alerts.length > 99 ? "99+" : alerts.length}
-                </span>
-              ) : null}
+                setIsAlertsOpen((currentValue) => !currentValue);
+                setIsUserMenuOpen(false);
+                setIsMobileMenuOpen(false);
+              }}>
+              <span className="relative flex items-center justify-center">
+                <AppBarIcon name="bell" className="size-6" />
+                {dueReminderCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold leading-5 text-white">
+                    {dueReminderCount > 9 ? "9+" : dueReminderCount}
+                  </span>
+                )}
+              </span>
             </button>
 
-            {isAlertsMenuOpen ? (
+            {isAlertsOpen && (
               <div
-                className="alerts-menu absolute right-0 top-full mt-3 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-slate-300 bg-white p-2 shadow-lg"
-                role="menu"
-              >
-                <div className="border-b border-slate-200 px-3 py-3">
-                  <strong className="block text-lg text-slate-950">
-                    Alertas
-                  </strong>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {alerts.length === 0
-                      ? "Nenhum lembrete vencido."
-                      : `${alerts.length} lembrete${alerts.length === 1 ? "" : "s"} aguardando atenção.`}
-                  </p>
+                role="dialog"
+                aria-label="Alertas de lembretes"
+                className="app-bar-panel notification-popover fixed inset-x-0 top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white shadow-xl md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80 md:rounded-2xl md:border">
+                <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                  <strong className="text-base text-slate-950">Alertas</strong>
+                  <span className="text-sm font-bold text-slate-500">
+                    {dueReminderCount}
+                  </span>
                 </div>
 
-                {alerts.length > 0 ? (
-                  <div className="max-h-80 overflow-y-auto py-2">
-                    {alerts.map((alert) => (
-                      <Link
-                        key={alert.id}
-                        to="/lembretes"
-                        role="menuitem"
-                        className="block rounded-xl px-3 py-3 text-slate-950 no-underline hover:bg-amber-50 focus-visible:outline-3 focus-visible:outline-amber-700"
-                        onClick={() => setIsAlertsMenuOpen(false)}
-                      >
-                        <strong className="block">{alert.title}</strong>
-                        <span className="mt-1 block text-sm text-slate-600">
-                          {alert.time
-                            ? `${formatAlertDate(alert.date)} às ${alert.time}`
-                            : formatAlertDate(alert.date)}
-                        </span>
-                      </Link>
+                {dueReminderCount === 0 ? (
+                  <p className="px-4 py-6 text-center text-sm text-slate-500">
+                    Nenhum alerta no momento.
+                  </p>
+                ) : (
+                  <ul className="m-0 max-h-80 list-none overflow-y-auto p-2">
+                    {dueReminders.map((reminder) => (
+                      <li
+                        key={reminder.id}
+                        className="flex gap-3 rounded-xl px-3 py-3 hover:bg-slate-50">
+                        <span
+                          aria-hidden="true"
+                          className="mt-1.5 size-2 shrink-0 rounded-full bg-red-600"
+                        />
+                        <div className="min-w-0">
+                          <strong className="block truncate text-sm text-slate-950">
+                            {reminder.title}
+                          </strong>
+                          <span className="mt-1 block text-sm text-slate-500">
+                            {formatDisplayDate(reminder.date)}
+                            {reminder.time ? ` às ${reminder.time}` : ""}
+                          </span>
+                        </div>
+                      </li>
                     ))}
-                  </div>
-                ) : null}
-
-                <Link
-                  to="/lembretes"
-                  role="menuitem"
-                  className="block border-t border-slate-200 px-3 py-3 text-center font-bold text-slate-950 no-underline hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-slate-950"
-                  onClick={() => setIsAlertsMenuOpen(false)}
-                >
-                  Ver todos os lembretes
-                </Link>
+                  </ul>
+                )}
               </div>
-            ) : null}
+            )}
           </div>
 
-          <div
-            ref={accountMenuRef}
-            className="relative flex h-full items-center pl-2 sm:px-4"
-          >
+          <div ref={userMenuRef} className="relative h-full">
             <button
               type="button"
-              className="flex size-12 items-center justify-center rounded-full border-2 border-slate-950 bg-slate-950 font-bold text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
-              aria-label="Abrir menu da conta"
+              className="flex h-full items-center gap-2 px-2 text-slate-950 hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-violet-700 sm:px-3"
+              aria-expanded={isUserMenuOpen}
               aria-haspopup="menu"
-              aria-expanded={isAccountMenuOpen}
               onClick={() => {
-                setIsAccountMenuOpen((isOpen) => !isOpen);
-                setIsAlertsMenuOpen(false);
-              }}
-            >
-              {avatarLabel}
+                setIsUserMenuOpen((currentValue) => !currentValue);
+                setIsAlertsOpen(false);
+                setIsMobileMenuOpen(false);
+              }}>
+              <span className="app-bar-avatar flex size-9 items-center justify-center rounded-full bg-violet-700 text-xs font-bold text-white">
+                {initial}
+              </span>
+              <span className="hidden max-w-28 truncate text-base font-bold lg:block">
+                {displayName}
+              </span>
+              <AppBarIcon
+                name="chevron"
+                className={classNames(
+                  "hidden size-4 transition-transform sm:block",
+                  isUserMenuOpen && "rotate-180",
+                )}
+              />
+              <span className="sr-only">Abrir opções da conta</span>
             </button>
 
-            {isAccountMenuOpen ? (
+            {isUserMenuOpen && (
               <div
-                className="account-menu absolute right-0 top-full mt-3 w-64 rounded-2xl border border-slate-300 bg-white p-2 shadow-lg"
                 role="menu"
-              >
+                className="app-bar-panel fixed inset-x-0 top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white p-2 shadow-xl md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-64 md:rounded-2xl md:border">
                 <div className="border-b border-slate-200 px-3 py-3">
-                  <strong className="block truncate text-slate-950">
-                    {userName || "Conta conectada"}
+                  <strong className="block truncate text-sm text-slate-950">
+                    {displayName}
                   </strong>
-                  {userEmail ? (
-                    <p className="mt-1 truncate text-sm text-slate-500">
-                      {userEmail}
-                    </p>
-                  ) : null}
+                  <span className="mt-1 block truncate text-xs text-slate-500">
+                    {displayEmail}
+                  </span>
                 </div>
 
                 <Link
                   to="/perfil"
                   role="menuitem"
-                  className="mt-2 block rounded-xl px-3 py-3 font-bold text-slate-950 no-underline hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-slate-950"
-                  onClick={() => setIsAccountMenuOpen(false)}
-                >
-                  Meu perfil
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="mt-2 flex items-center gap-3 rounded-xl px-3 py-3 font-bold text-slate-700 no-underline hover:bg-slate-100 hover:text-violet-700">
+                  <AppBarIcon name="profile" />
+                  Perfil
                 </Link>
-
                 <Link
                   to="/configuracoes"
                   role="menuitem"
-                  className="block rounded-xl px-3 py-3 font-bold text-slate-950 no-underline hover:bg-slate-100 focus-visible:outline-3 focus-visible:outline-slate-950"
-                  onClick={() => setIsAccountMenuOpen(false)}
-                >
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 font-bold text-slate-700 no-underline hover:bg-slate-100 hover:text-violet-700">
+                  <AppBarIcon name="settings" />
                   Configurações
                 </Link>
-
                 <button
                   type="button"
                   role="menuitem"
-                  className="w-full rounded-xl px-3 py-3 text-left font-bold text-red-700 hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-red-700"
-                  onClick={() => void handleSignOut()}
-                >
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 font-bold text-red-700 hover:bg-red-50"
+                  onClick={() => void onSignOut()}>
+                  <AppBarIcon name="logout" />
                   Sair
                 </button>
               </div>
-            ) : null}
+            )}
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="h-26 sm:h-18" aria-hidden="true" />
-    </>
-  );
-}
-
-function getAvatarLabel(userName?: string, userEmail?: string | null) {
-  const source = userName?.trim() || userEmail?.trim() || "Usuário";
-  const words = source.split(/\s+/).filter(Boolean);
-
-  if (words.length > 1) {
-    return `${words[0]?.[0] ?? ""}${words.at(-1)?.[0] ?? ""}`.toUpperCase();
-  }
-
-  return source.slice(0, 2).toUpperCase();
-}
-
-function formatAlertDate(date: string) {
-  const [year, month, day] = date.split("-");
-
-  if (!year || !month || !day) {
-    return date;
-  }
-
-  return `${day}/${month}/${year}`;
-}
-
-function BellIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="size-7" fill="none">
-      <path
-        d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      {isMobileMenuOpen && (
+        <nav
+          ref={mobileMenuRef}
+          id="mobile-navigation"
+          aria-label="Navegação principal"
+          className="app-bar-panel absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white p-2 shadow-xl md:hidden">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                classNames(
+                  "flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold no-underline focus-visible:outline-3 focus-visible:outline-violet-700",
+                  isActive
+                    ? "bg-violet-50 text-violet-700"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-violet-700",
+                )
+              }>
+              <AppBarIcon name={link.icon} className="size-6" />
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
+    </header>
   );
 }

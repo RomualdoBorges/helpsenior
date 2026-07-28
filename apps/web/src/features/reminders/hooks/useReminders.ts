@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   CompleteReminderUseCase,
@@ -9,22 +9,23 @@ import {
   type Reminder,
   type ReminderRecurrence,
 } from "@helpsenior/core";
-import { FirebaseReminderRepository } from "@helpsenior/firebase/reminders";
+import { FirebaseReminderRepository } from "@helpsenior/firebase";
 
 import { db } from "../../../config/firebase";
 import { getFirebaseFirestoreErrorMessage } from "../../../shared/errors/getFirebaseFirestoreErrorMessage";
 import { sortReminders } from "../utils/sortReminders";
 
-interface CreateReminderInput {
+export interface CreateReminderInput {
   title: string;
   description?: string;
   date: string;
   time?: string;
   recurrence?: ReminderRecurrence;
   recurrenceEndDate?: string;
+  taskId?: string;
 }
 
-interface UpdateReminderInput {
+export interface UpdateReminderInput {
   reminderId: string;
   title: string;
   description?: string;
@@ -32,6 +33,7 @@ interface UpdateReminderInput {
   time?: string;
   recurrence?: ReminderRecurrence;
   recurrenceEndDate?: string;
+  taskId?: string;
 }
 
 export function useReminders(userId: string | null) {
@@ -41,12 +43,6 @@ export function useReminders(userId: string | null) {
   const [isUpdatingReminder, setIsUpdatingReminder] = useState(false);
   const [isDeletingReminder, setIsDeletingReminder] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
-  const loadRequestIdRef = useRef(0);
-  const activeUserIdRef = useRef(userId);
-
-  useEffect(() => {
-    activeUserIdRef.current = userId;
-  }, [userId]);
 
   const reminderRepository = useMemo(
     () => new FirebaseReminderRepository(db),
@@ -79,16 +75,8 @@ export function useReminders(userId: string | null) {
   );
 
   const loadReminders = useCallback(async () => {
-    if (userId !== activeUserIdRef.current) {
-      return;
-    }
-
-    const requestId = ++loadRequestIdRef.current;
-
     if (!userId) {
       setReminders([]);
-      setIsLoadingReminders(false);
-      setRemindersError(null);
       return;
     }
 
@@ -100,38 +88,23 @@ export function useReminders(userId: string | null) {
         userId,
       });
 
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setReminders(sortReminders(result.reminders));
-      }
+      setReminders(sortReminders(result.reminders));
     } catch (caughtError) {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setRemindersError(
-          getFirebaseFirestoreErrorMessage(
-            caughtError,
-            "Não foi possível carregar os lembretes.",
-          ),
-        );
-      }
+      setRemindersError(
+        getFirebaseFirestoreErrorMessage(
+          caughtError,
+          "Não foi possível carregar os lembretes.",
+        ),
+      );
     } finally {
-      if (
-        requestId === loadRequestIdRef.current &&
-        userId === activeUserIdRef.current
-      ) {
-        setIsLoadingReminders(false);
-      }
+      setIsLoadingReminders(false);
     }
   }, [listRemindersUseCase, userId]);
 
   const createReminder = useCallback(
     async (input: CreateReminderInput) => {
       if (!userId) {
-        return false;
+        return;
       }
 
       try {
@@ -146,11 +119,10 @@ export function useReminders(userId: string | null) {
           time: input.time,
           recurrence: input.recurrence,
           recurrenceEndDate: input.recurrenceEndDate,
+          taskId: input.taskId
         });
 
         await loadReminders();
-
-        return true;
       } catch (caughtError) {
         setRemindersError(
           getFirebaseFirestoreErrorMessage(
@@ -158,8 +130,6 @@ export function useReminders(userId: string | null) {
             "Não foi possível criar o lembrete.",
           ),
         );
-
-        return false;
       } finally {
         setIsCreatingReminder(false);
       }
@@ -181,6 +151,7 @@ export function useReminders(userId: string | null) {
           time: input.time,
           recurrence: input.recurrence,
           recurrenceEndDate: input.recurrenceEndDate,
+          taskId: input.taskId
         });
 
         await loadReminders();
@@ -250,10 +221,7 @@ export function useReminders(userId: string | null) {
       void loadReminders();
     }, 0);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-      loadRequestIdRef.current += 1;
-    };
+    return () => window.clearTimeout(timeoutId);
   }, [loadReminders]);
 
   return {
