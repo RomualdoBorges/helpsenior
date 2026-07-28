@@ -252,16 +252,22 @@ O app `@helpsenior/web` possui:
 
 - 76 testes unitários para utilitários, componentes e hooks;
 - 11 testes de integração para páginas de atividades, tarefas e lembretes;
-- 3 testes E2E de autenticação com Playwright e Chromium.
+- 4 testes E2E com Playwright e Chromium, incluindo uma jornada autenticada com Firebase Emulator.
 
-Ao todo, são 87 testes executados pelo Vitest no app Web, além dos 3 testes E2E.
+Ao todo, são 87 testes executados pelo Vitest no app Web, além dos 4 testes E2E.
 
 Para preparar e executar os testes E2E:
 
 ```bash
 pnpm --filter @helpsenior/web exec playwright install chromium
-pnpm --filter @helpsenior/web test:e2e
+pnpm test:e2e:emulator
 ```
+
+Os testes E2E usam os emuladores locais do Firebase Authentication e Cloud
+Firestore. É necessário ter Java 21 ou superior instalado. A jornada autenticada
+cria uma conta, uma atividade, uma tarefa vinculada, um lembrete e uma
+preferência de acessibilidade, depois entra novamente para confirmar a
+persistência dos dados.
 
 ## Integração contínua
 
@@ -273,7 +279,6 @@ O projeto possui apps Web e Mobile. O app Web oferece autenticação, atividades
 
 ## Limitações atuais
 
-- os testes E2E autenticados ainda não usam Firebase Emulator;
 - não há notificações com app fechado;
 - não há Service Worker;
 - não há Firebase Cloud Messaging;

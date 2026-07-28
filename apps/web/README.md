@@ -205,9 +205,9 @@ O app Web possui três níveis de testes automatizados:
 
 - 76 testes unitários para utilitários, componentes e hooks;
 - 11 testes de integração para os fluxos das páginas de atividades, tarefas e lembretes;
-- 3 testes E2E com Playwright para a jornada pública de autenticação.
+- 4 testes E2E com Playwright, incluindo uma jornada autenticada com Firebase Emulator.
 
-Ao todo, são 87 testes executados pelo Vitest, além dos 3 testes E2E.
+Ao todo, são 87 testes executados pelo Vitest, além dos 4 testes E2E.
 
 Os testes unitários e de integração usam Vitest, React Testing Library e `jsdom`. Os testes E2E executam a aplicação em um navegador Chromium real.
 
@@ -222,8 +222,12 @@ Para executar cada nível:
 ```bash
 pnpm --filter @helpsenior/web test
 pnpm --filter @helpsenior/web test:integration
-pnpm --filter @helpsenior/web test:e2e
+pnpm test:e2e:emulator
 ```
+
+O comando E2E inicia os emuladores do Firebase Authentication e Cloud
+Firestore, executa os testes e encerra os serviços ao final. É necessário ter
+Java 21 ou superior instalado.
 
 Os relatórios do Playwright são gerados em `apps/web/playwright-report`.
 
@@ -249,7 +253,6 @@ O arquivo `src/index.css` importa o Tailwind e concentra regras globais de acess
 
 ## Limitações atuais
 
-- os testes E2E autenticados ainda não usam Firebase Emulator;
 - notificações dependem do app aberto;
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
