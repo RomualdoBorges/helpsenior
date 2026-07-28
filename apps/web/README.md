@@ -120,7 +120,8 @@ apps/web/
 │   ├── favicon.svg
 │   └── icons.svg
 ├── e2e/
-│   └── auth.e2e.ts
+│   ├── auth.e2e.ts
+│   └── authenticated-journey.e2e.ts
 ├── src/
 │   ├── config/
 │   │   └── firebase.ts
