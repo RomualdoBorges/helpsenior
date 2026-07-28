@@ -469,6 +469,16 @@ html.high-contrast body,
   display: none !important;
 }
 
+/* Redução de animações */
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  transition: none !important;
+}
+
 /* Espaçamento maior */
 
 .app-shell.increased-spacing {

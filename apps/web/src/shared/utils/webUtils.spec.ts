@@ -32,7 +32,7 @@ describe("getPreferenceClassNames", () => {
     };
 
     expect(getPreferenceClassNames(preferences)).toBe(
-      "font-size-extra_large high-contrast simple-mode",
+      "font-size-extra_large high-contrast simple-mode reduce-motion",
     );
   });
 });

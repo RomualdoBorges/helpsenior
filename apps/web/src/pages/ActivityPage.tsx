@@ -205,7 +205,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     type="text"
                     value={filter}
                     onChange={(event) => setFilter(event.target.value)}
-                    placeholder="Procure por suas atividades"
+                    placeholder="Busque por suas atividades"
                     className="min-h-10 w-64 text-sm"
                     aria-label="Buscar atividades"
                   />
@@ -255,7 +255,7 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     navigate("/tarefas");
                   }}>
                   <span aria-hidden="true">←</span>
-                  Voltar para Tarefa
+                  Voltar para a tarefa
                 </Button>
               )}
 
@@ -267,13 +267,13 @@ export function ActivityPage({ user }: ActivityPageProps) {
                     onClick={() => {
                       setActivityStatus("updating");
                     }}>
-                    Editar Atividade
+                    Editar atividade
                   </Button>
                   <Button
                     size="sm"
                     variant="danger"
                     onClick={() => handleDeleteActivity(activeActivity!)}>
-                    Excluir Atividade
+                    Excluir atividade
                   </Button>
                 </div>
               )}

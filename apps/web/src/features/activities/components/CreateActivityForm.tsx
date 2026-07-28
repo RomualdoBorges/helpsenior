@@ -140,13 +140,12 @@ export function CreateActivityForm({
       {!activity ? (
         <>
           <h3 className="activity-form-title m-0 text-xl font-bold text-violet-700">
-            Criar Guia
+            Criar atividade
           </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-            Use Atividades para registrar etapas guiadas para suas difculdades
-            do dia a dia. Como usar aquele aplicativo? Como era mesmo aquela
-            receita? Faça seu manual pessoal para cosultar quando quiser.
+            Use atividades para registrar orientações sobre situações do dia a
+            dia. Crie seu guia pessoal para consultar quando precisar.
           </p>
         </>
       ) : (
@@ -156,7 +155,7 @@ export function CreateActivityForm({
           </h3>
 
           <p className="simple-mode-secondary mt-1 text-sm font-bold text-slate-500">
-            Atualize os campos que achar necessáriro e avance
+            Atualize os campos necessários e salve as alterações.
           </p>
         </>
       )}
@@ -196,7 +195,7 @@ export function CreateActivityForm({
                     className="mt-2 text-center cursor-pointer"
                     onClick={() => handleRemoveStep(step.order)}>
                     <Badge tone="red" className="mt-2">
-                      remover
+                      Remover
                     </Badge>
                   </div>
                 )}

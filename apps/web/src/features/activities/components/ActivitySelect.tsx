@@ -26,7 +26,7 @@ export function ActivitySelect({
 }: ActivitySelectProps) {
     
     const ActivityOptions = useMemo(
-        () => [{ id: '', title: 'Anexe uma atividade para ajudar a realizara tarefa'}, ...activities.map((activity) => {
+        () => [{ id: '', title: 'Anexe uma atividade para ajudar a realizar a tarefa'}, ...activities.map((activity) => {
             return {
                 id: activity.id,
                 title: activity.title,

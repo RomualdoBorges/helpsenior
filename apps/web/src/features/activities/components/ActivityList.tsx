@@ -24,7 +24,7 @@ export function ActivityList({
   if (isLoading) {
     return (
       <p className="mt-6 text-base font-bold text-slate-600">
-        Carregando tarefas...
+        Carregando atividades...
       </p>
     );
   }

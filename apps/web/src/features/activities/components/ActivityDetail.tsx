@@ -19,7 +19,7 @@ export function ActivityDetail({
   if (isLoading) {
     return (
       <p className="mt-6 text-base font-bold text-slate-600">
-        Carregando Atividade...
+        Carregando atividade...
       </p>
     );
   }
@@ -50,7 +50,7 @@ export function ActivityDetail({
       </div>
 
       <div className="flex flex-col">
-        <h2 className="m-0 text-lg font-bold text-slate-950 text-center">Etapa Atual</h2>
+        <h2 className="m-0 text-lg font-bold text-slate-950 text-center">Etapa atual</h2>
 
         { !(first && last) && (
           <div className={classNames(`mt-5 text-center ${first ? "invisible" : ""}`)}>

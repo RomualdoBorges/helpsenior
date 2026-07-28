@@ -86,7 +86,7 @@ export function useActivities(userId: string | null) {
       setError(
         getFirebaseFirestoreErrorMessage(
           caughtError,
-          "Não foi possível carregar as tarefas.",
+          "Não foi possível carregar as atividades.",
         ),
       );
     } finally {
@@ -109,7 +109,7 @@ export function useActivities(userId: string | null) {
         setError(
           getFirebaseFirestoreErrorMessage(
             caughtError,
-            "Não foi possível concluir a tarefa.",
+            "Não foi possível carregar a atividade.",
           ),
         );
       } finally {
@@ -142,7 +142,7 @@ export function useActivities(userId: string | null) {
         setError(
           getFirebaseFirestoreErrorMessage(
             caughtError,
-            "Não foi possível criar a tarefa.",
+            "Não foi possível criar a atividade.",
           ),
         );
       } finally {
@@ -171,7 +171,7 @@ export function useActivities(userId: string | null) {
         setError(
           getFirebaseFirestoreErrorMessage(
             caughtError,
-            "Não foi possível atualizar a tarefa.",
+            "Não foi possível atualizar a atividade.",
           ),
         );
       } finally {
@@ -196,7 +196,7 @@ export function useActivities(userId: string | null) {
         setError(
           getFirebaseFirestoreErrorMessage(
             caughtError,
-            "Não foi possível excluir a tarefa.",
+            "Não foi possível excluir a atividade.",
           ),
         );
       } finally {
