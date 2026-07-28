@@ -10,7 +10,8 @@ Este pacote isola a comunicação com Firebase Authentication e Cloud Firestore.
 - expor autenticação;
 - enviar e-mail de recuperação de senha;
 - observar estado de autenticação;
-- implementar repositórios Firestore para tarefas, lembretes, preferências e perfil;
+- implementar repositórios Firestore para atividades, tarefas, lembretes,
+  preferências e perfil;
 - mapear entidades do domínio para documentos do Firestore;
 - mapear documentos do Firestore para entidades do domínio;
 - remover campos opcionais `undefined` antes de salvar no Firestore.
@@ -22,7 +23,7 @@ Este pacote isola a comunicação com Firebase Authentication e Cloud Firestore.
         ↓
 @helpsenior/firebase
         ↓
-@helpsenior/web
+@helpsenior/web e @helpsenior/mobile
 ```
 
 ## Estrutura
@@ -34,6 +35,10 @@ packages/firebase/src/
 │   └── firebase.ts
 ├── auth/
 │   ├── FirebaseAuthService.ts
+│   └── index.ts
+├── activities/
+│   ├── mappers/
+│   ├── repositories/
 │   └── index.ts
 ├── tasks/
 │   ├── mappers/
@@ -120,11 +125,32 @@ O `id` do `AuthUser` é o `uid` do Firebase Authentication e é usado como `user
 ## Coleções
 
 ```txt
+activities
 tasks
 reminders
 userPreferences
 userProfiles
 ```
+
+## Activities
+
+O `FirebaseActivityRepository` implementa criação, consulta, listagem por
+usuário, atualização e exclusão na coleção `activities`.
+
+Campos principais:
+
+```txt
+userId
+title
+description
+steps
+resources
+createdAt
+updatedAt
+```
+
+O `ActivityFirestoreMapper` converte as datas e adiciona descrição e recursos
+somente quando existem.
 
 ## Tasks
 
@@ -308,7 +334,7 @@ UserProfileFirestoreMapper
 
 ## Consultas por usuário
 
-As listagens de tarefas e lembretes usam filtro por `userId`:
+As listagens de atividades, tarefas e lembretes usam filtro por `userId`:
 
 ```txt
 where("userId", "==", userId)
@@ -321,3 +347,8 @@ Assim, o app carrega apenas dados pertencentes ao usuário autenticado.
 ```bash
 pnpm --filter @helpsenior/firebase typecheck
 ```
+
+## Status
+
+O pacote está concluído para o escopo acadêmico atual do HelpSenior e é
+compartilhado pelas aplicações Web e Mobile.

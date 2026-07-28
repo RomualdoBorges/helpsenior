@@ -204,11 +204,11 @@ pnpm --filter @helpsenior/web preview
 
 O app Web possui três níveis de testes automatizados:
 
-- 76 testes unitários para utilitários, componentes e hooks;
-- 11 testes de integração para os fluxos das páginas de atividades, tarefas e lembretes;
-- 4 testes E2E com Playwright, incluindo uma jornada autenticada com Firebase Emulator.
-
-Ao todo, são 87 testes executados pelo Vitest, além dos 4 testes E2E.
+- testes unitários para utilitários, componentes e hooks;
+- testes de integração para os fluxos das páginas de atividades, tarefas e
+  lembretes;
+- testes E2E com Playwright, incluindo uma jornada autenticada com Firebase
+  Emulator.
 
 Os testes unitários e de integração usam Vitest, React Testing Library e `jsdom`. Os testes E2E executam a aplicação em um navegador Chromium real.
 
@@ -246,6 +246,13 @@ O workflow `.github/workflows/ci.yml` executa automaticamente:
 
 O workflow roda em pull requests, pushes para `main` e acionamentos manuais pelo GitHub Actions.
 
+## Entrega contínua
+
+Em pushes para `main`, o app é publicado no canal `live` do Firebase Hosting
+somente depois que os jobs de qualidade e E2E são concluídos com sucesso. O
+build usa as configurações Firebase cadastradas no environment `production` do
+GitHub.
+
 ## Estilização
 
 O app usa Tailwind CSS via `@tailwindcss/vite`.
@@ -258,3 +265,8 @@ O arquivo `src/index.css` importa o Tailwind e concentra regras globais de acess
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
 - não há login social.
+
+## Status
+
+A aplicação Web está concluída para o escopo acadêmico atual. As limitações
+listadas acima foram mantidas como decisões de escopo da versão final.

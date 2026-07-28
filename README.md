@@ -4,6 +4,8 @@ HelpSenior é uma aplicação Web e Mobile focada em acessibilidade para pessoas
 
 O projeto está organizado como um monorepo com separação entre domínio, infraestrutura Firebase e aplicações Web e Mobile.
 
+> Projeto acadêmico concluído no escopo descrito neste documento.
+
 ## Stack
 
 ```txt
@@ -221,6 +223,18 @@ Por padrão, o Vite sobe em:
 http://localhost:5173
 ```
 
+## Rodando o app Mobile
+
+O app Mobile é executado apenas pelo Expo Go durante o desenvolvimento:
+
+```bash
+pnpm --filter @helpsenior/mobile start
+```
+
+Depois de iniciar o Expo, leia o QR Code exibido no terminal com o aplicativo
+Expo Go. Não fazem parte do escopo atual builds com EAS, geração de APK/AAB ou
+publicação na Play Store e na App Store.
+
 ## Scripts principais
 
 ```bash
@@ -250,11 +264,10 @@ O pacote `@helpsenior/core` possui testes unitários com Vitest para:
 
 O app `@helpsenior/web` possui:
 
-- 76 testes unitários para utilitários, componentes e hooks;
-- 11 testes de integração para páginas de atividades, tarefas e lembretes;
-- 4 testes E2E com Playwright e Chromium, incluindo uma jornada autenticada com Firebase Emulator.
-
-Ao todo, são 87 testes executados pelo Vitest no app Web, além dos 4 testes E2E.
+- testes unitários para utilitários, componentes e hooks;
+- testes de integração para páginas de atividades, tarefas e lembretes;
+- testes E2E com Playwright e Chromium, incluindo uma jornada autenticada com
+  Firebase Emulator.
 
 Para preparar e executar os testes E2E:
 
@@ -273,9 +286,51 @@ persistência dos dados.
 
 O workflow `.github/workflows/ci.yml` executa lint, typecheck, testes, build e E2E em pull requests e pushes para `main`. O relatório do Playwright fica disponível como artefato da execução.
 
+## Entrega contínua
+
+Depois que os jobs de qualidade e E2E terminam com sucesso em um push para
+`main`, o mesmo workflow gera o build de produção e publica o app Web no canal
+`live` do Firebase Hosting. O app Mobile não participa do CD e continua
+disponível apenas pelo Expo Go.
+
+Crie no GitHub o environment `production` e configure:
+
+Secret:
+
+```txt
+FIREBASE_SERVICE_ACCOUNT
+VITE_FIREBASE_API_KEY
+```
+
+Variables:
+
+```txt
+VITE_FIREBASE_AUTH_DOMAIN
+VITE_FIREBASE_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET
+VITE_FIREBASE_MESSAGING_SENDER_ID
+VITE_FIREBASE_APP_ID
+```
+
+O valor de `FIREBASE_SERVICE_ACCOUNT` deve ser o JSON completo da conta de
+serviço usada pelo GitHub Actions para publicar no Firebase Hosting. O Firebase
+CLI pode criar a conta e cadastrar o secret com:
+
+```bash
+pnpm exec firebase init hosting:github
+```
+
+Ao executar o comando, mantenha a configuração de Hosting já existente e use o
+mesmo nome de secret documentado acima no workflow.
+
 ## Status atual
 
-O projeto possui apps Web e Mobile. O app Web oferece autenticação, atividades, tarefas, lembretes, perfil, configurações de acessibilidade e persistência no Firebase.
+O HelpSenior está concluído para o escopo acadêmico atual. A versão final inclui
+os pacotes de domínio e Firebase, a aplicação Web com entrega contínua no
+Firebase Hosting e a aplicação Mobile executada pelo Expo Go.
+
+As limitações abaixo representam decisões de escopo da versão final, e não
+funcionalidades pendentes para a conclusão do projeto.
 
 ## Limitações atuais
 
@@ -283,6 +338,7 @@ O projeto possui apps Web e Mobile. O app Web oferece autenticação, atividades
 - não há Service Worker;
 - não há Firebase Cloud Messaging;
 - não há login social;
+- não há build EAS, APK/AAB ou publicação do Mobile em lojas.
 
 ## Licença
 
